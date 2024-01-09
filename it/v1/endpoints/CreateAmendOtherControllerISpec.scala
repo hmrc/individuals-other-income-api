@@ -314,7 +314,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
 
       "complex error scenario" in new NonTysTest {
 
-        val iirOtherIncomeCreateAmendErrorsRequest: JsValue = Json.parse(
+        val createAmendErrorsRequest: JsValue = Json.parse(
           """
             |{
             |   "businessReceipts":[
@@ -366,7 +366,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
             |""".stripMargin
         )
 
-        val iirOtherIncomeCreateAmendErrorsResponse: JsValue = Json.parse(
+        val createAmendErrorsResponse: JsValue = Json.parse(
           """
             {
             |    "code": "INVALID_REQUEST",
@@ -432,9 +432,9 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
             |""".stripMargin
         )
 
-        val response: WSResponse = await(request().put(iirOtherIncomeCreateAmendErrorsRequest))
+        val response: WSResponse = await(request().put(createAmendErrorsRequest))
         response.status shouldBe BAD_REQUEST
-        response.json shouldBe iirOtherIncomeCreateAmendErrorsResponse
+        response.json shouldBe createAmendErrorsResponse
       }
     }
 
