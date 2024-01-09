@@ -64,9 +64,6 @@ trait AppConfig {
   def endpointsEnabled(version: Version): Boolean
 
   def confidenceLevelConfig: ConfidenceLevelConfig
-
-  // NRS Config
-  def mtdNrsProxyBaseUrl: String
 }
 
 @Singleton
@@ -95,8 +92,6 @@ class AppConfigImpl @Inject() (config: ServicesConfig, configuration: Configurat
   val apiGatewayContext: String                    = config.getString("api.gateway.context")
   val minimumPermittedTaxYear: Int                 = config.getInt("minimumPermittedTaxYear")
   val confidenceLevelConfig: ConfidenceLevelConfig = configuration.get[ConfidenceLevelConfig](s"api.confidence-level-check")
-  // NRS Config
-  val mtdNrsProxyBaseUrl: String = config.baseUrl("mtd-api-nrs-proxy")
 
   // API Config
   def apiStatus(version: Version): String = config.getString(s"api.${version.name}.status")
