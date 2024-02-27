@@ -177,7 +177,7 @@ object InternalError           extends MtdError("INTERNAL_SERVER_ERROR", "An int
 object BadRequestError         extends MtdError("INVALID_REQUEST", "Invalid request", BAD_REQUEST)
 object BVRError                extends MtdError("BUSINESS_ERROR", "Business validation error", BAD_REQUEST)
 object ServiceUnavailableError extends MtdError("SERVICE_UNAVAILABLE", "Internal server error", INTERNAL_SERVER_ERROR)
-
+object RuleRequestCannotBeFulfilled extends MtdError("RULE_REQUEST_CANNOT_BE_FULFILLED", "Might vary depending on the actual error which can give more information to guide the endpoint consumer", BAD_REQUEST)
 // Authorisation Errors
 object ClientNotAuthenticatedError extends MtdError("CLIENT_OR_AGENT_NOT_AUTHORISED", "The client and/or agent is not authorised", UNAUTHORIZED)
 object ClientNotAuthorisedError    extends MtdError("CLIENT_OR_AGENT_NOT_AUTHORISED", "The client and/or agent is not authorised", FORBIDDEN)
