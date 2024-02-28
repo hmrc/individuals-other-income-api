@@ -34,7 +34,7 @@ trait DownstreamResponseMappingSupport {
       }
       case code => {
         logger.warn(s"[${logContext.controllerName}] [${logContext.endpointName}] - No mapping found for error code $code")
-        RuleRequestCannotBeFulfilled
+        InternalError
       }
     }
 
@@ -45,14 +45,13 @@ trait DownstreamResponseMappingSupport {
       case ResponseWrapper(correlationId, DownstreamErrors(errorCodes)) =>
         val mtdErrors = errorCodes.map(error => errorCodeMap.applyOrElse(error.code, defaultErrorCodeMapping))
 
-        if (!mtdErrors.contains(InternalError) && !mtdErrors.contains(RuleRequestCannotBeFulfilled)) {
-          ErrorWrapper(correlationId, BadRequestError, Some(mtdErrors))
-        } else {
+        if (mtdErrors.contains(InternalError)) {
           logger.warn(
             s"[${logContext.controllerName}] [${logContext.endpointName}] [CorrelationId - $correlationId]" +
               s" - downstream returned ${errorCodes.map(_.code).mkString(",")}. Revert to ISE")
-          val err = if (mtdErrors.contains(InternalError)) InternalError else RuleRequestCannotBeFulfilled
-          ErrorWrapper(correlationId, err, None)
+          ErrorWrapper(correlationId, InternalError, None)
+        } else {
+          ErrorWrapper(correlationId, BadRequestError, Some(mtdErrors))
         }
 
       case ResponseWrapper(correlationId, OutboundError(error, errors)) =>

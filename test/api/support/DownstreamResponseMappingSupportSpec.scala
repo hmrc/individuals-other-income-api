@@ -65,7 +65,7 @@ class DownstreamResponseMappingSupportSpec extends UnitSpec {
       "the error code is not in the map provided" must {
         "default to DownstreamError and wrap" in {
           mapping.mapDownstreamErrors(errorCodeMap)(ResponseWrapper(correlationId, DownstreamErrors.single(DownstreamErrorCode("UNKNOWN")))) shouldBe
-            ErrorWrapper(correlationId, RuleRequestCannotBeFulfilled)
+            ErrorWrapper(correlationId, InternalError)
         }
       }
       "ifs returns UNMATCHED_STUB_ERROR" must {
@@ -90,7 +90,7 @@ class DownstreamResponseMappingSupportSpec extends UnitSpec {
         "default main error to DownstreamError ignore other errors" in {
           mapping.mapDownstreamErrors(errorCodeMap)(
             ResponseWrapper(correlationId, DownstreamErrors(List(DownstreamErrorCode("ERR1"), DownstreamErrorCode("UNKNOWN"))))) shouldBe
-            ErrorWrapper(correlationId, RuleRequestCannotBeFulfilled)
+            ErrorWrapper(correlationId, InternalError)
         }
       }
 

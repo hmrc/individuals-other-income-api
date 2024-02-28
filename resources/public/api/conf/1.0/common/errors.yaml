@@ -395,7 +395,7 @@ components:
         code: CLIENT_OR_AGENT_NOT_AUTHORISED
         message: The client and/or agent is not authorised
 
-    # 402
+    # 404
 
     notFound:
       description: The supplied income source could not be found.
@@ -420,11 +420,3 @@ components:
       value:
         code: PPD_SUBMISSION_ID_NOT_FOUND
         message: Matching resource not found
-
-    #422
-
-    requestCannotBeFulfilled:
-      description: Might vary depending on the actual error which can give more information to guide the endpoint consumer
-      value:
-        code: RULE_REQUEST_CANNOT_BE_FULFILLED
-        message: Might vary depending on the actual error which can give more information to guide the endpoint consumer
