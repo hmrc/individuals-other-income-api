@@ -25,7 +25,6 @@ case class MtdError(code: String, message: String, httpStatus: Int, paths: Optio
   def withExtraPath(newPath: String): MtdError = paths.fold(this.copy(paths = Some(Seq(newPath)))) { existingPaths =>
     this.copy(paths = Some(existingPaths :+ newPath))
   }
-
 }
 
 object MtdError {

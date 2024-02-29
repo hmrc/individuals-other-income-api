@@ -23,7 +23,7 @@ import api.models.request.RawData
 import cats.data.EitherT
 import cats.implicits._
 import play.api.http.Status
-import play.api.libs.json.{JsValue, Writes}
+import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.Result
 import play.api.mvc.Results.InternalServerError
 import utils.Logging
@@ -109,19 +109,31 @@ object RequestHandler {
           message = s"[${ctx.endpointLogContext.controllerName}][${ctx.endpointLogContext.endpointName}] " +
             s"with correlationId : ${ctx.correlationId}")
 
-        val result =
-          for {
-            parsedRequest   <- EitherT.fromEither[Future](parser.parseRequest(rawData))
-            serviceResponse <- EitherT(service(parsedRequest))
-          } yield doWithContext(ctx.withCorrelationId(serviceResponse.correlationId)) { implicit ctx: RequestContext =>
-            handleSuccess(rawData, parsedRequest, serviceResponse)
-          }
+        val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario") match {
+          case Some(heading) => Some(heading._2)
+          case None => None
+        }
 
-        result.leftMap { errorWrapper =>
-          doWithContext(ctx.withCorrelationId(errorWrapper.correlationId)) { implicit ctx: RequestContext =>
-            handleFailure(errorWrapper)
-          }
-        }.merge
+        if(maybeGovTestScenario.contains("REQUEST_CANNOT_BE_FULFILLED")){
+          val result = Future.successful(ResultWrapper(422, Some(Json.toJson("Custom (will vary depending on the actual error)"))).asResult)
+          result
+        }else{
+          val result =
+            for {
+              parsedRequest   <- EitherT.fromEither[Future](parser.parseRequest(rawData))
+              serviceResponse <- EitherT(service(parsedRequest))
+            } yield doWithContext(ctx.withCorrelationId(serviceResponse.correlationId)) { implicit ctx: RequestContext =>
+              handleSuccess(rawData, parsedRequest, serviceResponse)
+            }
+
+          result.leftMap { errorWrapper =>
+            doWithContext(ctx.withCorrelationId(errorWrapper.correlationId)) { implicit ctx: RequestContext =>
+              handleFailure(errorWrapper)
+            }
+          }.merge
+        }
+
+
       }
 
       private def doWithContext[A](ctx: RequestContext)(f: RequestContext => A) = f(ctx)
