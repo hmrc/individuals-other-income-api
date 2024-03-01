@@ -92,9 +92,7 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
       .withService(mockService.service)
       .withPlainJsonResult(successCode)
 
-    val requestHandler = basicRequestHandler.withAuditing(auditHandler())
-    requestHandler
-    //requestHandler.handleRequest(InputRaw)
+    basicRequestHandler.withAuditing(auditHandler())
   }
 
   private def verifyAudit(correlationId: String, auditResponse: AuditResponse, params: Map[String, String], auditType: String, txName: String, requestBody: Some[JsString]): CallHandler[Future[AuditResult]] =
