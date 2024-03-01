@@ -18,6 +18,8 @@ package api.models.errors
 
 import play.api.http.Status._
 
+
+object GenericAPIError extends MtdError("RULE_REQUEST_CANNOT_BE_FULFILLED","Custom (will vary depending on the actual error)",422)
 object NinoFormatError            extends MtdError("FORMAT_NINO", "The provided NINO is invalid", BAD_REQUEST)
 object TaxYearFormatError         extends MtdError("FORMAT_TAX_YEAR", "The provided tax year is invalid", BAD_REQUEST)
 object EmploymentIdFormatError    extends MtdError("FORMAT_EMPLOYMENT_ID", "The provided employment ID is invalid", BAD_REQUEST)

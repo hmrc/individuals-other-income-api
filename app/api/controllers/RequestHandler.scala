@@ -109,14 +109,11 @@ object RequestHandler {
           message = s"[${ctx.endpointLogContext.controllerName}][${ctx.endpointLogContext.endpointName}] " +
             s"with correlationId : ${ctx.correlationId}")
 
-        val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario") match {
-          case Some(heading) => Some(heading._2)
-          case None          => None
-        }
+        val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario").map(headers => headers._2).toString
 
-        if (maybeGovTestScenario.contains("REQUEST_CANNOT_BE_FULFILLED")) {
-          val result = Future.successful(ResultWrapper(422, Some(Json.toJson("Custom (will vary depending on the actual error)"))).asResult)
-          result
+        if (maybeGovTestScenario == ("REQUEST_CANNOT_BE_FULFILLED")) {
+          Future.successful(ResultWrapper(422, Some(Json.toJson("Custom (will vary depending on the actual error)"))).asResult)
+
         } else {
           val result =
             for {
