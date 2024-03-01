@@ -183,7 +183,7 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
 
         val requestBody = Some(JsString("REQUEST BODY"))
 
-        val requestHandler = auditResult(HeaderCarrier(otherHeaders = (Seq(("Gov-Test-Scenario", "REQUEST_CANNOT_BE_FULFILLED")))), true, params, auditType, txName, requestBody)
+        val requestHandler = auditResult(HeaderCarrier(otherHeaders = Seq(("Gov-Test-Scenario", "REQUEST_CANNOT_BE_FULFILLED"))), response = true, params, auditType, txName, requestBody)
         val result = requestHandler.handleRequest(InputRaw)
 
         status(result) shouldBe 422
@@ -228,7 +228,7 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
 
             val requestBody = Some(JsString("REQUEST BODY"))
 
-            val requestHandler = auditResult(HeaderCarrier(), true, params, auditType, txName, requestBody)
+            val requestHandler = auditResult(HeaderCarrier(), response = true, params, auditType, txName, requestBody)
 
             parseRequest returns Right(Input)
             service returns Future.successful(Right(ResponseWrapper(serviceCorrelationId, Output)))
@@ -254,7 +254,7 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
 
           val requestBody = Some(JsString("REQUEST BODY"))
 
-          val requestHandler = auditResult(HeaderCarrier(), false, params, auditType, txName, requestBody)
+          val requestHandler = auditResult(HeaderCarrier(), response = false, params, auditType, txName, requestBody)
           parseRequest returns Left(ErrorWrapper(generatedCorrelationId, NinoFormatError))
 
           val result = requestHandler.handleRequest(InputRaw)
@@ -276,7 +276,7 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
 
             val requestBody = Some(JsString("REQUEST BODY"))
 
-            val requestHandler = auditResult(HeaderCarrier(), false, params, auditType, txName, requestBody)
+            val requestHandler = auditResult(HeaderCarrier(), response = false, params, auditType, txName, requestBody)
             parseRequest returns Right(Input)
             service returns Future.successful(Left(ErrorWrapper(serviceCorrelationId, NinoFormatError)))
 
@@ -311,7 +311,7 @@ trait GTSTest extends MockIdGenerator {
   private val generatedCorrelationId = "generatedCorrelationId"
   MockIdGenerator.generateCorrelationId.returns(generatedCorrelationId).anyNumberOfTimes()
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(otherHeaders = (Seq(("Gov-Test-Scenario", "REQUEST_CANNOT_BE_FULFILLED"))))
+  implicit val hc: HeaderCarrier = HeaderCarrier(otherHeaders = Seq(("Gov-Test-Scenario", "REQUEST_CANNOT_BE_FULFILLED")))
 
   implicit val endpointLogContext: EndpointLogContext =
     EndpointLogContext(controllerName = "SomeController", endpointName = "someEndpoint")
