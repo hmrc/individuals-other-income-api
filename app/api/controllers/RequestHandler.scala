@@ -111,7 +111,7 @@ object RequestHandler {
 
         val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario").map(headers => headers._2).toString
 
-        if (maybeGovTestScenario == ("REQUEST_CANNOT_BE_FULFILLED")) {
+        if (maybeGovTestScenario == "REQUEST_CANNOT_BE_FULFILLED") {
           Future.successful(ResultWrapper(422, Some(Json.toJson("Custom (will vary depending on the actual error)"))).asResult)
 
         } else {

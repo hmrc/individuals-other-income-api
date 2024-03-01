@@ -188,13 +188,13 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
         val result = requestHandler.handleRequest(InputRaw)
 
         status(result) shouldBe 422
-        contentAsJson(result) shouldBe Json.parse((
+        contentAsJson(result) shouldBe Json.parse(
           """
               |{
               |  "code":"RULE_REQUEST_CANNOT_BE_FULFILLED",
               |  "message":"Custom (will vary depending on the actual error)"
               |}
-              |""").stripMargin
+              |""".stripMargin
         )
       }
     }
@@ -214,7 +214,7 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
 
             val requestBody = Some(JsString("REQUEST BODY"))
 
-            val requestHandler = auditResult(HeaderCarrier(), false, params, auditType, txName, requestBody)
+            val requestHandler = auditResult(HeaderCarrier(), response = false, params, auditType, txName, requestBody)
             parseRequest returns Right(Input)
             service returns Future.successful(Right(ResponseWrapper(serviceCorrelationId, Output)))
             val result = requestHandler.handleRequest(InputRaw)
