@@ -111,13 +111,13 @@ object RequestHandler {
 
         val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario") match {
           case Some(heading) => Some(heading._2)
-          case None => None
+          case None          => None
         }
 
-        if(maybeGovTestScenario.contains("REQUEST_CANNOT_BE_FULFILLED")){
+        if (maybeGovTestScenario.contains("REQUEST_CANNOT_BE_FULFILLED")) {
           val result = Future.successful(ResultWrapper(422, Some(Json.toJson("Custom (will vary depending on the actual error)"))).asResult)
           result
-        }else{
+        } else {
           val result =
             for {
               parsedRequest   <- EitherT.fromEither[Future](parser.parseRequest(rawData))
@@ -132,7 +132,6 @@ object RequestHandler {
             }
           }.merge
         }
-
 
       }
 

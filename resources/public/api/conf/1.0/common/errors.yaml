@@ -424,7 +424,7 @@ components:
     #422
 
     requestCannotBeFulfilled:
-      description: Might vary depending on the actual error which can give more information to guide the endpoint consumer
+      description: Custom (will vary depending on the actual error)
       value:
         code: RULE_REQUEST_CANNOT_BE_FULFILLED
-        message: Might vary depending on the actual error which can give more information to guide the endpoint consumer
+        message: Custom (will vary depending on the actual error)
