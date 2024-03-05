@@ -24,7 +24,7 @@ import org.scalamock.handlers.CallHandler
 import play.api.libs.json.JsString
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import api.models.auth.UserDetails
-import api.models.errors.{ErrorWrapper, GenericAPIError, NinoFormatError}
+import api.models.errors.{ErrorWrapper, NinoFormatError}
 import api.models.outcomes.ResponseWrapper
 import api.models.request.RawData
 import api.services.ServiceOutcome
@@ -183,8 +183,6 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
 
         val requestHandler = auditResult(HeaderCarrier(otherHeaders = Seq(("Gov-Test-Scenario", "REQUEST_CANNOT_BE_FULFILLED"))), response = true, params, auditType, txName, requestBody)
 
-        parseRequest returns Left(ErrorWrapper(generatedCorrelationId, GenericAPIError))
-
         val result = requestHandler.handleRequest(InputRaw)
 
         status(result) shouldBe 422
@@ -192,7 +190,7 @@ class RequestHandlerSpec extends UnitSpec with MockAuditService with MockIdGener
           """
               |{
               |  "code":"RULE_REQUEST_CANNOT_BE_FULFILLED",
-              |  "message":"Custom (will vary depending on the actual error)"
+              |  "message":"Custom (will vary in production depending on the actual error)"
               |}
               |""".stripMargin
         )

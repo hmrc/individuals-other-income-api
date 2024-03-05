@@ -17,13 +17,13 @@
 package api.controllers
 
 import api.controllers.requestParsers.RequestParser
-import api.models.errors.{ErrorWrapper, InternalError}
+import api.models.errors.{ErrorWrapper, InternalError, RuleRequestCannotBeFulfilled}
 import api.models.outcomes.ResponseWrapper
 import api.models.request.RawData
 import cats.data.EitherT
 import cats.implicits._
 import play.api.http.Status
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc.Result
 import play.api.mvc.Results.InternalServerError
 import utils.Logging
@@ -109,11 +109,12 @@ object RequestHandler {
           message = s"[${ctx.endpointLogContext.controllerName}][${ctx.endpointLogContext.endpointName}] " +
             s"with correlationId : ${ctx.correlationId}")
 
-        val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario").map(headers => headers._2).toString
-
+        val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario").map(headers => headers._2).getOrElse("")
         if (maybeGovTestScenario == "REQUEST_CANNOT_BE_FULFILLED") {
-          Future.successful(ResultWrapper(422, Some(Json.toJson("Custom (will vary depending on the actual error)"))).asResult)
-
+          val errorWrapper = ErrorWrapper(ctx.correlationId, RuleRequestCannotBeFulfilled)
+          Future.successful(doWithContext(ctx.withCorrelationId(errorWrapper.correlationId)) { implicit ctx: RequestContext =>
+            handleFailure(errorWrapper)
+          })
         } else {
           val result =
             for {
