@@ -18,8 +18,6 @@ package api.models.errors
 
 import play.api.http.Status._
 
-
-object GenericAPIError extends MtdError("RULE_REQUEST_CANNOT_BE_FULFILLED","Custom (will vary depending on the actual error)",422)
 object NinoFormatError            extends MtdError("FORMAT_NINO", "The provided NINO is invalid", BAD_REQUEST)
 object TaxYearFormatError         extends MtdError("FORMAT_TAX_YEAR", "The provided tax year is invalid", BAD_REQUEST)
 object EmploymentIdFormatError    extends MtdError("FORMAT_EMPLOYMENT_ID", "The provided employment ID is invalid", BAD_REQUEST)
@@ -41,8 +39,9 @@ object SF74RefFormatError      extends MtdError("FORMAT_SF74_REF", "The provided
 object EmployerNameFormatError extends MtdError("FORMAT_EMPLOYER_NAME", "The provided employer name is invalid", BAD_REQUEST)
 object EmployerRefFormatError  extends MtdError("FORMAT_EMPLOYER_REF", "The provided employer ref is invalid", BAD_REQUEST)
 object DateFormatError         extends MtdError("FORMAT_DATE", "The field should be in the format YYYY-MM-DD", BAD_REQUEST)
+
 object RuleDateRangeInvalidError
-  extends MtdError("RULE_DATE_RANGE_INVALID", "The date specified does not lie within the supported range", BAD_REQUEST)
+    extends MtdError("RULE_DATE_RANGE_INVALID", "The date specified does not lie within the supported range", BAD_REQUEST)
 
 object ClassOfSharesAwardedFormatError
     extends MtdError("FORMAT_CLASS_OF_SHARES_AWARDED", "The provided class of shares awarded is invalid", BAD_REQUEST)
@@ -166,6 +165,8 @@ object RuleMissingOffPayrollWorker extends MtdError("MISSING_OFF_PAYROLL_WORKER"
 
 object RuleUnalignedCessationTaxYear
     extends MtdError("RULE_UNALIGNED_CESSATION_TAX_YEAR", "The tax year provided must be the same as the tax year of income to be taxed", BAD_REQUEST)
+
+object RuleRequestCannotBeFulfilled extends MtdError("RULE_REQUEST_CANNOT_BE_FULFILLED", "Custom (will vary in production depending on the actual error)", 422)
 
 //Stub errors
 object RuleIncorrectGovTestScenarioError extends MtdError("RULE_INCORRECT_GOV_TEST_SCENARIO", "The Gov-Test-Scenario was not found", BAD_REQUEST)
