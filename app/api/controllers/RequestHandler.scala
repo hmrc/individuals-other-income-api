@@ -103,33 +103,32 @@ object RequestHandler {
 
       }
 
+      def subHandleRequest(rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], ec: ExecutionContext) : Future[Result] = {
+
+      }
+
       def handleRequest(rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], ec: ExecutionContext): Future[Result] = {
 
         logger.info(
           message = s"[${ctx.endpointLogContext.controllerName}][${ctx.endpointLogContext.endpointName}] " +
             s"with correlationId : ${ctx.correlationId}")
 
-        val maybeGovTestScenario = ctx.hc.otherHeaders.find(header => header._1 == "Gov-Test-Scenario").map(headers => headers._2).getOrElse("")
-        if (maybeGovTestScenario == "REQUEST_CANNOT_BE_FULFILLED") {
-          val errorWrapper = ErrorWrapper(ctx.correlationId, RuleRequestCannotBeFulfilled)
-          Future.successful(doWithContext(ctx.withCorrelationId(errorWrapper.correlationId)) { implicit ctx: RequestContext =>
-            handleFailure(errorWrapper)
-          })
+        val maybeGovTestScenario = ctx.hc.otherHeaders.contains("Gov-Test-Scenario" -> "REQUEST_CANNOT_BE_FULFILLED")
+        val result = if (maybeGovTestScenario) {
+          EitherT[Future, ErrorWrapper, Result](Future.successful(Left(ErrorWrapper(ctx.correlationId, RuleRequestCannotBeFulfilled))))
         } else {
-          val result =
             for {
               parsedRequest   <- EitherT.fromEither[Future](parser.parseRequest(rawData))
               serviceResponse <- EitherT(service(parsedRequest))
             } yield doWithContext(ctx.withCorrelationId(serviceResponse.correlationId)) { implicit ctx: RequestContext =>
               handleSuccess(rawData, parsedRequest, serviceResponse)
             }
-
-          result.leftMap { errorWrapper =>
-            doWithContext(ctx.withCorrelationId(errorWrapper.correlationId)) { implicit ctx: RequestContext =>
-              handleFailure(errorWrapper)
-            }
-          }.merge
         }
+        result.leftMap { errorWrapper =>
+          doWithContext(ctx.withCorrelationId(errorWrapper.correlationId)) { implicit ctx: RequestContext =>
+            handleFailure(errorWrapper)
+          }
+        }.merge
 
       }
 
