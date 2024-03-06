@@ -103,10 +103,6 @@ object RequestHandler {
 
       }
 
-      def subHandleRequest(rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], ec: ExecutionContext) : Future[Result] = {
-
-      }
-
       def handleRequest(rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], ec: ExecutionContext): Future[Result] = {
 
         logger.info(
