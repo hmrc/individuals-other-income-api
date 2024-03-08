@@ -20,6 +20,7 @@ import api.controllers.{ControllerBaseSpec, ControllerTestRunner}
 import api.models.domain.{Nino, TaxYear, Timestamp}
 import api.models.errors._
 import api.models.outcomes.ResponseWrapper
+import mocks.MockAppConfig
 import play.api.mvc.Result
 import v1.fixtures.RetrieveOtherControllerFixture.fullRetrieveOtherResponse
 import v1.mocks.requestParsers.MockRetrieveOtherRequestParser
@@ -34,7 +35,8 @@ class RetrieveOtherControllerSpec
     extends ControllerBaseSpec
     with ControllerTestRunner
     with MockRetrieveOtherService
-    with MockRetrieveOtherRequestParser {
+    with MockRetrieveOtherRequestParser
+    with MockAppConfig {
 
   val taxYear: String = "2019-20"
 
@@ -48,7 +50,7 @@ class RetrieveOtherControllerSpec
     taxYear = TaxYear.fromMtd(taxYear)
   )
 
-  private val postCessationReceiptsItemModel = Seq(
+  private val postCessationReceiptsItemModel = List(
     PostCessationReceiptsItem(
       customerReference = Some("String"),
       businessName = Some("LsMBEqEWnG9j,9JP9RpgkGmIcF2I30.NpxZRtgN3zA7-b8h-LvHvApdJtpY"),
@@ -60,7 +62,7 @@ class RetrieveOtherControllerSpec
     )
   )
 
-  private val businessReceiptsItemModel = Seq(
+  private val businessReceiptsItemModel = List(
     BusinessReceiptsItem(
       grossAmount = 5000.99,
       taxYear = "2018-19"
@@ -71,7 +73,7 @@ class RetrieveOtherControllerSpec
     )
   )
 
-  private val allOtherIncomeReceivedWhilstAbroadItemModel = Seq(
+  private val allOtherIncomeReceivedWhilstAbroadItemModel = List(
     AllOtherIncomeReceivedWhilstAbroadItem(
       countryCode = "FRA",
       amountBeforeTax = Some(1999.99),

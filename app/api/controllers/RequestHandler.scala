@@ -22,6 +22,7 @@ import api.models.outcomes.ResponseWrapper
 import api.models.request.RawData
 import cats.data.EitherT
 import cats.implicits._
+import config.AppConfig
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc.Result
@@ -32,7 +33,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait RequestHandler[InputRaw <: RawData] {
 
-  def handleRequest(rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], ec: ExecutionContext): Future[Result]
+  def handleRequest(
+      rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], appConfig: AppConfig, ec: ExecutionContext): Future[Result]
 
 }
 
@@ -58,7 +60,8 @@ object RequestHandler {
       auditHandler: Option[AuditHandler] = None
   ) extends RequestHandler[InputRaw] {
 
-    def handleRequest(rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], ec: ExecutionContext): Future[Result] =
+    def handleRequest(
+        rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], appConfig: AppConfig, ec: ExecutionContext): Future[Result] =
       Delegate.handleRequest(rawData)
 
     def withResultCreator(resultCreator: ResultCreator[InputRaw, Input, Output]): RequestHandlerBuilder[InputRaw, Input, Output] =
@@ -103,23 +106,27 @@ object RequestHandler {
 
       }
 
-      def handleRequest(rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], ec: ExecutionContext): Future[Result] = {
+      def handleRequest(
+          rawData: InputRaw)(implicit ctx: RequestContext, request: UserRequest[_], appConfig: AppConfig, ec: ExecutionContext): Future[Result] = {
 
         logger.info(
           message = s"[${ctx.endpointLogContext.controllerName}][${ctx.endpointLogContext.endpointName}] " +
             s"with correlationId : ${ctx.correlationId}")
 
-        val maybeGovTestScenario = ctx.hc.otherHeaders.contains("Gov-Test-Scenario" -> "REQUEST_CANNOT_BE_FULFILLED")
+        val maybeGovTestScenario =
+          ctx.hc.otherHeaders.contains("Gov-Test-Scenario" -> "REQUEST_CANNOT_BE_FULFILLED") && appConfig.allowRequestCannotBeFulfilledHeader
+
         val result = if (maybeGovTestScenario) {
           EitherT[Future, ErrorWrapper, Result](Future.successful(Left(ErrorWrapper(ctx.correlationId, RuleRequestCannotBeFulfilled))))
         } else {
-            for {
-              parsedRequest   <- EitherT.fromEither[Future](parser.parseRequest(rawData))
-              serviceResponse <- EitherT(service(parsedRequest))
-            } yield doWithContext(ctx.withCorrelationId(serviceResponse.correlationId)) { implicit ctx: RequestContext =>
-              handleSuccess(rawData, parsedRequest, serviceResponse)
-            }
+          for {
+            parsedRequest   <- EitherT.fromEither[Future](parser.parseRequest(rawData))
+            serviceResponse <- EitherT(service(parsedRequest))
+          } yield doWithContext(ctx.withCorrelationId(serviceResponse.correlationId)) { implicit ctx: RequestContext =>
+            handleSuccess(rawData, parsedRequest, serviceResponse)
+          }
         }
+
         result.leftMap { errorWrapper =>
           doWithContext(ctx.withCorrelationId(errorWrapper.correlationId)) { implicit ctx: RequestContext =>
             handleFailure(errorWrapper)
