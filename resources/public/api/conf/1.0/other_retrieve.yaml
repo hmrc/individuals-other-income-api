@@ -11,7 +11,8 @@ description: |
   | Header Value (Gov-Test-Scenario) | Scenario                                                                                                                        |
   | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
   | N/A - DEFAULT                    | Simulates success response.                                                                                                     |
-  | NOT FOUND                        | Simulates the scenario where no data is found                                                                                   |
+  | NOT FOUND                        | Simulates the scenario where no data is found.                                                                                  |
+  | REQUEST_CANNOT_BE_FULFILLED      | Simulates the scenario where the request could not be processed.                                                                |
   | DYNAMIC                          | The following response values will change to correspond to the values submitted in the request:<br> • taxYear<br> • submittedOn |
   | STATEFUL                         | Performs a stateful retrieve.                                                                                                   |
 
