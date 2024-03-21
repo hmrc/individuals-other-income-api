@@ -65,7 +65,7 @@ trait AppConfig {
 
   def confidenceLevelConfig: ConfidenceLevelConfig
 
-  def allowRequestCannotBeFulfilledHeader: Boolean
+  def allowRequestCannotBeFulfilledHeader(version: Version): Boolean
 }
 
 @Singleton
@@ -95,7 +95,8 @@ class AppConfigImpl @Inject() (config: ServicesConfig, configuration: Configurat
   val minimumPermittedTaxYear: Int                 = config.getInt("minimumPermittedTaxYear")
   val confidenceLevelConfig: ConfidenceLevelConfig = configuration.get[ConfidenceLevelConfig](s"api.confidence-level-check")
 
-  val allowRequestCannotBeFulfilledHeader: Boolean = config.getBoolean("allow-request-cannot-be-fulfilled-header")
+  def allowRequestCannotBeFulfilledHeader(version: Version): Boolean =
+    config.getBoolean(s"api.$version.endpoints.allow-request-cannot-be-fulfilled-header")
 
   // API Config
   def apiStatus(version: Version): String = config.getString(s"api.${version.name}.status")

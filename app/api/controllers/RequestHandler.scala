@@ -27,6 +27,7 @@ import play.api.http.Status
 import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc.Result
 import play.api.mvc.Results.InternalServerError
+import routing.Version
 import utils.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -113,10 +114,7 @@ object RequestHandler {
           message = s"[${ctx.endpointLogContext.controllerName}][${ctx.endpointLogContext.endpointName}] " +
             s"with correlationId : ${ctx.correlationId}")
 
-        val maybeGovTestScenario =
-          ctx.hc.otherHeaders.contains("Gov-Test-Scenario" -> "REQUEST_CANNOT_BE_FULFILLED") && appConfig.allowRequestCannotBeFulfilledHeader
-
-        val result = if (maybeGovTestScenario) {
+        val result = if (simulateRequestCannotBeFulfilled) {
           EitherT[Future, ErrorWrapper, Result](Future.successful(Left(ErrorWrapper(ctx.correlationId, RuleRequestCannotBeFulfilled))))
         } else {
           for {
@@ -132,8 +130,11 @@ object RequestHandler {
             handleFailure(errorWrapper)
           }
         }.merge
-
       }
+
+      private def simulateRequestCannotBeFulfilled(implicit request: UserRequest[_], appConfig: AppConfig): Boolean =
+        request.headers.get("Gov-Test-Scenario").contains("REQUEST_CANNOT_BE_FULFILLED") &&
+          appConfig.allowRequestCannotBeFulfilledHeader(Version(request))
 
       private def doWithContext[A](ctx: RequestContext)(f: RequestContext => A) = f(ctx)
 

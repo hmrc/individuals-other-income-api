@@ -17,7 +17,7 @@
 package mocks
 
 import config.{AppConfig, ConfidenceLevelConfig}
-import org.scalamock.handlers.{CallHandler, CallHandler0}
+import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import play.api.Configuration
 import routing.Version
@@ -56,7 +56,8 @@ trait MockAppConfig extends MockFactory {
     def confidenceLevelCheckEnabled: CallHandler[ConfidenceLevelConfig] =
       (() => mockAppConfig.confidenceLevelConfig).expects()
 
-    def allowRequestCannotBeFulfilledHeader: CallHandler0[Boolean] = (() => mockAppConfig.allowRequestCannotBeFulfilledHeader: Boolean).expects()
+    def allowRequestCannotBeFulfilledHeader(version: Version): CallHandler[Boolean] =
+      (mockAppConfig.allowRequestCannotBeFulfilledHeader: Version => Boolean).expects(version)
 
   }
 
