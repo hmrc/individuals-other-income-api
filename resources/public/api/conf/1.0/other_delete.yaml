@@ -1,5 +1,4 @@
-summary:
-  Delete Other Income
+summary: Delete Other Income [Test only]
 description: |
   This endpoint allows the developer to delete other income:
   business receipts, all other income received whilst abroad, overseas income and gains, chargeable foreign benefits and gifts and omitted foreign income.
