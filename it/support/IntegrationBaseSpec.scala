@@ -16,8 +16,8 @@
 
 package support
 
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.{DateTime, DateTimeZone}
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -74,11 +74,11 @@ trait IntegrationBaseSpec extends UnitSpec with WireMockHelper with GuiceOneServ
   def document(response: WSResponse): JsValue = Json.parse(response.body)
 
   def getCurrentTaxYear: String = {
-    val currentDate = DateTime.now(DateTimeZone.UTC)
+    val currentDate = LocalDateTime.now()
 
-    val taxYearStartDate: DateTime = DateTime.parse(
+    val taxYearStartDate: LocalDateTime = LocalDateTime.parse(
       s"${currentDate.getYear}-04-06",
-      DateTimeFormat.forPattern("yyyy-MM-dd")
+      DateTimeFormatter.ISO_DATE
     )
 
     def fromDesIntToString(taxYear: Int): String = s"${taxYear - 1}-${taxYear.toString.drop(2)}"
