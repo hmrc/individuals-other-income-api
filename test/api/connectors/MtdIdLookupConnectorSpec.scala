@@ -16,6 +16,7 @@
 
 package api.connectors
 
+import api.connectors.MtdIdLookupConnector.Outcome
 import api.mocks.MockHttpClient
 import mocks.MockAppConfig
 
@@ -42,8 +43,9 @@ class MtdIdLookupConnectorSpec extends ConnectorSpec {
         MockedHttpClient
           .get[MtdIdLookupConnector.Outcome](s"$baseUrl/mtd-identifier-lookup/nino/$nino", config = dummyDesHeaderCarrierConfig)
           .returns(Future.successful(Right(mtdId)))
+        val result: Outcome = await(connector.getMtdId(nino))
 
-        await(connector.getMtdId(nino)) shouldBe Right(mtdId)
+        result shouldBe Right(mtdId)
       }
     }
 
@@ -54,8 +56,9 @@ class MtdIdLookupConnectorSpec extends ConnectorSpec {
         MockedHttpClient
           .get[MtdIdLookupConnector.Outcome](s"$baseUrl/mtd-identifier-lookup/nino/$nino", config = dummyDesHeaderCarrierConfig)
           .returns(Future.successful(Left(MtdIdLookupConnector.Error(statusCode))))
+        val result: Outcome = await(connector.getMtdId(nino))
 
-        await(connector.getMtdId(nino)) shouldBe Left(MtdIdLookupConnector.Error(statusCode))
+        result shouldBe Left(MtdIdLookupConnector.Error(statusCode))
       }
     }
   }
