@@ -40,13 +40,13 @@ class FeatureSwitchesImpl(featureSwitchConfig: Configuration) extends FeatureSwi
   @Inject
   def this(appConfig: AppConfig) = this(appConfig.featureSwitches)
 
-  val isPostCessationReceiptsEnabled: Boolean       = isEnabled("postCessationReceipts.enabled")
-  val isPassDeleteIntentEnabled: Boolean            = isEnabled("passDeleteIntentHeader.enabled")
-  val isOpwEnabled: Boolean                         = isEnabled("opw.enabled")
-  val supportingAgentsAccessControlEnabled: Boolean = isEnabled("supporting-agents-access-control")
+  val isPostCessationReceiptsEnabled: Boolean       = isEnabled("postCessationReceipts")
+  val isPassDeleteIntentEnabled: Boolean            = isEnabled("passDeleteIntentHeader")
+  val isOpwEnabled: Boolean                         = isEnabled("opw")
+  val supportingAgentsAccessControlEnabled: Boolean = isEnabled("supporting-agents-access-control.enabled")
 
   def isTemporalValidationEnabled(implicit request: Request[_]): Boolean = {
-    if (isEnabled("allowTemporalValidationSuspension.enabled")) {
+    if (isEnabled("allowTemporalValidationSuspension")) {
       request.headers.get("suspend-temporal-validations").forall(!BooleanUtils.toBoolean(_))
     } else {
       true
