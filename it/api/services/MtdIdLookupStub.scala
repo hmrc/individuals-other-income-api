@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package api.stubs
+package api.services
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status.OK
@@ -25,12 +25,14 @@ object MtdIdLookupStub extends WireMockMethods {
 
   private def lookupUrl(nino: String): String = s"/mtd-identifier-lookup/nino/$nino"
 
-  def ninoFound(nino: String): StubMapping =
+  def ninoFound(nino: String): StubMapping = {
     when(method = GET, uri = lookupUrl(nino))
-      .thenReturn(status = OK, body = Json.obj("mtdbsa" -> "12345678"))
+      .thenReturn(status = OK, body = Json.obj("mtdbsa" -> "1234567890"))
+  }
 
-  def error(nino: String, status: Int): StubMapping =
+  def error(nino: String, status: Int): StubMapping = {
     when(method = GET, uri = lookupUrl(nino))
       .thenReturn(status, body = Json.obj())
+  }
 
 }

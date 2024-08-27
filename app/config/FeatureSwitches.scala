@@ -30,6 +30,8 @@ trait FeatureSwitches {
   def isPassDeleteIntentEnabled: Boolean
   def isTemporalValidationEnabled(implicit request: Request[_]): Boolean
   def isOpwEnabled: Boolean
+  def supportingAgentsAccessControlEnabled: Boolean
+
 }
 
 @Singleton
@@ -38,9 +40,10 @@ class FeatureSwitchesImpl(featureSwitchConfig: Configuration) extends FeatureSwi
   @Inject
   def this(appConfig: AppConfig) = this(appConfig.featureSwitches)
 
-  val isPostCessationReceiptsEnabled: Boolean = isEnabled("postCessationReceipts.enabled")
-  val isPassDeleteIntentEnabled: Boolean      = isEnabled("passDeleteIntentHeader.enabled")
-  val isOpwEnabled: Boolean                   = isEnabled("opw.enabled")
+  val isPostCessationReceiptsEnabled: Boolean       = isEnabled("postCessationReceipts.enabled")
+  val isPassDeleteIntentEnabled: Boolean            = isEnabled("passDeleteIntentHeader.enabled")
+  val isOpwEnabled: Boolean                         = isEnabled("opw.enabled")
+  val supportingAgentsAccessControlEnabled: Boolean = isEnabled("supporting-agents-access-control")
 
   def isTemporalValidationEnabled(implicit request: Request[_]): Boolean = {
     if (isEnabled("allowTemporalValidationSuspension.enabled")) {
@@ -50,9 +53,15 @@ class FeatureSwitchesImpl(featureSwitchConfig: Configuration) extends FeatureSwi
     }
   }
 
-  private def isEnabled(key: String): Boolean = featureSwitchConfig.getOptional[Boolean](key).getOrElse(true)
+  //private def isEnabled(key: String): Boolean = featureSwitchConfig.getOptional[Boolean](key).getOrElse(true)
+
+  def isEnabled(key: String): Boolean = isConfigTrue(key + ".enabled")
+
+  private def isConfigTrue(key: String): Boolean = featureSwitchConfig.getOptional[Boolean](key).getOrElse(true)
 }
 
 object FeatureSwitches {
   def apply(configuration: Configuration): FeatureSwitches = new FeatureSwitchesImpl(configuration)
+
+  def apply(appConfig: AppConfig): FeatureSwitches = new FeatureSwitchesImpl(appConfig)
 }

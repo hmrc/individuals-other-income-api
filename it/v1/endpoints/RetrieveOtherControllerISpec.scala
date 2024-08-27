@@ -17,7 +17,7 @@
 package v1.endpoints
 
 import api.models.errors._
-import api.stubs.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
+import api.services.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status._
@@ -152,6 +152,7 @@ class RetrieveOtherControllerISpec extends IntegrationBaseSpec {
     def setupStubs(): StubMapping
 
     def request: WSRequest = {
+      AuthStub.resetAll()
       setupStubs()
       buildRequest(mtdUri)
         .withHttpHeaders(
