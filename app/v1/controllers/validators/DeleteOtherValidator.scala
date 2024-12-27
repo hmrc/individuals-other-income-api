@@ -16,17 +16,17 @@
 
 package v1.controllers.validators
 
-import api.controllers.validators.Validator
-import api.controllers.validators.resolvers._
-import api.models.errors.MtdError
 import cats.data.Validated
 import cats.implicits._
-import config.AppConfig
+import shared.controllers.validators.Validator
+import shared.controllers.validators.resolvers._
+import shared.models.domain.TaxYear
+import shared.models.errors.MtdError
 import v1.models.request.deleteOther.DeleteOtherRequest
 
 
-class DeleteOtherValidator(nino: String, taxYear: String, appConfig: AppConfig) extends Validator[DeleteOtherRequest] {
-  private val resolveTaxYear = ResolveTaxYearMinimum(appConfig.minimumPermittedTaxYear)
+class DeleteOtherValidator(nino: String, taxYear: String) extends Validator[DeleteOtherRequest] {
+  private val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.fromMtd("2019-20"))
 
   override def validate: Validated[Seq[MtdError], DeleteOtherRequest] =
     (

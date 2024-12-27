@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package v1.models.request.retrieveOther
+package config
 
-import shared.models.domain.{Nino, TaxYear}
+import play.api.Configuration
+import shared.config.{FeatureSwitches, SharedAppConfig}
 
-case class RetrieveOtherRequest(nino: Nino, taxYear: TaxYear)
+case class OtherIncomeFeatureSwitches private(protected val featureSwitchConfig: Configuration) extends FeatureSwitches {
+
+  val isPostCessationReceiptsEnabled: Boolean = isEnabled("postCessationReceipts")
+}
+
+object OtherIncomeFeatureSwitches {
+  def apply()(implicit appConfig: SharedAppConfig): OtherIncomeFeatureSwitches = OtherIncomeFeatureSwitches(appConfig.featureSwitchConfig)
+}

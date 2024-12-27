@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
-package v1.models.request.retrieveOther
+package routing
 
-import shared.models.domain.{Nino, TaxYear}
+import play.api.routing.Router
+import shared.config.SharedAppConfig
+import shared.routing._
 
-case class RetrieveOtherRequest(nino: Nino, taxYear: TaxYear)
+import javax.inject.{Inject, Singleton}
+
+@Singleton case class OtherIncomeVersionRoutingMap @Inject() (appConfig: SharedAppConfig, defaultRouter: Router, v1Router: v1.Routes)
+    extends VersionRoutingMap {
+
+  /** Routes corresponding to available versions.
+    */
+  val map: Map[Version, Router] = Map(
+    Version1 -> v1Router
+  )
+
+}

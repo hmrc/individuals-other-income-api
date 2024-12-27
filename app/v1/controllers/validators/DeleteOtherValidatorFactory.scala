@@ -16,16 +16,15 @@
 
 package v1.controllers.validators
 
-import api.controllers.validators.Validator
-import config.AppConfig
+import shared.controllers.validators.Validator
 import v1.models.request.deleteOther.DeleteOtherRequest
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class DeleteOtherValidatorFactory @Inject() (appConfig: AppConfig) {
+class DeleteOtherValidatorFactory @Inject() {
 
   def validator(nino: String, taxYear: String): Validator[DeleteOtherRequest] =
-    new DeleteOtherValidator(nino, taxYear, appConfig)
+    new DeleteOtherValidator(nino, taxYear)
 
 }

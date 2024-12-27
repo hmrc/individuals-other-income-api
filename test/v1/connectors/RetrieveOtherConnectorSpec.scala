@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package v1.connectors
 
-import api.connectors.{ConnectorSpec, DownstreamOutcome}
-import api.models.domain.{Nino, TaxYear, Timestamp}
-import api.models.outcomes.ResponseWrapper
 import org.scalamock.handlers.CallHandler
+import shared.connectors.{ConnectorSpec, DownstreamOutcome}
+import shared.models.domain.{Nino, TaxYear, Timestamp}
+import shared.models.outcomes.ResponseWrapper
 import v1.models.request.retrieveOther.RetrieveOtherRequest
 import v1.models.response.retrieveOther.RetrieveOtherResponse
 
@@ -74,7 +74,7 @@ class RetrieveOtherConnectorSpec extends ConnectorSpec {
     )
 
     val connector: RetrieveOtherConnector =
-      new RetrieveOtherConnector(http = mockHttpClient, appConfig = mockAppConfig)
+      new RetrieveOtherConnector(http = mockHttpClient, appConfig = mockSharedAppConfig)
 
     protected def stubHttpResponse(
         outcome: DownstreamOutcome[RetrieveOtherResponse]): CallHandler[Future[DownstreamOutcome[RetrieveOtherResponse]]]#Derived = {

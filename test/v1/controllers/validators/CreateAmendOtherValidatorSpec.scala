@@ -16,17 +16,16 @@
 
 package v1.controllers.validators
 
-import api.models.domain.{Nino, TaxYear}
-import api.models.errors._
-import api.models.utils.JsonErrorValidators
-import config.AppConfig
-import mocks.MockAppConfig
 import play.api.libs.json._
-import support.UnitSpec
+import shared.config.{MockSharedAppConfig, SharedAppConfig}
+import shared.models.domain.{Nino, TaxYear}
+import shared.models.errors._
+import shared.models.utils.JsonErrorValidators
+import shared.utils.UnitSpec
 import v1.fixtures.other.CreateAmendOtherFixtures._
 import v1.models.request.createAmendOther.CreateAmendOtherRequest
 
-class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
+class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockSharedAppConfig {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino                      = "AA123456A"
@@ -37,16 +36,15 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
   private val validRequestBodyJson: JsValue = requestBodyWithPCRJson
 
-  class Test extends MockAppConfig {
+  class Test extends MockSharedAppConfig {
 
-    implicit val appConfig: AppConfig = mockAppConfig
+    implicit val appConfig: SharedAppConfig = mockSharedAppConfig
 
     def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue): Either[ErrorWrapper, CreateAmendOtherRequest] =
-      new CreateAmendOtherValidator(nino, taxYear, body, appConfig).validateAndWrapResult()
+      new CreateAmendOtherValidator(nino, taxYear, body).validateAndWrapResult()
 
     def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
 
-    MockedAppConfig.minimumPermittedTaxYear returns TaxYear.ending(2020)
   }
 
   private def expectValueFormatError(body: JsNumber => JsValue, expectedPath: String): Unit = s"for $expectedPath" when {
@@ -194,7 +192,7 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
       "return CountryCodeRuleError error" when {
         "an invalid country code is submitted" in new Test {
           validate(body = body(allOtherIncomeReceivedWhilstAbroadJson.update("countryCode", JsString("PUR")))) shouldBe
-            singleError(CountryCodeRuleError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"))
+            singleError(RuleCountryCodeError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"))
         }
       }
 

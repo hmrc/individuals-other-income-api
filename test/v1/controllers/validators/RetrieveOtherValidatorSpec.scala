@@ -16,15 +16,14 @@
 
 package v1.controllers.validators
 
-import api.models.domain.{Nino, TaxYear}
-import api.models.errors._
-import api.models.utils.JsonErrorValidators
-import config.AppConfig
-import mocks.MockAppConfig
-import support.UnitSpec
+import shared.config.{MockSharedAppConfig, SharedAppConfig}
+import shared.models.domain.{Nino, TaxYear}
+import shared.models.errors._
+import shared.models.utils.JsonErrorValidators
+import shared.utils.UnitSpec
 import v1.models.request.retrieveOther.RetrieveOtherRequest
 
-class RetrieveOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
+class RetrieveOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockSharedAppConfig {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino = "AA123456A"
@@ -33,16 +32,15 @@ class RetrieveOtherValidatorSpec extends UnitSpec with JsonErrorValidators with 
   private val parsedNino = Nino(validNino)
   private val parsedTaxYear = TaxYear.fromMtd(validTaxYear)
 
-  class Test extends MockAppConfig {
+  class Test extends MockSharedAppConfig {
 
-    implicit val appConfig: AppConfig = mockAppConfig
+    implicit val appConfig: SharedAppConfig = mockSharedAppConfig
 
     def validate(nino: String, taxYear: String): Either[ErrorWrapper, RetrieveOtherRequest] =
-      new RetrieveOtherValidator(nino, taxYear, appConfig).validateAndWrapResult()
+      new RetrieveOtherValidator(nino, taxYear).validateAndWrapResult()
 
     def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
 
-    MockedAppConfig.minimumPermittedTaxYear returns TaxYear.ending(2020)
   }
 
   "running a validation" should {

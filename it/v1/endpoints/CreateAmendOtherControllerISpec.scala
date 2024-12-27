@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 package v1.endpoints
 
-import api.models.errors
-import api.models.errors._
-import api.services.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
+import common.RuleUnalignedCessationTaxYear
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSRequest, WSResponse}
 import play.api.test.Helpers.AUTHORIZATION
-import support.IntegrationBaseSpec
+import shared.models.errors
+import shared.models.errors._
+import shared.services.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
+import shared.support.IntegrationBaseSpec
 import v1.fixtures.other.CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
 
 class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
@@ -293,7 +294,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
                 "/omittedForeignIncome/amount"
               ))
           ),
-          CountryCodeRuleError.copy(
+          RuleCountryCodeError.copy(
             paths = Some(List("/allOtherIncomeReceivedWhilstAbroad/1/countryCode"))
           ),
           RuleTaxYearRangeInvalidError.copy(
@@ -373,14 +374,14 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
             |    "errors": [
             |        {
             |            "code": "FORMAT_COUNTRY_CODE",
-            |            "message": "The format of the country code is invalid",
+            |            "message": "The provided Country code is invalid",
             |            "paths": [
             |                "/allOtherIncomeReceivedWhilstAbroad/0/countryCode"
             |            ]
             |        },
             |        {
             |            "code": "FORMAT_TAX_YEAR",
-            |            "message": "The provided tax year is invalid",
+            |            "message": "The taxYear format is invalid",
             |            "paths": [
             |                "/businessReceipts/0/taxYear"
             |            ]
@@ -421,7 +422,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
             |        },
             |        {
             |            "code": "RULE_TAX_YEAR_RANGE_INVALID",
-            |            "message": "Tax year range invalid. A tax year range of one year is required",
+            |            "message": "A tax year range of one year is required",
             |            "paths": [
             |                "/businessReceipts/1/taxYear"
             |            ]
@@ -638,7 +639,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
           ))
       )
 
-      val countryCodeRuleError: MtdError = CountryCodeRuleError.copy(
+      val countryCodeRuleError: MtdError = RuleCountryCodeError.copy(
         paths = Some(
           Seq(
             "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",

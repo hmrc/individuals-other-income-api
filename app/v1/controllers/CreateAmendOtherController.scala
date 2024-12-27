@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package v1.controllers
 
-import api.controllers._
-import api.services.{AuditService, EnrolmentsAuthService, MtdIdLookupService}
-import config.AppConfig
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, ControllerComponents}
-import utils.IdGenerator
+import shared.config.SharedAppConfig
+import shared.controllers._
+import shared.routing.Version1
+import shared.services.{AuditService, EnrolmentsAuthService, MtdIdLookupService}
+import shared.utils.IdGenerator
 import v1.controllers.validators.CreateAmendOtherValidatorFactory
 import v1.services.CreateAmendOtherService
 
@@ -35,7 +36,7 @@ class CreateAmendOtherController @Inject() (val authService: EnrolmentsAuthServi
                                             service: CreateAmendOtherService,
                                             auditService: AuditService,
                                             cc: ControllerComponents,
-                                            val idGenerator: IdGenerator)(implicit ec: ExecutionContext, appConfig: AppConfig)
+                                            val idGenerator: IdGenerator)(implicit ec: ExecutionContext, appConfig: SharedAppConfig)
     extends AuthorisedController(cc) {
 
   val endpointName = "create-amend-other"
@@ -59,6 +60,7 @@ class CreateAmendOtherController @Inject() (val authService: EnrolmentsAuthServi
           auditService = auditService,
           auditType = "CreateAmendOtherIncome",
           transactionName = "create-amend-other-income",
+          apiVersion = Version1,
           params = Map("nino" -> nino, "taxYear" -> taxYear),
           requestBody = Some(request.body),
           includeResponse = true

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package v1.services
 
-import api.controllers.RequestContext
-import api.models.errors._
-import api.services.{BaseService, ServiceOutcome}
 import cats.implicits._
-import config.{AppConfig, FeatureSwitches}
+import common.RuleUnalignedCessationTaxYear
+import config.OtherIncomeFeatureSwitches
+import shared.config.SharedAppConfig
+import shared.controllers.RequestContext
+import shared.models.errors._
+import shared.services.{BaseService, ServiceOutcome}
 import v1.connectors.CreateAmendOtherConnector
 import v1.models.request.createAmendOther.CreateAmendOtherRequest
 
@@ -28,11 +30,11 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CreateAmendOtherService @Inject() (connector: CreateAmendOtherConnector, appConfig: AppConfig) extends BaseService {
+class CreateAmendOtherService @Inject() (connector: CreateAmendOtherConnector, appConfig: SharedAppConfig) extends BaseService {
 
   def createAmend(request: CreateAmendOtherRequest)(implicit ctx: RequestContext, ec: ExecutionContext): Future[ServiceOutcome[Unit]] = {
 
-    val featureSwitchedRequest = if (FeatureSwitches(appConfig.featureSwitches).isPostCessationReceiptsEnabled) {
+    val featureSwitchedRequest = if (OtherIncomeFeatureSwitches()(appConfig).isPostCessationReceiptsEnabled) {
       request
     } else {
       request.copy(body = request.body.copy(postCessationReceipts = None))

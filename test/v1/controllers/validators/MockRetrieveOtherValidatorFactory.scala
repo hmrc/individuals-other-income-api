@@ -16,8 +16,8 @@
 
 package v1.controllers.validators
 
-import api.controllers.validators.{MockValidatorFactory, Validator}
 import org.scalamock.handlers.CallHandler
+import shared.controllers.validators.{MockValidatorFactory, Validator}
 import v1.models.request.retrieveOther.RetrieveOtherRequest
 
 trait MockRetrieveOtherValidatorFactory extends MockValidatorFactory[RetrieveOtherRequest] {

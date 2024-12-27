@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package definition
 
-import shared.routing.Version1
 import shared.config.SharedAppConfig
 import shared.definition._
+import shared.routing.Version1
 
 import javax.inject.{Inject, Singleton}
 

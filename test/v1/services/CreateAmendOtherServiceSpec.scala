@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package v1.services
 
-import api.controllers.EndpointLogContext
-import api.models.domain.{Nino, TaxYear}
-import api.models.errors._
-import api.models.outcomes.ResponseWrapper
-import api.services.ServiceSpec
-import mocks.MockAppConfig
+import common.RuleUnalignedCessationTaxYear
 import play.api.Configuration
+import shared.config.MockSharedAppConfig
+import shared.controllers.EndpointLogContext
+import shared.models.domain.{Nino, TaxYear}
+import shared.models.errors._
+import shared.models.outcomes.ResponseWrapper
+import shared.services.ServiceSpec
 import v1.fixtures.other.CreateAmendOtherFixtures._
 import v1.mocks.connectors.MockCreateAmendOtherConnector
 import v1.models.request.createAmendOther.CreateAmendOtherRequest
@@ -31,10 +32,10 @@ import scala.concurrent.Future
 
 class CreateAmendOtherServiceSpec extends ServiceSpec {
 
-  private val nino    = "AA112233A"
+  private val nino    = "ZG903729C"
   private val taxYear = "2019-20"
 
-  trait Test extends MockCreateAmendOtherConnector with MockAppConfig {
+  trait Test extends MockCreateAmendOtherConnector with MockSharedAppConfig {
     implicit val logContext: EndpointLogContext = EndpointLogContext("Other", "createAmend")
 
     val createAmendOtherRequest: CreateAmendOtherRequest = CreateAmendOtherRequest(
@@ -45,7 +46,7 @@ class CreateAmendOtherServiceSpec extends ServiceSpec {
 
     val service: CreateAmendOtherService = new CreateAmendOtherService(
       connector = mockCreateAmendOtherConnector,
-      appConfig = mockAppConfig
+      appConfig = mockSharedAppConfig
     )
 
   }
@@ -59,7 +60,7 @@ class CreateAmendOtherServiceSpec extends ServiceSpec {
           .createAmendOther(createAmendOtherRequest)
           .returns(Future.successful(outcome))
 
-        MockedAppConfig.featureSwitches.returns(Configuration("postCessationReceipts.enabled" -> true))
+        MockedSharedAppConfig.featureSwitchConfig.returns(Configuration("postCessationReceipts.enabled" -> true))
 
         await(service.createAmend(createAmendOtherRequest)) shouldBe outcome
       }
@@ -75,7 +76,7 @@ class CreateAmendOtherServiceSpec extends ServiceSpec {
           .createAmendOther(createAmendOtherRequest)
           .returns(Future.successful(outcome))
 
-        MockedAppConfig.featureSwitches.returns(Configuration("postCessationReceipts.enabled" -> false))
+        MockedSharedAppConfig.featureSwitchConfig.returns(Configuration("postCessationReceipts.enabled" -> false))
 
         await(service.createAmend(createAmendOtherRequest)) shouldBe outcome
       }
@@ -89,7 +90,7 @@ class CreateAmendOtherServiceSpec extends ServiceSpec {
               .createAmendOther(createAmendOtherRequest)
               .returns(Future.successful(Left(ResponseWrapper(correlationId, DownstreamErrors.single(DownstreamErrorCode(downstreamErrorCode))))))
 
-            MockedAppConfig.featureSwitches.returns(Configuration("postCessationReceipts.enabled" -> true))
+            MockedSharedAppConfig.featureSwitchConfig.returns(Configuration("postCessationReceipts.enabled" -> true))
 
             await(service.createAmend(createAmendOtherRequest)) shouldBe Left(ErrorWrapper(correlationId, error))
           }

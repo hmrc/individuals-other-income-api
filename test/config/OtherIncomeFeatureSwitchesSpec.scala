@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package v1.models.request.retrieveOther
+package config
 
-import shared.models.domain.{Nino, TaxYear}
+import play.api.Configuration
+import shared.config.FeatureSwitchesBehaviour
+import shared.utils.UnitSpec
 
-case class RetrieveOtherRequest(nino: Nino, taxYear: TaxYear)
+class OtherIncomeFeatureSwitchesSpec extends UnitSpec with FeatureSwitchesBehaviour[OtherIncomeFeatureSwitches] {
+  override def featureSwitches(configuration: Configuration): OtherIncomeFeatureSwitches = OtherIncomeFeatureSwitches(configuration)
+
+  "isPostCessationReceiptsEnabled" should {
+    behave like aFeatureSwitchWithKey("postCessationReceipts.enabled", _.isPostCessationReceiptsEnabled)
+  }
+
+}
