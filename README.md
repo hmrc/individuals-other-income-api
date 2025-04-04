@@ -16,7 +16,7 @@ The Individuals Other Income API allows a developer to create, amend, retrieve a
 
 Run the microservice from the console using: `sbt run` (starts on port 7761 by default)
 
-Start the service manager profile: `sm --start MTDFB_INDIVIDUALS_OTHER_INCOME`
+Start the service manager profile: `sm2 --start MTDFB_INDIVIDUALS_OTHER_INCOME`
 
 ## Run Tests
 
