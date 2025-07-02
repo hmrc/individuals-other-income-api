@@ -17,11 +17,11 @@
 package v1.connectors
 
 import shared.config.SharedAppConfig
-import shared.connectors.DownstreamUri.{IfsUri, TaxYearSpecificIfsUri}
+import shared.connectors.DownstreamUri.IfsUri
 import shared.connectors.httpparsers.StandardDownstreamHttpParser._
 import shared.connectors.{BaseDownstreamConnector, DownstreamOutcome}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier}
 import v1.models.request.createAmendOther.CreateAmendOtherRequest
 
 import javax.inject.{Inject, Singleton}
@@ -36,7 +36,7 @@ class CreateAmendOtherConnector @Inject() (val http: HttpClientV2, val appConfig
     import request._
 
     val url = if (taxYear.useTaxYearSpecificApi) {
-      TaxYearSpecificIfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/$nino")
+      IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/$nino")
     } else {
       IfsUri[Unit](s"income-tax/income/other/$nino/${taxYear.asMtd}")
     }

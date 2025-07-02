@@ -16,7 +16,7 @@
 
 package shared.connectors
 
-import shared.config.{SharedAppConfig, DownstreamConfig}
+import shared.config.{DownstreamConfig, SharedAppConfig}
 
 case class DownstreamUri[+Resp](
     path: String,
@@ -34,8 +34,6 @@ object DownstreamUri {
   def IfsUri[Resp](value: String)(implicit appConfig: SharedAppConfig): DownstreamUri[Resp] =
     withStandardStrategy(value, appConfig.ifsDownstreamConfig)
 
-  def TaxYearSpecificIfsUri[Resp](value: String)(implicit appConfig: SharedAppConfig): DownstreamUri[Resp] =
-    withStandardStrategy(value, appConfig.tysIfsDownstreamConfig)
 
   def HipUri[Resp](path: String)(implicit appConfig: SharedAppConfig): DownstreamUri[Resp] =
     DownstreamUri(path, DownstreamStrategy.basicAuthStrategy(appConfig.hipDownstreamConfig))

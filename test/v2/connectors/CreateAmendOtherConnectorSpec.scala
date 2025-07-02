@@ -59,7 +59,7 @@ class CreateAmendOtherConnectorSpec extends ConnectorSpec {
         await(connector.createAmend(createAmendOtherRequest)) shouldBe outcome
       }
 
-      "return a 204 status for a success scenario for a Tax Year Specific (TYS) tax year" in new TysIfsTest with Test {
+      "return a 204 status for a success scenario for a Tax Year Specific (TYS) tax year" in new IfsTest with Test {
         val taxYear = "2023-24"
         val outcome = Right(ResponseWrapper(correlationId, ()))
 
