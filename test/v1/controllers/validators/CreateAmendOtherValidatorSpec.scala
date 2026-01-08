@@ -16,13 +16,13 @@
 
 package v1.controllers.validators
 
-import play.api.libs.json._
-import shared.config.{MockSharedAppConfig, SharedAppConfig}
+import play.api.libs.json.*
+import shared.config.MockSharedAppConfig
 import shared.models.domain.{Nino, TaxYear}
-import shared.models.errors._
+import shared.models.errors.*
 import shared.models.utils.JsonErrorValidators
 import shared.utils.UnitSpec
-import v1.fixtures.other.CreateAmendOtherFixtures._
+import v1.fixtures.other.CreateAmendOtherFixtures.*
 import v1.models.request.createAmendOther.CreateAmendOtherRequest
 
 class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockSharedAppConfig {
@@ -36,19 +36,16 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
   private val validRequestBodyJson: JsValue = requestBodyWithPCRJson
 
-  class Test extends MockSharedAppConfig {
+  def validator(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
+    new CreateAmendOtherValidator(nino, taxYear, body)(mockSharedAppConfig)
 
-    implicit val appConfig: SharedAppConfig = mockSharedAppConfig
+  def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
+    validator(nino, taxYear, body).validateAndWrapResult()
 
-    def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue): Either[ErrorWrapper, CreateAmendOtherRequest] =
-      new CreateAmendOtherValidator(nino, taxYear, body).validateAndWrapResult()
-
-    def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
-
-  }
+  def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
 
   private def expectValueFormatError(body: JsNumber => JsValue, expectedPath: String): Unit = s"for $expectedPath" when {
-    def doTest(value: JsNumber): Unit = new Test {
+    def doTest(value: JsNumber): Unit = new SetupConfig {
       validate(body = body(value)) shouldBe singleError(ValueFormatError.forPathAndRange(expectedPath, "0", "99999999999.99"))
     }
 
@@ -58,39 +55,39 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
   "running a validation" should {
     "return no errors" when {
-      "a valid request is supplied" in new Test {
+      "a valid request is supplied" in new SetupConfig {
         validate(body = validRequestBodyJson) shouldBe Right(CreateAmendOtherRequest(parsedNino, parsedTaxYear, requestBodyModel))
       }
     }
 
     "return NinoFormatError error" when {
-      "an invalid nino is supplied" in new Test {
+      "an invalid nino is supplied" in new SetupConfig {
         validate("A12344A", validTaxYear, validRequestBodyJson) shouldBe singleError(NinoFormatError)
       }
     }
 
     "return TaxYearFormatError error" when {
-      "an invalid tax year is supplied" in new Test {
+      "an invalid tax year is supplied" in new SetupConfig {
         validate(validNino, "20178", validRequestBodyJson) shouldBe singleError(TaxYearFormatError)
       }
     }
 
     "return RuleTaxYearNotSupportedError error" when {
-      "an invalid tax year is supplied" in new Test {
+      "an invalid tax year is supplied" in new SetupConfig {
         validate(validNino, "2017-18", validRequestBodyJson) shouldBe singleError(RuleTaxYearNotSupportedError)
       }
     }
 
     "return RuleIncorrectOrEmptyBodyError error" when {
-      "an empty JSON body is submitted" in new Test {
+      "an empty JSON body is submitted" in new SetupConfig {
         validate(body = JsObject.empty) shouldBe singleError(RuleIncorrectOrEmptyBodyError)
       }
 
-      "a non-empty JSON body is submitted without any expected fields" in new Test {
+      "a non-empty JSON body is submitted without any expected fields" in new SetupConfig {
         validate(body = Json.parse("""{"field": "value"}""")) shouldBe singleError(RuleIncorrectOrEmptyBodyError)
       }
 
-      "the submitted request body is not in the correct format" in new Test {
+      "the submitted request body is not in the correct format" in new SetupConfig {
         val invalidRequestBodyJson: JsValue = Json.parse("""
             |{
             |   "overseasIncomeAndGains": {
@@ -101,7 +98,7 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
         validate(body = invalidRequestBodyJson) shouldBe singleError(RuleIncorrectOrEmptyBodyError.withPath("/overseasIncomeAndGains/gainAmount"))
       }
 
-      "the submitted request body has missing mandatory fields" in new Test {
+      "the submitted request body has missing mandatory fields" in new SetupConfig {
         validate(body = Json.parse("""{ "allOtherIncomeReceivedWhilstAbroad": [{}] }""".stripMargin)) shouldBe
           singleError(
             RuleIncorrectOrEmptyBodyError.withPaths(
@@ -122,22 +119,22 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
       expectValueFormatError(fromField("amount"), "/postCessationReceipts/0/amount")
 
-      "return TaxYearFormatError when an invalid tax year format is supplied" in new Test {
+      "return TaxYearFormatError when an invalid tax year format is supplied" in new SetupConfig {
         validate(body = body(postCessationReceiptsItemJson.update("taxYearIncomeToBeTaxed", JsString("BAD_VALUE")))) shouldBe
           singleError(TaxYearFormatError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed"))
       }
 
-      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new Test {
+      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new SetupConfig {
         validate(body = body(postCessationReceiptsItemJson.update("taxYearIncomeToBeTaxed", JsString("2020-22")))) shouldBe
           singleError(RuleTaxYearRangeInvalidError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed"))
       }
 
-      "return DateFormatError when an invalid date is supplied" in new Test {
+      "return DateFormatError when an invalid date is supplied" in new SetupConfig {
         validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString("BAD_VALUE")))) shouldBe
           singleError(DateFormatError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
       }
 
-      "return RuleDateRangeInvalidError when an out-of-range date is supplied" in new Test {
+      "return RuleDateRangeInvalidError when an out-of-range date is supplied" in new SetupConfig {
         validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString("1899-01-01")))) shouldBe
           singleError(RuleDateRangeInvalidError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
       }
@@ -153,12 +150,12 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
       expectValueFormatError(fromField("grossAmount"), "/businessReceipts/0/grossAmount")
 
-      "return TaxYearFormatError when an invalid tax year format is supplied" in new Test {
+      "return TaxYearFormatError when an invalid tax year format is supplied" in new SetupConfig {
         validate(body = body(businessReceiptsJson.update("taxYear", JsString("BAD_VALUE")))) shouldBe
           singleError(TaxYearFormatError.withPath("/businessReceipts/0/taxYear"))
       }
 
-      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new Test {
+      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new SetupConfig {
         validate(body = body(businessReceiptsJson.update("taxYear", JsString("2020-22")))) shouldBe
           singleError(RuleTaxYearRangeInvalidError.withPath("/businessReceipts/0/taxYear"))
       }
@@ -183,14 +180,14 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
         "/allOtherIncomeReceivedWhilstAbroad/0/broughtFwdResidentialFinancialCostAmount")
 
       "return CountryCodeFormatError error" when {
-        "an incorrectly formatted country code is submitted" in new Test {
+        "an incorrectly formatted country code is submitted" in new SetupConfig {
           validate(body = body(allOtherIncomeReceivedWhilstAbroadJson.update("countryCode", JsString("FRANCE")))) shouldBe
             singleError(CountryCodeFormatError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"))
         }
       }
 
       "return CountryCodeRuleError error" when {
-        "an invalid country code is submitted" in new Test {
+        "an invalid country code is submitted" in new SetupConfig {
           validate(body = body(allOtherIncomeReceivedWhilstAbroadJson.update("countryCode", JsString("PUR")))) shouldBe
             singleError(RuleCountryCodeError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"))
         }
@@ -239,7 +236,7 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
     }
 
     "return multiple errors" when {
-      "multiple fields fail validation" in new Test {
+      "multiple fields fail validation" in new SetupConfig {
 
         private val multipleErrorRequestBodyJson: JsValue = Json.parse(
           """
@@ -289,7 +286,7 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
     }
 
     "return multiple errors" when {
-      "request supplied has multiple errors (path parameters)" in new Test {
+      "request supplied has multiple errors (path parameters)" in new SetupConfig {
         validate("A12344A", "20178", validRequestBodyJson) shouldBe
           Left(ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError))))
       }
