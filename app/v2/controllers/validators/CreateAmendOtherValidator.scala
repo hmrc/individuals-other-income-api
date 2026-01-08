@@ -17,10 +17,11 @@
 package v2.controllers.validators
 
 import cats.data.Validated
-import cats.implicits._
+import cats.implicits.*
 import play.api.libs.json.JsValue
+import shared.config.SharedAppConfig
 import shared.controllers.validators.Validator
-import shared.controllers.validators.resolvers._
+import shared.controllers.validators.resolvers.*
 import shared.models.domain.TaxYear
 import shared.models.errors.MtdError
 import v2.models.request.createAmendOther.{CreateAmendOtherRequest, CreateAmendOtherRequestBody}
@@ -31,10 +32,12 @@ object CreateAmendOtherValidator {
 
 }
 
-class CreateAmendOtherValidator(nino: String, taxYear: String, body: JsValue) extends Validator[CreateAmendOtherRequest] {
+class CreateAmendOtherValidator(nino: String, taxYear: String, body: JsValue)(appConfig: SharedAppConfig) extends Validator[CreateAmendOtherRequest] {
+
   import CreateAmendOtherValidator._
 
-  private val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.fromMtd("2019-20"))
+  private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
+  private lazy val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.ending(minimumTaxYear))
 
   override def validate: Validated[Seq[MtdError], CreateAmendOtherRequest] =
     (

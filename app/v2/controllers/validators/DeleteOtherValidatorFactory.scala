@@ -16,15 +16,16 @@
 
 package v2.controllers.validators
 
+import shared.config.SharedAppConfig
 import shared.controllers.validators.Validator
 import v2.models.request.deleteOther.DeleteOtherRequest
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class DeleteOtherValidatorFactory @Inject() {
+class DeleteOtherValidatorFactory @Inject() (appConfig: SharedAppConfig) {
 
   def validator(nino: String, taxYear: String): Validator[DeleteOtherRequest] =
-    new DeleteOtherValidator(nino, taxYear)
+    new DeleteOtherValidator(nino, taxYear)(appConfig)
 
 }
