@@ -17,15 +17,18 @@
 package v2.controllers.validators
 
 import cats.data.Validated
-import cats.implicits._
+import cats.implicits.*
+import shared.config.SharedAppConfig
 import shared.controllers.validators.Validator
-import shared.controllers.validators.resolvers._
+import shared.controllers.validators.resolvers.*
 import shared.models.domain.TaxYear
 import shared.models.errors.MtdError
 import v2.models.request.retrieveOther.RetrieveOtherRequest
 
-class RetrieveOtherValidator(nino: String, taxYear: String) extends Validator[RetrieveOtherRequest] {
-  private val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.fromMtd("2019-20"))
+class RetrieveOtherValidator(nino: String, taxYear: String)(appConfig: SharedAppConfig) extends Validator[RetrieveOtherRequest] {
+
+  private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
+  private lazy val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.ending(minimumTaxYear))
 
   override def validate: Validated[Seq[MtdError], RetrieveOtherRequest] =
     (

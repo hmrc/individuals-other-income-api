@@ -16,9 +16,9 @@
 
 package v1.controllers.validators
 
-import shared.config.{MockSharedAppConfig, SharedAppConfig}
+import shared.config.MockSharedAppConfig
 import shared.models.domain.{Nino, TaxYear}
-import shared.models.errors._
+import shared.models.errors.*
 import shared.models.utils.JsonErrorValidators
 import shared.utils.UnitSpec
 import v1.models.request.retrieveOther.RetrieveOtherRequest
@@ -32,44 +32,41 @@ class RetrieveOtherValidatorSpec extends UnitSpec with JsonErrorValidators with 
   private val parsedNino    = Nino(validNino)
   private val parsedTaxYear = TaxYear.fromMtd(validTaxYear)
 
-  class Test extends MockSharedAppConfig {
+  def validator(nino: String = validNino, taxYear: String = validTaxYear) =
+    new RetrieveOtherValidator(nino, taxYear)(mockSharedAppConfig)
 
-    implicit val appConfig: SharedAppConfig = mockSharedAppConfig
+  def validate(nino: String = validNino, taxYear: String = validTaxYear) =
+    validator(nino, taxYear).validateAndWrapResult()
 
-    def validate(nino: String, taxYear: String): Either[ErrorWrapper, RetrieveOtherRequest] =
-      new RetrieveOtherValidator(nino, taxYear).validateAndWrapResult()
-
-    def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
-
-  }
+  def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
 
   "running a validation" should {
     "return no errors" when {
-      "a valid request is supplied" in new Test {
+      "a valid request is supplied" in new SetupConfig {
         validate(validNino, validTaxYear) shouldBe Right(RetrieveOtherRequest(parsedNino, parsedTaxYear))
       }
     }
 
     "return NinoFormatError error" when {
-      "an invalid nino is supplied" in new Test {
+      "an invalid nino is supplied" in new SetupConfig {
         validate("A12344A", validTaxYear) shouldBe singleError(NinoFormatError)
       }
     }
 
     "return TaxYearFormatError error" when {
-      "an invalid tax year is supplied" in new Test {
+      "an invalid tax year is supplied" in new SetupConfig {
         validate(validNino, "20178") shouldBe singleError(TaxYearFormatError)
       }
     }
 
     "return RuleTaxYearNotSupportedError error" when {
-      "an invalid tax year is supplied" in new Test {
+      "an invalid tax year is supplied" in new SetupConfig {
         validate(validNino, "2017-18") shouldBe singleError(RuleTaxYearNotSupportedError)
       }
     }
 
     "return multiple errors" when {
-      "request supplied has multiple errors (path parameters)" in new Test {
+      "request supplied has multiple errors (path parameters)" in new SetupConfig {
         validate("A12344A", "20178") shouldBe
           Left(ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError))))
       }
