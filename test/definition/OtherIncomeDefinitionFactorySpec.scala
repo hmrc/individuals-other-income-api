@@ -21,7 +21,7 @@ import shared.config.Deprecation.NotDeprecated
 import shared.config.MockSharedAppConfig
 import shared.definition.APIStatus.BETA
 import shared.definition.{APIDefinition, APIVersion, Definition}
-import shared.routing.{Version1, Version2}
+import shared.routing.Version2
 import shared.utils.UnitSpec
 
 class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockSharedAppConfig {
@@ -31,7 +31,7 @@ class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockSharedAppConfig
       "return a valid Definition case class" in {
         MockedSharedAppConfig.apiGatewayContext returns "individuals/other-income"
 
-        List(Version1, Version2).foreach { version =>
+        List(Version2).foreach { version =>
           MockedSharedAppConfig.apiStatus(version) returns "BETA"
           MockedSharedAppConfig.endpointsEnabled(version) returns true
           MockedSharedAppConfig.deprecationFor(version).returns(NotDeprecated.valid).anyNumberOfTimes()
@@ -47,11 +47,6 @@ class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockSharedAppConfig
               context = "individuals/other-income",
               categories = List("INCOME_TAX_MTD"),
               versions = List(
-                APIVersion(
-                  Version1,
-                  status = BETA,
-                  endpointsEnabled = true
-                ),
                 APIVersion(
                   Version2,
                   status = BETA,

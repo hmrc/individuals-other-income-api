@@ -24,7 +24,7 @@ import shared.services.DownstreamStub
 
 class OtherIncomeAuthMainAgentsOnlyISpec extends AuthMainAgentsOnlyISpec {
 
-  val callingApiVersion = "1.0"
+  val callingApiVersion = "2.0"
 
   val supportingAgentsNotAllowedEndpoint = "delete-other"
 
