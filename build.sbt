@@ -1,49 +1,34 @@
+import sbt.*
 import uk.gov.hmrc.DefaultBuildSettings
-
-ThisBuild / scalaVersion := "3.5.2"
-ThisBuild / majorVersion := 0
-ThisBuild / scalacOptions ++= Seq(
-  "-Werror",
-  "-Wconf:msg=Flag.*repeatedly:s"
-)
-ThisBuild / scalafmtOnCompile := true
+import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "individuals-other-income-api"
 
-lazy val ItTest = config("it") extend Test
+ThisBuild / majorVersion := 0
+ThisBuild / scalaVersion := "3.5.2"
+ThisBuild / scalacOptions ++= Seq("-Werror", "-Wconf:msg=Flag.*repeatedly:s")
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test(),
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    scalafmtOnCompile := true,
     scalacOptions ++= List(
-      "-feature",
-      "-Wconf:src=routes/.*:s"
+      "-Wconf:src=routes/.*:s",
+      "-feature"
     )
   )
   .settings(
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources"
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
+    Compile / unmanagedClasspath += baseDirectory.value / "resources"
   )
-  .settings(majorVersion := 0)
-  .settings(CodeCoverageSettings.settings *)
-  .configs(ItTest)
-  .settings(
-    ItTest / fork                       := true,
-    ItTest / unmanagedSourceDirectories := List((ItTest / baseDirectory).value / "it"),
-    ItTest / unmanagedClasspath += baseDirectory.value / "resources",
-    Runtime / unmanagedClasspath += baseDirectory.value / "resources",
-    ItTest / javaOptions += "-Dlogger.resource=logback-test.xml",
-    ItTest / parallelExecution := false,
-  )
+  .settings(CodeCoverageSettings.settings)
   .settings(PlayKeys.playDefaultPort := 7761)
 
-dependencyUpdatesFilter -= moduleFilter(name = "bootstrap-backend-play-30")
-dependencyUpdatesFilter -= moduleFilter(organization = "org.playframework")
-dependencyUpdatesFilter -= moduleFilter(name = "simple-reactivemongo")
-dependencyUpdatesFilter -= moduleFilter(name = "reactivemongo-test")
-dependencyUpdatesFilter -= moduleFilter(name = "scala-library")
-dependencyUpdatesFilter -= moduleFilter(name = "flexmark-all")
-dependencyUpdatesFilter -= moduleFilter(name = "scalatestplus-play")
-dependencyUpdatesFilter -= moduleFilter(name = "scalatestplus-scalacheck")
-dependencyUpdatesFailBuild := true
+lazy val it = project
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test")
+  .settings(DefaultBuildSettings.itSettings())
+  .settings(Test / fork := true, Test / javaOptions += "-Dlogger.resource=logback-test.xml")
+  .settings(libraryDependencies ++= AppDependencies.itDependencies)

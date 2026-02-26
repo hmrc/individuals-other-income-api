@@ -1,33 +1,25 @@
-import play.core.PlayVersion
-import play.sbt.PlayImport._
-import sbt.Keys.libraryDependencies
-import sbt._
-
-import play.core.PlayVersion
-import play.sbt.PlayImport._
-import sbt._
+import sbt.*
 
 object AppDependencies {
 
   val bootstrapPlayVersion = "9.19.0"
 
-  val compile: Seq[ModuleID] = List(
-    ws,
-    "uk.gov.hmrc"                  %% "bootstrap-backend-play-30" % bootstrapPlayVersion,
-    "org.typelevel"                %% "cats-core"                 % "2.13.0",
-    "com.neovisionaries"            % "nv-i18n"                   % "1.29",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala"      % "2.19.1",
-    "com.github.jknack"             % "handlebars"                % "4.3.1"
+  val compile: Seq[ModuleID] = Seq(
+    "uk.gov.hmrc"       %% "bootstrap-backend-play-30" % bootstrapPlayVersion,
+    "org.typelevel"     %% "cats-core"                 % "2.13.0",
+    "com.github.jknack"  % "handlebars"                % "4.3.1",
+    "com.neovisionaries" % "nv-i18n"                   % "1.29"
   )
 
-  def test(scope: String = "test, it"): Seq[sbt.ModuleID] = List(
-    "org.scalatestplus"   %% "scalacheck-1-15"        % "3.2.11.0"           % scope,
-    "org.scalamock"       %% "scalamock"              % "7.4.0"              % scope,
-    "uk.gov.hmrc"         %% "bootstrap-test-play-30" % bootstrapPlayVersion % scope
-  )
+  val test: Seq[sbt.ModuleID] = Seq(
+    "org.scalatestplus" %% "scalacheck-1-18"        % "3.2.19.0",
+    "org.scalamock"     %% "scalamock"              % "7.4.0",
+    "uk.gov.hmrc"       %% "bootstrap-test-play-30" % bootstrapPlayVersion
+  ).map(_ % Test)
 
   val itDependencies: Seq[ModuleID] = Seq(
-    "io.swagger.parser.v3"   % "swagger-parser-v3"    % "2.1.30"
+    "io.swagger.parser.v3"          % "swagger-parser-v3"    % "2.1.30",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.19.1"
   ).map(_ % Test)
 
 }
