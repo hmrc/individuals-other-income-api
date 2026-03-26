@@ -16,16 +16,16 @@
 
 package v2.controllers.validators
 
+import api.config.MockAppConfig
+import api.models.domain.{Nino, TaxYear}
+import api.models.errors.*
+import api.models.utils.JsonErrorValidators
+import api.utils.UnitSpec
 import play.api.libs.json.*
-import shared.config.MockSharedAppConfig
-import shared.models.domain.{Nino, TaxYear}
-import shared.models.errors.*
-import shared.models.utils.JsonErrorValidators
-import shared.utils.UnitSpec
 import v2.fixtures.other.CreateAmendOtherFixtures.*
 import v2.models.request.createAmendOther.CreateAmendOtherRequest
 
-class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockSharedAppConfig {
+class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino                      = "AA123456A"
@@ -37,7 +37,7 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
   private val validRequestBodyJson: JsValue = requestBodyWithPCRJson
 
   def validator(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
-    new CreateAmendOtherValidator(nino, taxYear, body)(mockSharedAppConfig)
+    new CreateAmendOtherValidator(nino, taxYear, body)(mockAppConfig)
 
   def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
     validator(nino, taxYear, body).validateAndWrapResult()

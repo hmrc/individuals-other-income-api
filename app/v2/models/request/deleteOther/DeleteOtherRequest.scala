@@ -16,6 +16,6 @@
 
 package v2.models.request.deleteOther
 
-import shared.models.domain.{Nino, TaxYear}
+import api.models.domain.{Nino, TaxYear}
 
 case class DeleteOtherRequest(nino: Nino, taxYear: TaxYear)

@@ -16,8 +16,8 @@
 
 package common
 
-import play.api.http.Status._
-import shared.models.errors.MtdError
+import api.models.errors.MtdError
+import play.api.http.Status.*
 
 object RuleUnalignedCessationTaxYear
     extends MtdError("RULE_UNALIGNED_CESSATION_TAX_YEAR", "The tax year provided must be the same as the tax year of income to be taxed", BAD_REQUEST)

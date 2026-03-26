@@ -17,7 +17,7 @@
 package v2.fixtures.other
 
 import play.api.libs.json.{JsValue, Json}
-import v2.models.request.createAmendOther._
+import v2.models.request.createAmendOther.*
 
 object CreateAmendOtherFixtures {
 

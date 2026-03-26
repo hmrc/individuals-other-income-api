@@ -16,11 +16,11 @@
 
 package v2.connectors
 
-import shared.config.MockSharedAppConfig
-import shared.connectors.ConnectorSpec
-import shared.mocks.MockHttpClient
-import shared.models.domain.{Nino, TaxYear}
-import shared.models.outcomes.ResponseWrapper
+import api.config.MockAppConfig
+import api.connectors.ConnectorSpec
+import api.mocks.MockHttpClient
+import api.models.domain.{Nino, TaxYear}
+import api.models.outcomes.ResponseWrapper
 import uk.gov.hmrc.http.StringContextOps
 import v2.models.request.deleteOther.DeleteOtherRequest
 
@@ -56,7 +56,7 @@ class DeleteOtherConnectorSpec extends ConnectorSpec {
     }
   }
 
-  trait Test extends ConnectorTest with MockSharedAppConfig with MockHttpClient {
+  trait Test extends ConnectorTest with MockAppConfig with MockHttpClient {
 
     def taxYear: TaxYear
 
@@ -70,7 +70,7 @@ class DeleteOtherConnectorSpec extends ConnectorSpec {
 
     val connector: DeleteOtherConnector = new DeleteOtherConnector(
       http = mockHttpClient,
-      appConfig = mockSharedAppConfig
+      appConfig = mockAppConfig
     )
 
   }
