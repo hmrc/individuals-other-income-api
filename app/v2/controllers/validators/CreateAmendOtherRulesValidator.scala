@@ -16,12 +16,12 @@
 
 package v2.controllers.validators
 
+import api.controllers.validators.RulesValidator
+import api.controllers.validators.resolvers.*
+import api.models.errors.{DateFormatError, MtdError, RuleDateRangeInvalidError}
 import cats.data.Validated
 import cats.implicits.toFoldableOps
-import shared.controllers.validators.RulesValidator
-import shared.controllers.validators.resolvers._
-import shared.models.errors.{DateFormatError, MtdError, RuleDateRangeInvalidError}
-import v2.models.request.createAmendOther._
+import v2.models.request.createAmendOther.*
 
 object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherRequest] with ResolverSupport {
 

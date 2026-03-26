@@ -16,7 +16,7 @@
 
 package v2.models.request.createAmendOther
 
-import play.api.libs.functional.syntax._
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.{JsPath, OWrites, Reads}
 import utils.JsonUtils
 
