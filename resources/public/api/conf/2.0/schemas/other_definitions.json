@@ -26,6 +26,7 @@
           "dateBusinessCeased": {
             "type": "string",
             "description": "The business cessation date. Date in the format YYYY-MM-DD",
+            "format": "date",
             "example": "2023-06-16"
           },
           "businessDescription": {
@@ -43,7 +44,7 @@
           "amount": {
             "type": "number",
             "description": "The amount of income. Monetary value (to 2 decimal places), between 0 and 99999999999.99",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -51,6 +52,7 @@
           "taxYearIncomeToBeTaxed": {
             "type": "string",
             "description": "The tax year for income to be taxed. Date in the format YYYY-YY, for example 2019-20 for the 19/20 tax year.",
+            "format": "YYYY-YY",
             "example": "2021-22"
           }
         },
@@ -69,7 +71,7 @@
           "grossAmount": {
             "type": "number",
             "description": "The amount of post-cessation or other business receipts (business receipts taxed as income of an earlier year). The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -77,6 +79,7 @@
           "taxYear": {
             "type": "string",
             "description": "The tax year where business receipts needed taxing as income. Date in the format YYYY-YY.",
+            "format": "YYYY-YY",
             "example": "2021-22"
           }
         },
@@ -100,7 +103,7 @@
           "amountBeforeTax": {
             "type": "number",
             "description": "The total amount before any tax taken off other income. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -108,7 +111,7 @@
           "taxTakenOff": {
             "type": "number",
             "description": "The amount of tax taken off other income. The value must be between 1 and 99999999999.99 up to 2 decimal places.",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -116,7 +119,7 @@
           "specialWithholdingTax": {
             "type": "number",
             "description": "Special Withholding Tax (SWT) amount taken off this payment. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -124,12 +127,12 @@
           "foreignTaxCreditRelief": {
             "type": "boolean",
             "description": "Indicates whether Foreign Tax Credit Relief (FTCR) has been claimed. The value must be true or false.",
-            "example": "true"
+            "example": true
           },
           "taxableAmount": {
             "type": "number",
             "description": "The amount of tax to be paid. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -137,7 +140,7 @@
           "residentialFinancialCostAmount": {
             "type": "number",
             "description": "The amount of residential property income or restricted finance costs. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -145,7 +148,7 @@
           "broughtFwdResidentialFinancialCostAmount": {
             "type": "number",
             "description": "The unused residential finance costs brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-            "example": "1999.99",
+            "example": 1999.99,
             "multipleOf": 0.01,
             "minimum": 0,
             "maximum:": 99999999999.99
@@ -164,7 +167,7 @@
         "gainAmount": {
           "type": "number",
           "description": "The gains amount on disposals of holdings in offshore funds. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-          "example": "1999.99",
+          "example": 1999.99,
           "multipleOf": 0.01,
           "minimum": 0,
           "maximum:": 99999999999.99
@@ -181,7 +184,7 @@
         "transactionBenefit": {
           "type": "number",
           "description": "Benefit received on an overseas transaction. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-          "example": "1999.99",
+          "example": 1999.99,
           "multipleOf": 0.01,
           "minimum": 0,
           "maximum:": 99999999999.99
@@ -189,7 +192,7 @@
         "protectedForeignIncomeSourceBenefit": {
           "type": "number",
           "description": "Benefit received on a protected foreign income source. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-          "example": "1999.99",
+          "example": 1999.99,
           "multipleOf": 0.01,
           "minimum": 0,
           "maximum:": 99999999999.99
@@ -197,7 +200,7 @@
         "protectedForeignIncomeOnwardGift": {
           "type": "number",
           "description": "Protected foreign income gifted. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-          "example": "1999.99",
+          "example": 1999.99,
           "multipleOf": 0.01,
           "minimum": 0,
           "maximum:": 99999999999.99
@@ -205,7 +208,7 @@
         "benefitReceivedAsASettler": {
           "type": "number",
           "description": "Benefit received as a settler. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-          "example": "1999.99",
+          "example": 1999.99,
           "multipleOf": 0.01,
           "minimum": 0,
           "maximum:": 99999999999.99
@@ -213,7 +216,7 @@
         "onwardGiftReceivedAsASettler": {
           "type": "number",
           "description": "Gift received as a settler. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-          "example": "1999.99",
+          "example": 1999.99,
           "multipleOf": 0.01,
           "minimum": 0,
           "maximum:": 99999999999.99
@@ -227,7 +230,7 @@
         "amount": {
           "type": "number",
           "description": "The amount of omitted foreign income. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
-          "example": "1999.99",
+          "example": 1999.99,
           "multipleOf": 0.01,
           "minimum": 0,
           "maximum:": 99999999999.99
