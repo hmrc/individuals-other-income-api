@@ -17,8 +17,8 @@
 package shared.controllers
 
 import play.api.http.{HttpEntity, Status}
-import play.api.libs.json.{JsValue, Json, Writes}
-import play.api.mvc.{ResponseHeader, Result, Results}
+import play.api.libs.json.*
+import play.api.mvc.*
 
 case class ResultWrapper(httpStatus: Int, body: Option[JsValue]) {
 

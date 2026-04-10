@@ -18,7 +18,7 @@ package shared.controllers
 
 import cats.data.EitherT
 import cats.data.Validated.Valid
-import cats.implicits._
+import cats.implicits.*
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc.Result
@@ -69,9 +69,6 @@ object RequestHandler {
     def withAuditing(auditHandler: AuditHandler): RequestHandlerBuilder[Input, Output] =
       copy(auditHandler = Some(auditHandler))
 
-    def withResponseModifier(responseModifier: Output => Output): RequestHandlerBuilder[Input, Output] =
-      copy(responseModifier = Option(responseModifier))
-
     /** Shorthand for
       * {{{
       * withResultCreator(ResultCreator.plainJson(successStatus))
@@ -88,7 +85,7 @@ object RequestHandler {
     def withNoContentResult(successStatus: Int = Status.NO_CONTENT): RequestHandlerBuilder[Input, Output] =
       withResultCreator(ResultCreator.noContent(successStatus))
 
-    def withResultCreator(resultCreator: ResultCreator[Input, Output]): RequestHandlerBuilder[Input, Output] =
+    private def withResultCreator(resultCreator: ResultCreator[Input, Output]): RequestHandlerBuilder[Input, Output] =
       copy(resultCreator = resultCreator)
 
     // Scoped as a private delegate so as to keep the logic completely separate from the configuration

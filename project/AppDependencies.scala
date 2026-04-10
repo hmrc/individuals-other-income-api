@@ -11,7 +11,7 @@ object AppDependencies {
     "com.neovisionaries" % "nv-i18n"                   % "1.29"
   )
 
-  val test: Seq[sbt.ModuleID] = Seq(
+  val test: Seq[ModuleID] = Seq(
     "org.scalatestplus" %% "scalacheck-1-19"        % "3.2.20.0",
     "org.scalamock"     %% "scalamock"              % "7.5.5",
     "uk.gov.hmrc"       %% "bootstrap-test-play-30" % bootstrapPlayVersion

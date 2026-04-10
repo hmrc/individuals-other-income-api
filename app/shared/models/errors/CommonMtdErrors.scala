@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package shared.models.errors
 
-import play.api.http.Status._
+import play.api.http.Status.*
 
 // MtdError types that are common across MTD APIs.
 
@@ -49,9 +49,6 @@ object ValueFormatError extends MtdError("FORMAT_VALUE", "The value must be betw
 
   def forPathAndRange(path: String, min: String, max: String): MtdError =
     ValueFormatError.copy(paths = Some(Seq(path)), message = s"The value must be between $min and $max")
-
-  def forPathAndMin(path: String, min: String): MtdError =
-    ValueFormatError.copy(paths = Some(Seq(path)), message = s"The value must be $min or more")
 
 }
 
@@ -103,9 +100,6 @@ object RuleIncorrectOrEmptyBodyError
 object RuleTaxYearRangeInvalidError extends MtdError("RULE_TAX_YEAR_RANGE_INVALID", "A tax year range of one year is required", BAD_REQUEST)
 
 object RuleTaxYearNotEndedError extends MtdError("RULE_TAX_YEAR_NOT_ENDED", "The specified tax year has not yet ended", BAD_REQUEST)
-
-object RangeToDateBeforeFromDateError
-    extends MtdError(code = "RANGE_TO_DATE_BEFORE_FROM_DATE", message = "The toDate cannot be earlier than the fromDate", BAD_REQUEST)
 
 object RuleDateRangeInvalidError extends MtdError(code = "RULE_DATE_RANGE_INVALID", message = "The specified date range is invalid", BAD_REQUEST)
 
