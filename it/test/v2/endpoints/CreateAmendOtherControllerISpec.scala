@@ -416,7 +416,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
             |        },
             |        {
             |            "code": "RULE_COUNTRY_CODE",
-            |            "message": "The country code is not a valid ISO 3166-1 alpha-3 country code",
+            |            "message": "The country code is not a permitted ISO 3166-1 alpha-3 country code",
             |            "paths": [
             |                "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
             |            ]
