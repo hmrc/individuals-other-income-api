@@ -23,7 +23,7 @@ import shared.models.errors.*
 import shared.models.utils.JsonErrorValidators
 import shared.utils.UnitSpec
 import v2.fixtures.other.CreateAmendOtherFixtures.*
-import v2.models.request.createAmendOther.CreateAmendOtherRequest
+import v2.models.request.createAmendOther.{CreateAmendOtherRequest, CreateAmendOtherRequestBody, PostCessationReceiptsItem}
 
 class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockSharedAppConfig {
 
@@ -55,8 +55,44 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
   "running a validation" should {
     "return no errors" when {
+      def requestWithTrailingSpaces: CreateAmendOtherRequest = CreateAmendOtherRequest(
+        parsedNino,
+        parsedTaxYear,
+        CreateAmendOtherRequestBody(
+          Some(
+            Seq(PostCessationReceiptsItem(
+              customerReference = Some("  String  "),
+              businessName = Some("  Business Name  "),
+              Some("2023-05-30"),
+              businessDescription = Some("  Description  "),
+              incomeSource = Some("  string  "),
+              99999999999.99,
+              "2019-20"
+            ))),
+          None,
+          None,
+          None,
+          None,
+          None
+        )
+      )
+
+      def body(value: JsValue) = Json.parse(s"""
+           |{
+           |  "postCessationReceipts": [$value]
+           |}""".stripMargin)
+
       "a valid request is supplied" in new SetupConfig {
         validate(body = validRequestBodyJson) shouldBe Right(CreateAmendOtherRequest(parsedNino, parsedTaxYear, requestBodyModel))
+      }
+
+      "a valid request with trailing spaces is supplied" in new SetupConfig {
+        validate(body = body(
+          postCessationReceiptsItemJson
+            .update("customerReference", JsString("  String  "))
+            .update("businessName", JsString("  Business Name  "))
+            .update("businessDescription", JsString("  Description  "))
+            .update("incomeSource", JsString("  string  ")))) shouldBe Right(requestWithTrailingSpaces)
       }
     }
 
