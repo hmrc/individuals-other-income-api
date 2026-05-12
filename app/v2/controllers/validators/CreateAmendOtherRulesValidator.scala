@@ -23,8 +23,6 @@ import shared.controllers.validators.resolvers.*
 import shared.models.errors.*
 import v2.models.request.createAmendOther.*
 
-import scala.util.matching.Regex
-
 object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherRequest] with ResolverSupport {
 
   def validateBusinessRules(parsed: CreateAmendOtherRequest): Validated[Seq[MtdError], CreateAmendOtherRequest] = {
@@ -60,9 +58,6 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
   private def resolveNonNegativeNumber(amount: BigDecimal, path: String): Validated[Seq[MtdError], BigDecimal] =
     ResolveParsedNumber()(amount, path)
 
-  private def resolveStringPattern(value: Option[String], pattern: Regex, error: MtdError): Validated[Seq[MtdError], Option[String]] =
-    ResolveStringPattern(pattern, error)(value)
-
   private def resolveDate(path: String) = {
     ResolveIsoDate(DateFormatError.withPath(path)).resolver
       .map(_.getYear)
@@ -83,37 +78,40 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
     )
 
   private def validatePostCessationReceiptsItem(postCessationReceiptsItem: PostCessationReceiptsItem, arrayIndex: Int) = {
+
+    def path(field: String) = s"/postCessationReceipts/$arrayIndex/$field"
+
     combine(
-      resolveStringPattern(
+      ResolveStringPattern(
         value = postCessationReceiptsItem.customerReference,
-        pattern = "^[0-9a-zA-Z{À-˿’}\\- _&`():.'^]{1,90}$".r,
-        error = CustomerReferenceFormatError.withPath(s"/postCessationReceipts/$arrayIndex/customerReference")
+        regexFormat = "^[0-9a-zA-Z{À-˿’}\\- _&`():.'^]{1,90}$".r,
+        error = CustomerReferenceFormatError.withPath(path("customerReference"))
       ),
-      resolveStringPattern(
+      ResolveStringPattern(
         value = postCessationReceiptsItem.businessName,
-        pattern = "^[A-Za-z0-9 \\-,.&'\\\\/]{1,105}$".r,
-        error = BusinessNameFormatError.withPath(s"/postCessationReceipts/$arrayIndex/businessName")
+        regexFormat = "^[A-Za-z0-9 \\-,.&'\\\\/]{1,105}$".r,
+        error = BusinessNameFormatError.withPath(path("businessName"))
       ),
-      resolveStringPattern(
+      ResolveStringPattern(
         value = postCessationReceiptsItem.businessDescription,
-        pattern = "^[A-Za-z0-9 \\-,.&'\\\\/]{2,35}$".r,
-        error = BusinessDescriptionFormatError.withPath(s"/postCessationReceipts/$arrayIndex/businessDescription")
+        regexFormat = "^[A-Za-z0-9 \\-,.&'\\\\/]{2,35}$".r,
+        error = BusinessDescriptionFormatError.withPath(path("businessDescription"))
       ),
-      resolveStringPattern(
+      ResolveStringPattern(
         value = postCessationReceiptsItem.incomeSource,
-        pattern = "^.{1,105}$".r,
-        error = IncomeSourceFormatError.withPath(s"/postCessationReceipts/$arrayIndex/incomeSource")
+        regexFormat = "^.{1,105}$".r,
+        error = IncomeSourceFormatError.withPath(path("incomeSource"))
       ),
       resolveNonNegativeNumber(
         amount = postCessationReceiptsItem.amount,
-        path = s"/postCessationReceipts/$arrayIndex/amount"
+        path = path("amount")
       ),
       ResolveTaxYear(postCessationReceiptsItem.taxYearIncomeToBeTaxed).leftMap(
         _.map(
-          _.copy(paths = Some(Seq(s"/postCessationReceipts/$arrayIndex/taxYearIncomeToBeTaxed")))
+          _.copy(paths = Some(Seq(path("taxYearIncomeToBeTaxed"))))
         )
       ),
-      resolveDate(s"/postCessationReceipts/$arrayIndex/dateBusinessCeased").resolveOptionally(postCessationReceiptsItem.dateBusinessCeased)
+      resolveDate(path("dateBusinessCeased")).resolveOptionally(postCessationReceiptsItem.dateBusinessCeased)
     )
   }
 
