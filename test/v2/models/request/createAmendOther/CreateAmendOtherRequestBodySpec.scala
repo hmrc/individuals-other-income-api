@@ -16,11 +16,30 @@
 
 package v2.models.request.createAmendOther
 
-import play.api.libs.json.{JsError, JsObject, Json}
+import play.api.libs.json.{JsError, JsValue, Json}
 import shared.utils.UnitSpec
 import v2.fixtures.other.CreateAmendOtherFixtures.{requestBodyJson, requestBodyModel, requestBodyWithPCRJson}
 
 class CreateAmendOtherRequestBodySpec extends UnitSpec {
+
+  val emptyArraysModel: CreateAmendOtherRequestBody = CreateAmendOtherRequestBody(
+    postCessationReceipts = Some(Seq.empty),
+    businessReceipts = Some(Seq.empty),
+    allOtherIncomeReceivedWhilstAbroad = Some(Seq.empty),
+    overseasIncomeAndGains = None,
+    chargeableForeignBenefitsAndGifts = None,
+    omittedForeignIncome = None
+  )
+
+  val emptyJson: JsValue = Json.parse(
+    """
+      |{
+      |   "postCessationReceipts": [ ],
+      |   "businessReceipts": [ ],
+      |   "allOtherIncomeReceivedWhilstAbroad": [ ]
+      |}
+    """.stripMargin
+  )
 
   "CreateAmendOtherRequestBody" when {
     "read from valid JSON" should {
@@ -32,27 +51,16 @@ class CreateAmendOtherRequestBodySpec extends UnitSpec {
       }
     }
 
-    "read from valid JSON with empty chargeableForeignBenefitsAndGifts object, businessReceipts and allOtherIncomeReceivedWhilstAbroad arrays" should {
-      "produce an empty CreateAmendOtherRequestBody object" in {
-        val json = Json.parse(
-          """
-            |{
-            |   "businessReceipts": [ ],
-            |   "allOtherIncomeReceivedWhilstAbroad": [ ],
-            |   "chargeableForeignBenefitsAndGifts": { }
-            |}
-          """.stripMargin
-        )
+    "read from JSON with all empty arrays" should {
+      "return an error" in {
 
-        json.as[CreateAmendOtherRequestBody] shouldBe CreateAmendOtherRequestBody.empty
+        emptyJson.as[CreateAmendOtherRequestBody] shouldBe emptyArraysModel
       }
     }
 
     "read from empty JSON" should {
       "produce an empty CreateAmendOtherRequestBody object" in {
-        val emptyJson = JsObject.empty
-
-        emptyJson.as[CreateAmendOtherRequestBody] shouldBe CreateAmendOtherRequestBody.empty
+        emptyJson.as[CreateAmendOtherRequestBody] shouldBe emptyArraysModel
       }
     }
 

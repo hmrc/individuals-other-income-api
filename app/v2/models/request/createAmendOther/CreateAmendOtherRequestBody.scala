@@ -16,9 +16,7 @@
 
 package v2.models.request.createAmendOther
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsPath, OWrites, Reads}
-import utils.JsonUtils
+import play.api.libs.json.{Json, OFormat}
 
 case class CreateAmendOtherRequestBody(postCessationReceipts: Option[Seq[PostCessationReceiptsItem]],
                                        businessReceipts: Option[Seq[BusinessReceiptsItem]],
@@ -27,30 +25,8 @@ case class CreateAmendOtherRequestBody(postCessationReceipts: Option[Seq[PostCes
                                        chargeableForeignBenefitsAndGifts: Option[ChargeableForeignBenefitsAndGifts],
                                        omittedForeignIncome: Option[OmittedForeignIncome])
 
-object CreateAmendOtherRequestBody extends JsonUtils {
-  val empty: CreateAmendOtherRequestBody = CreateAmendOtherRequestBody(None, None, None, None, None, None)
+object CreateAmendOtherRequestBody {
 
-  implicit val reads: Reads[CreateAmendOtherRequestBody] = (
-    (JsPath \ "postCessationReceipts").readNullable[Seq[PostCessationReceiptsItem]].mapEmptySeqToNone and
-      (JsPath \ "businessReceipts").readNullable[Seq[BusinessReceiptsItem]].mapEmptySeqToNone and
-      (JsPath \ "allOtherIncomeReceivedWhilstAbroad").readNullable[Seq[AllOtherIncomeReceivedWhilstAbroadItem]].mapEmptySeqToNone and
-      (JsPath \ "overseasIncomeAndGains").readNullable[OverseasIncomeAndGains] and
-      (JsPath \ "chargeableForeignBenefitsAndGifts")
-        .readNullable[ChargeableForeignBenefitsAndGifts]
-        .map(_.flatMap {
-          case ChargeableForeignBenefitsAndGifts.empty => None
-          case chargeableForeignBenefitsAndGifts       => Some(chargeableForeignBenefitsAndGifts)
-        }) and
-      (JsPath \ "omittedForeignIncome").readNullable[OmittedForeignIncome]
-  )(CreateAmendOtherRequestBody.apply)
-
-  implicit val writes: OWrites[CreateAmendOtherRequestBody] = (
-    (JsPath \ "postCessationReceipts").writeNullable[Seq[PostCessationReceiptsItem]] and
-      (JsPath \ "businessReceipts").writeNullable[Seq[BusinessReceiptsItem]] and
-      (JsPath \ "allOtherIncomeReceivedWhilstAbroad").writeNullable[Seq[AllOtherIncomeReceivedWhilstAbroadItem]] and
-      (JsPath \ "overseasIncomeAndGains").writeNullable[OverseasIncomeAndGains] and
-      (JsPath \ "chargeableForeignBenefitsAndGifts").writeNullable[ChargeableForeignBenefitsAndGifts] and
-      (JsPath \ "omittedForeignIncome").writeNullable[OmittedForeignIncome]
-  )(w => Tuple.fromProductTyped(w))
+  implicit val format: OFormat[CreateAmendOtherRequestBody] = Json.format[CreateAmendOtherRequestBody]
 
 }

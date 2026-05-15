@@ -123,6 +123,20 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
         validate(body = Json.parse("""{"field": "value"}""")) shouldBe singleError(RuleIncorrectOrEmptyBodyError)
       }
 
+      "a non-empty body with only empty arrays is submitted" in new SetupConfig {
+        val emptyJson: JsValue = Json.parse(
+          """
+            |{
+            |   "postCessationReceipts": [ ],
+            |   "businessReceipts": [ ],
+            |   "allOtherIncomeReceivedWhilstAbroad": [ ]
+            |}
+          """.stripMargin
+        )
+        validate(body = emptyJson) shouldBe singleError(
+          RuleIncorrectOrEmptyBodyError.withPaths(List("/postCessationReceipts", "/businessReceipts", "/allOtherIncomeReceivedWhilstAbroad")))
+      }
+
       "the submitted request body is not in the correct format" in new SetupConfig {
         val invalidRequestBodyJson: JsValue = Json.parse("""
             |{
