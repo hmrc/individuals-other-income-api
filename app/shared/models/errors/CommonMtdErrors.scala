@@ -94,6 +94,9 @@ object RuleRequestCannotBeFulfilledError
 object RuleTaxYearNotSupportedError
     extends MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "The tax year specified does not lie within the supported range", BAD_REQUEST)
 
+object RuleUnalignedCessationTaxYearError
+    extends MtdError("RULE_UNALIGNED_CESSATION_TAX_YEAR", "The tax year provided must be the same as the tax year of income to be taxed", BAD_REQUEST)
+
 object RuleIncorrectOrEmptyBodyError
     extends MtdError("RULE_INCORRECT_OR_EMPTY_BODY_SUBMITTED", "An empty or non-matching body was submitted", BAD_REQUEST)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,18 @@ package v2.endpoints
 import common.{RuleOutsideAmendmentWindowError, RuleUnalignedCessationTaxYear}
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status.*
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import play.api.test.Helpers.AUTHORIZATION
 import shared.models.errors
 import shared.models.errors.*
+import shared.models.utils.JsonErrorValidators
 import shared.services.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
 import shared.support.IntegrationBaseSpec
 import v2.fixtures.other.CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
 
-class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
+class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonErrorValidators {
 
   "Calling the 'create and amend other income' endpoint" should {
     "return a 200 status code" when {
@@ -39,7 +40,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
         }
 
-        val response: WSResponse = await(request().put(requestBodyWithPCRJson))
+        val response: WSResponse = await(request().put(requestBodyAlignedTaxYear))
         response.status shouldBe OK
         response.body shouldBe ""
       }
@@ -50,7 +51,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
         }
 
-        val response: WSResponse = await(request().put(requestBodyWithPCRJson))
+        val response: WSResponse = await(request().put(requestBodyAlignedTaxYear))
         response.status shouldBe OK
         response.body shouldBe ""
       }
@@ -127,9 +128,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
         response.json shouldBe Json.toJson(
           ErrorWrapper(
             correlationId = correlationId,
-            error = TaxYearFormatError.copy(
-              paths = Some(List("/businessReceipts/0/taxYear"))
-            ),
+            error = TaxYearFormatError.withPath("/businessReceipts/0/taxYear"),
             errors = None
           ))
         response.header("Content-Type") shouldBe Some("application/json")
@@ -196,9 +195,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
         response.json shouldBe Json.toJson(
           ErrorWrapper(
             correlationId = correlationId,
-            error = RuleTaxYearRangeInvalidError.copy(
-              paths = Some(List("/businessReceipts/0/taxYear"))
-            ),
+            error = RuleTaxYearRangeInvalidError.withPath("/businessReceipts/0/taxYear"),
             errors = None
           ))
 
@@ -212,6 +209,12 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
         val allInvalidValueRequestBodyJson: JsValue = Json.parse(
           """
             |{
+            |   "postCessationReceipts": [
+            |     {
+            |         "amount": 99999999999.999,
+            |         "taxYearIncomeToBeTaxed": "2019-20"
+            |     }
+            |   ],
             |   "businessReceipts":[
             |      {
             |         "grossAmount":5000.999,
@@ -262,45 +265,37 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
         )
 
         val allInvalidValueRequestError: List[MtdError] = List(
-          CountryCodeFormatError.copy(
-            paths = Some(List("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"))
+          CountryCodeFormatError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"),
+          TaxYearFormatError.withPath("/businessReceipts/0/taxYear"),
+          ValueFormatError.withPaths(
+            List(
+              "/postCessationReceipts/0/amount",
+              "/businessReceipts/0/grossAmount",
+              "/businessReceipts/1/grossAmount",
+              "/allOtherIncomeReceivedWhilstAbroad/0/amountBeforeTax",
+              "/allOtherIncomeReceivedWhilstAbroad/0/taxTakenOff",
+              "/allOtherIncomeReceivedWhilstAbroad/0/specialWithholdingTax",
+              "/allOtherIncomeReceivedWhilstAbroad/0/taxableAmount",
+              "/allOtherIncomeReceivedWhilstAbroad/0/residentialFinancialCostAmount",
+              "/allOtherIncomeReceivedWhilstAbroad/0/broughtFwdResidentialFinancialCostAmount",
+              "/allOtherIncomeReceivedWhilstAbroad/1/amountBeforeTax",
+              "/allOtherIncomeReceivedWhilstAbroad/1/taxTakenOff",
+              "/allOtherIncomeReceivedWhilstAbroad/1/specialWithholdingTax",
+              "/allOtherIncomeReceivedWhilstAbroad/1/taxableAmount",
+              "/allOtherIncomeReceivedWhilstAbroad/1/residentialFinancialCostAmount",
+              "/allOtherIncomeReceivedWhilstAbroad/1/broughtFwdResidentialFinancialCostAmount",
+              "/overseasIncomeAndGains/gainAmount",
+              "/chargeableForeignBenefitsAndGifts/transactionBenefit",
+              "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeSourceBenefit",
+              "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeOnwardGift",
+              "/chargeableForeignBenefitsAndGifts/benefitReceivedAsASettler",
+              "/chargeableForeignBenefitsAndGifts/onwardGiftReceivedAsASettler",
+              "/omittedForeignIncome/amount"
+            )
           ),
-          TaxYearFormatError.copy(
-            paths = Some(List("/businessReceipts/0/taxYear"))
-          ),
-          ValueFormatError.copy(
-            message = "The value must be between 0 and 99999999999.99",
-            paths = Some(
-              List(
-                "/businessReceipts/0/grossAmount",
-                "/businessReceipts/1/grossAmount",
-                "/allOtherIncomeReceivedWhilstAbroad/0/amountBeforeTax",
-                "/allOtherIncomeReceivedWhilstAbroad/0/taxTakenOff",
-                "/allOtherIncomeReceivedWhilstAbroad/0/specialWithholdingTax",
-                "/allOtherIncomeReceivedWhilstAbroad/0/taxableAmount",
-                "/allOtherIncomeReceivedWhilstAbroad/0/residentialFinancialCostAmount",
-                "/allOtherIncomeReceivedWhilstAbroad/0/broughtFwdResidentialFinancialCostAmount",
-                "/allOtherIncomeReceivedWhilstAbroad/1/amountBeforeTax",
-                "/allOtherIncomeReceivedWhilstAbroad/1/taxTakenOff",
-                "/allOtherIncomeReceivedWhilstAbroad/1/specialWithholdingTax",
-                "/allOtherIncomeReceivedWhilstAbroad/1/taxableAmount",
-                "/allOtherIncomeReceivedWhilstAbroad/1/residentialFinancialCostAmount",
-                "/allOtherIncomeReceivedWhilstAbroad/1/broughtFwdResidentialFinancialCostAmount",
-                "/overseasIncomeAndGains/gainAmount",
-                "/chargeableForeignBenefitsAndGifts/transactionBenefit",
-                "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeSourceBenefit",
-                "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeOnwardGift",
-                "/chargeableForeignBenefitsAndGifts/benefitReceivedAsASettler",
-                "/chargeableForeignBenefitsAndGifts/onwardGiftReceivedAsASettler",
-                "/omittedForeignIncome/amount"
-              ))
-          ),
-          RuleCountryCodeError.copy(
-            paths = Some(List("/allOtherIncomeReceivedWhilstAbroad/1/countryCode"))
-          ),
-          RuleTaxYearRangeInvalidError.copy(
-            paths = Some(List("/businessReceipts/1/taxYear"))
-          )
+          RuleCountryCodeError.withPath("/allOtherIncomeReceivedWhilstAbroad/1/countryCode"),
+          RuleTaxYearRangeInvalidError.withPath("/businessReceipts/1/taxYear"),
+          RuleUnalignedCessationTaxYearError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed")
         )
 
         val wrappedErrors: ErrorWrapper = errors.ErrorWrapper(
@@ -632,57 +627,48 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
         """.stripMargin
       )
 
-      val countryCodeError: MtdError = CountryCodeFormatError.copy(
-        paths = Some(
+      val countryCodeError: MtdError = CountryCodeFormatError.withPaths(
           Seq(
             "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",
             "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
-          ))
+          )
       )
 
-      val countryCodeRuleError: MtdError = RuleCountryCodeError.copy(
-        paths = Some(
+      val countryCodeRuleError: MtdError = RuleCountryCodeError.withPaths(
           Seq(
             "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",
             "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
-          ))
+          )
       )
 
-      val allInvalidValueRequestError: MtdError = ValueFormatError.copy(
-        message = "The value must be between 0 and 99999999999.99",
-        paths = Some(
-          List(
-            "/businessReceipts/0/grossAmount",
-            "/businessReceipts/1/grossAmount",
-            "/allOtherIncomeReceivedWhilstAbroad/0/amountBeforeTax",
-            "/allOtherIncomeReceivedWhilstAbroad/0/taxTakenOff",
-            "/allOtherIncomeReceivedWhilstAbroad/0/specialWithholdingTax",
-            "/allOtherIncomeReceivedWhilstAbroad/0/taxableAmount",
-            "/allOtherIncomeReceivedWhilstAbroad/0/residentialFinancialCostAmount",
-            "/allOtherIncomeReceivedWhilstAbroad/0/broughtFwdResidentialFinancialCostAmount",
-            "/allOtherIncomeReceivedWhilstAbroad/1/amountBeforeTax",
-            "/allOtherIncomeReceivedWhilstAbroad/1/taxTakenOff",
-            "/allOtherIncomeReceivedWhilstAbroad/1/specialWithholdingTax",
-            "/allOtherIncomeReceivedWhilstAbroad/1/taxableAmount",
-            "/allOtherIncomeReceivedWhilstAbroad/1/residentialFinancialCostAmount",
-            "/allOtherIncomeReceivedWhilstAbroad/1/broughtFwdResidentialFinancialCostAmount",
-            "/overseasIncomeAndGains/gainAmount",
-            "/chargeableForeignBenefitsAndGifts/transactionBenefit",
-            "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeSourceBenefit",
-            "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeOnwardGift",
-            "/chargeableForeignBenefitsAndGifts/benefitReceivedAsASettler",
-            "/chargeableForeignBenefitsAndGifts/onwardGiftReceivedAsASettler",
-            "/omittedForeignIncome/amount"
-          ))
+      val allInvalidValueRequestError: MtdError = ValueFormatError.withPaths(
+        List(
+          "/businessReceipts/0/grossAmount",
+          "/businessReceipts/1/grossAmount",
+          "/allOtherIncomeReceivedWhilstAbroad/0/amountBeforeTax",
+          "/allOtherIncomeReceivedWhilstAbroad/0/taxTakenOff",
+          "/allOtherIncomeReceivedWhilstAbroad/0/specialWithholdingTax",
+          "/allOtherIncomeReceivedWhilstAbroad/0/taxableAmount",
+          "/allOtherIncomeReceivedWhilstAbroad/0/residentialFinancialCostAmount",
+          "/allOtherIncomeReceivedWhilstAbroad/0/broughtFwdResidentialFinancialCostAmount",
+          "/allOtherIncomeReceivedWhilstAbroad/1/amountBeforeTax",
+          "/allOtherIncomeReceivedWhilstAbroad/1/taxTakenOff",
+          "/allOtherIncomeReceivedWhilstAbroad/1/specialWithholdingTax",
+          "/allOtherIncomeReceivedWhilstAbroad/1/taxableAmount",
+          "/allOtherIncomeReceivedWhilstAbroad/1/residentialFinancialCostAmount",
+          "/allOtherIncomeReceivedWhilstAbroad/1/broughtFwdResidentialFinancialCostAmount",
+          "/overseasIncomeAndGains/gainAmount",
+          "/chargeableForeignBenefitsAndGifts/transactionBenefit",
+          "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeSourceBenefit",
+          "/chargeableForeignBenefitsAndGifts/protectedForeignIncomeOnwardGift",
+          "/chargeableForeignBenefitsAndGifts/benefitReceivedAsASettler",
+          "/chargeableForeignBenefitsAndGifts/onwardGiftReceivedAsASettler",
+          "/omittedForeignIncome/amount"
+        )
       )
 
-      val nonValidRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.copy(
-        paths = Some(Seq("/overseasIncomeAndGains/gainAmount"))
-      )
-
-      val missingFieldRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.copy(
-        paths = Some(Seq("/businessReceipts/0/taxYear"))
-      )
+      val nonValidRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.withPath("/overseasIncomeAndGains/gainAmount")
+      val missingFieldRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.withPath("/businessReceipts/0/taxYear")
 
       "validation error" when {
         def validationErrorTest(requestNino: String,
@@ -724,7 +710,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
               DownstreamStub.onError(DownstreamStub.PUT, downstreamUri, downstreamStatus, errorBody(downstreamCode))
             }
 
-            val response: WSResponse = await(request().put(requestBodyWithPCRJson))
+            val response: WSResponse = await(request().put(requestBodyAlignedTaxYear))
             response.status shouldBe expectedStatus
             response.json shouldBe Json.toJson(expectedBody)
           }
@@ -784,12 +770,15 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec {
         )
     }
 
+    def requestBodyAlignedTaxYear: JsValue =
+      requestBodyWithPCRJson.updateArrayField("postCessationReceipts", "taxYearIncomeToBeTaxed", JsString(mtdTaxYear))
+
   }
 
   private trait NonTysTest extends Test {
     def mtdTaxYear: String = "2021-22"
 
-    def downstreamUri: String = s"/income-tax/income/other/$nino/2021-22"
+    def downstreamUri: String = s"/income-tax/income/other/$nino/$mtdTaxYear"
   }
 
   private trait TysIfsTest extends Test {

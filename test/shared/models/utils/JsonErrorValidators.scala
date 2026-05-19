@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,19 @@ trait JsonErrorValidators extends UnitSpec {
     def update(path: JsPath, replacement: JsValue): JsValue = {
       val updateReads: Reads[JsObject] = __.json.update(path.json.put(replacement))
       json.as[JsObject](updateReads)
+    }
+
+    def updateArrayField(arrayField: String, subField: String, value: JsValue, index: Int = 0): JsValue = {
+      json
+        .transform(
+          (JsPath \ arrayField).json.update(
+            JsPath.read[JsArray].map { arr =>
+              val updated = arr.value.updated(index, arr(index).as[JsObject] + (subField -> value))
+              JsArray(updated)
+            }
+          )
+        )
+        .getOrElse(json)
     }
 
     def replaceWithEmptyObject(path: String): JsValue =

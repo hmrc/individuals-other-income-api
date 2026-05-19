@@ -39,7 +39,7 @@ object CreateAmendOtherFixtures {
        | "dateBusinessCeased": "2023-05-30",
        | "businessDescription": "Description",
        | "incomeSource": "string",
-       | "amount": 99999999999.99, 
+       | "amount": 99999999999.99,
        | "taxYearIncomeToBeTaxed": "2019-20"
        | }
        |""".stripMargin

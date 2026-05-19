@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import cats.data.Validated
 import cats.implicits.toFoldableOps
 import shared.controllers.validators.RulesValidator
 import shared.controllers.validators.resolvers.*
+import shared.models.domain.TaxYear
 import shared.models.errors.*
 import v2.models.request.createAmendOther.*
 
@@ -29,7 +30,7 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
     import parsed.body
 
     combine(
-      validateOptionalSeqWith(body.postCessationReceipts)(validatePostCessationReceiptsItem),
+      validateOptionalSeqWith(body.postCessationReceipts)(validatePostCessationReceiptsItem(parsed.taxYear)),
       validateOptionalSeqWith(body.businessReceipts)(validateBusinessReceipts),
       validateOptionalSeqWith(body.allOtherIncomeReceivedWhilstAbroad)(validateAllOtherIncomeReceivedWhilstAbroad),
       validateOptionalWith(body.overseasIncomeAndGains)(validateOverseasIncomeAndGains),
@@ -72,12 +73,12 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
       ),
       ResolveTaxYear(businessReceipts.taxYear).leftMap(
         _.map(
-          _.copy(paths = Some(Seq(s"/businessReceipts/$arrayIndex/taxYear")))
+          _.withPath(s"/businessReceipts/$arrayIndex/taxYear")
         )
       )
     )
 
-  private def validatePostCessationReceiptsItem(postCessationReceiptsItem: PostCessationReceiptsItem, arrayIndex: Int) = {
+  private def validatePostCessationReceiptsItem(requestTaxYear: TaxYear)(postCessationReceiptsItem: PostCessationReceiptsItem, arrayIndex: Int) = {
 
     def path(field: String) = s"/postCessationReceipts/$arrayIndex/$field"
 
@@ -106,11 +107,16 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
         amount = postCessationReceiptsItem.amount,
         path = path("amount")
       ),
-      ResolveTaxYear(postCessationReceiptsItem.taxYearIncomeToBeTaxed).leftMap(
-        _.map(
-          _.copy(paths = Some(Seq(path("taxYearIncomeToBeTaxed"))))
+      ResolveTaxYear(postCessationReceiptsItem.taxYearIncomeToBeTaxed)
+        .leftMap(
+          _.map(
+            _.withPath(path("taxYearIncomeToBeTaxed"))
+          )
         )
-      ),
+        .andThen { taxYearIncomeToBeTaxed =>
+          Validated
+            .cond(requestTaxYear == taxYearIncomeToBeTaxed, (), Seq(RuleUnalignedCessationTaxYearError.withPath(path("taxYearIncomeToBeTaxed"))))
+        },
       resolveDate(path("dateBusinessCeased")).resolveOptionally(postCessationReceiptsItem.dateBusinessCeased)
     )
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
   def validator(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
     new CreateAmendOtherValidator(nino, taxYear, body)(mockSharedAppConfig)
 
-  def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
+  private def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
     validator(nino, taxYear, body).validateAndWrapResult()
 
   def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
@@ -177,6 +177,11 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
       "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new SetupConfig {
         validate(body = body(postCessationReceiptsItemJson.update("taxYearIncomeToBeTaxed", JsString("2020-22")))) shouldBe
           singleError(RuleTaxYearRangeInvalidError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed"))
+      }
+
+      "return RuleUnalignedCessationTaxYearError when taxYearIncomeToBeTaxed is not equal to the request tax year supplied" in new SetupConfig {
+        validate(body = body(postCessationReceiptsItemJson.update("taxYearIncomeToBeTaxed", JsString("2021-22")))) shouldBe
+          singleError(RuleUnalignedCessationTaxYearError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed"))
       }
 
       "return DateFormatError when an invalid date is supplied" in new SetupConfig {
