@@ -37,56 +37,56 @@ components:
       value:
         code: RULE_TAX_YEAR_NOT_SUPPORTED
         message: The tax year specified does not lie within the supported range
-        
+
     ruleTaxYearRangeInvalid:
       description: Tax year range invalid. A tax year range of one year is required.
       value:
         code: RULE_TAX_YEAR_RANGE_INVALID
         message: A tax year range of one year is required
-        
+
     formatValue:
       description: One or more values have been added with the incorrect format.
       value:
         code: FORMAT_VALUE
         message: The value must be between 0.00 and 99999999999.99
-        
+
     formatCountryCode:
       description: The format of the supplied country code is not valid.
       value:
         code: FORMAT_COUNTRY_CODE
         message: The provided Country code is invalid
-        
+
     ruleCountryCode:
       description: Not a permitted ISO 3166-1 alpha-3 country code.
       value:
         code: RULE_COUNTRY_CODE
         message: The country code is not a permitted ISO 3166-1 alpha-3 country code
-        
+
     formatDate:
       description: The supplied date format is not valid.
       value:
         code: FORMAT_DATE
         message: The supplied date format is not valid
-        
-    formatCustomerReference:    
+
+    formatCustomerReference:
       description: The format of the supplied customer reference field is not valid.
       value:
         code: FORMAT_CUSTOMER_REFERENCE
         message: The provided customer reference is invalid
-    
-    formatBusinessName:    
+
+    formatBusinessName:
       description: The format of the supplied business name field is not valid.
       value:
         code: FORMAT_BUSINESS_NAME
         message: The provided business name is invalid
-        
-    formatBusinessDescription:    
+
+    formatBusinessDescription:
       description: The format of the supplied business description field is not valid.
       value:
         code: FORMAT_BUSINESS_DESCRIPTION
         message: The provided business description is invalid
-        
-    formatIncomeSource:    
+
+    formatIncomeSource:
       description: The format of the supplied income source field is not valid.
       value:
         code: FORMAT_INCOME_SOURCE
@@ -117,7 +117,7 @@ components:
         message: The supplied Gov-Test-Scenario is not valid
 
     ruleDateRangeInvalid:
-      description: The date provide is outside of the range 1900-01-01 to 2100-01-01
+      description: The date provided is outside of the range 1900-01-01 to 2100-01-01
       value:
         code: RULE_DATE_RANGE_INVALID
         message: The specified date range is invalid

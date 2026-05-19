@@ -12,7 +12,6 @@ description: |
   | -------------------------------- | --------------------------------------------------------------------------------------------------------- |
   | N/A - DEFAULT                    | Simulates success response.                                                                               |
   | OUTSIDE_AMENDMENT_WINDOW         | Simulates the scenario where request cannot be completed as it is outside the amendment window.           |
-  | UNALIGNED_CESSATION_TAX_YEAR     | Simulates the scenario where the tax year provided is not the same as the tax year of income to be taxed. |
   | REQUEST_CANNOT_BE_FULFILLED      | Simulates the scenario where the request could not be processed.                                          |
   | STATEFUL                         | Performs a stateful create or update.                                                                     |
 
