@@ -16,7 +16,6 @@
 
 package v2.services
 
-import common.{RuleOutsideAmendmentWindowError, RuleUnalignedCessationTaxYear}
 import play.api.Configuration
 import shared.config.MockSharedAppConfig
 import shared.controllers.EndpointLogContext
@@ -101,7 +100,7 @@ class CreateAmendOtherServiceSpec extends ServiceSpec {
           ("INVALID_PAYLOAD", InternalError),
           ("SERVER_ERROR", InternalError),
           ("SERVICE_UNAVAILABLE", InternalError),
-          ("UNALIGNED_CESSATION_TAX_YEAR", RuleUnalignedCessationTaxYear)
+          ("UNALIGNED_CESSATION_TAX_YEAR", RuleUnalignedCessationTaxYearError)
         )
 
         val extraTysErrors = List(

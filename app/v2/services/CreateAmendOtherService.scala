@@ -17,7 +17,6 @@
 package v2.services
 
 import cats.implicits._
-import common.{RuleOutsideAmendmentWindowError, RuleUnalignedCessationTaxYear}
 import shared.controllers.RequestContext
 import shared.models.errors._
 import shared.services.{BaseService, ServiceOutcome}
@@ -43,7 +42,7 @@ class CreateAmendOtherService @Inject() (connector: CreateAmendOtherConnector) e
       "INVALID_PAYLOAD"              -> InternalError,
       "SERVER_ERROR"                 -> InternalError,
       "SERVICE_UNAVAILABLE"          -> InternalError,
-      "UNALIGNED_CESSATION_TAX_YEAR" -> RuleUnalignedCessationTaxYear
+      "UNALIGNED_CESSATION_TAX_YEAR" -> RuleUnalignedCessationTaxYearError
     )
 
     val extraTysErrors = Map(

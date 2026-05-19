@@ -16,7 +16,6 @@
 
 package v2.services
 
-import common.RuleOutsideAmendmentWindowError
 import shared.controllers.EndpointLogContext
 import shared.models.domain.{Nino, TaxYear}
 import shared.models.errors._

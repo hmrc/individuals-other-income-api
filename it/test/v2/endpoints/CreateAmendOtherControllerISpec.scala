@@ -16,7 +16,6 @@
 
 package v2.endpoints
 
-import common.{RuleOutsideAmendmentWindowError, RuleUnalignedCessationTaxYear}
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status.*
 import play.api.libs.json.{JsString, JsValue, Json}
@@ -628,17 +627,17 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
       )
 
       val countryCodeError: MtdError = CountryCodeFormatError.withPaths(
-          Seq(
-            "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",
-            "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
-          )
+        Seq(
+          "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",
+          "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
+        )
       )
 
       val countryCodeRuleError: MtdError = RuleCountryCodeError.withPaths(
-          Seq(
-            "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",
-            "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
-          )
+        Seq(
+          "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",
+          "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
+        )
       )
 
       val allInvalidValueRequestError: MtdError = ValueFormatError.withPaths(
@@ -667,7 +666,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         )
       )
 
-      val nonValidRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.withPath("/overseasIncomeAndGains/gainAmount")
+      val nonValidRequestBodyErrors: MtdError     = RuleIncorrectOrEmptyBodyError.withPath("/overseasIncomeAndGains/gainAmount")
       val missingFieldRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.withPath("/businessReceipts/0/taxYear")
 
       "validation error" when {
@@ -731,7 +730,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
           (BAD_REQUEST, "INVALID_PAYLOAD", INTERNAL_SERVER_ERROR, InternalError),
           (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError),
           (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
-          (UNPROCESSABLE_ENTITY, "UNALIGNED_CESSATION_TAX_YEAR", BAD_REQUEST, RuleUnalignedCessationTaxYear)
+          (UNPROCESSABLE_ENTITY, "UNALIGNED_CESSATION_TAX_YEAR", BAD_REQUEST, RuleUnalignedCessationTaxYearError)
         )
 
         val extraTysErrors = List(
