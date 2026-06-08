@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package shared.connectors.httpparsers
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Reads
 import shared.connectors.DownstreamOutcome
 import shared.models.errors.{InternalError, OutboundError}
@@ -37,7 +37,7 @@ object StandardDownstreamHttpParser extends HttpParser {
   implicit def reads[A: Reads](implicit successCode: SuccessCode = SuccessCode(OK)): HttpReads[DownstreamOutcome[A]] =
     (_: String, url: String, response: HttpResponse) =>
       doRead(url, response) { correlationId =>
-        response.validateJson[A] match {
+        response.validateJsonWithLogging[A] match {
           case Some(ref) => Right(ResponseWrapper(correlationId, ref))
           case None      => Left(ResponseWrapper(correlationId, OutboundError(InternalError)))
         }

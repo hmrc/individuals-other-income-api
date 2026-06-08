@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package shared.connectors.httpparsers
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json, Reads}
 import shared.connectors.DownstreamOutcome
-import shared.models.errors._
+import shared.models.errors.*
 import shared.models.outcomes.ResponseWrapper
 import shared.utils.UnitSpec
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
@@ -38,7 +38,7 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
 
   val correlationId = "a1e8057e-fbbc-47a8-a8b4-78d9f015c253"
 
-  import shared.connectors.httpparsers.StandardDownstreamHttpParser._
+  import shared.connectors.httpparsers.StandardDownstreamHttpParser.*
 
   val httpReads: HttpReads[DownstreamOutcome[Unit]] = implicitly
 
@@ -110,48 +110,6 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
         val httpResponse = HttpResponse(PARTIAL_CONTENT, "", headers = Map("CorrelationId" -> List(correlationId)))
 
         httpReads.read(method, url, httpResponse) shouldBe Right(ResponseWrapper(correlationId, ()))
-      }
-    }
-  }
-
-  "validateJson" when {
-    implicit val reads: Reads[SomeDataObject] = Json.reads[SomeDataObject]
-
-    "the JSON is valid" should {
-      "return the parsed model" in {
-        val validJsonResponse: HttpResponse = HttpResponse(
-          OK,
-          expectedJson,
-          Map("CorrelationId" -> Seq(correlationId))
-        )
-
-        val result: Option[SomeDataObject] = validJsonResponse.validateJson[SomeDataObject]
-
-        result shouldBe Some(downstreamResponseData)
-      }
-    }
-
-    "the JSON is invalid" should {
-      "return None" in {
-        val invalidJsonResponse: HttpResponse = HttpResponse(
-          OK,
-          Json.obj("data"     -> 1234),
-          Map("CorrelationId" -> Seq(correlationId))
-        )
-
-        val result: Option[SomeDataObject] = invalidJsonResponse.validateJson[SomeDataObject]
-
-        result shouldBe None
-      }
-    }
-
-    "the response contains no JSON" should {
-      "return None" in {
-        val emptyResponse: HttpResponse = HttpResponse(OK, "", Map("CorrelationId" -> Seq(correlationId)))
-
-        val result: Option[SomeDataObject] = emptyResponse.validateJson[SomeDataObject]
-
-        result shouldBe None
       }
     }
   }
@@ -270,7 +228,7 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
         |}
       """.stripMargin)
 
-    s"receiving a response with BVR errors" should {
+    "receiving a response with BVR errors" should {
       "return an outbound BUSINESS_ERROR error containing the BVR ids" in {
         val httpResponse = HttpResponse(BAD_REQUEST, singleBvrJson, Map("CorrelationId" -> List(correlationId)))
         val result       = httpReads.read(method, url, httpResponse)
