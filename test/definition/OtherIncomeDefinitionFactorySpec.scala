@@ -16,28 +16,28 @@
 
 package definition
 
+import api.config.Deprecation.NotDeprecated
+import api.config.MockAppConfig
+import api.definition.APIStatus.BETA
+import api.definition.{APIDefinition, APIVersion, Definition}
+import api.routing.Version2
+import api.utils.UnitSpec
 import cats.implicits.catsSyntaxValidatedId
-import shared.config.Deprecation.NotDeprecated
-import shared.config.MockSharedAppConfig
-import shared.definition.APIStatus.BETA
-import shared.definition.{APIDefinition, APIVersion, Definition}
-import shared.routing.Version2
-import shared.utils.UnitSpec
 
-class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockSharedAppConfig {
+class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockAppConfig {
 
   "definition" when {
     "called" should {
       "return a valid Definition case class" in {
-        MockedSharedAppConfig.apiGatewayContext returns "individuals/other-income"
+        MockedAppConfig.apiGatewayContext returns "individuals/other-income"
 
         List(Version2).foreach { version =>
-          MockedSharedAppConfig.apiStatus(version) returns "BETA"
-          MockedSharedAppConfig.endpointsEnabled(version) returns true
-          MockedSharedAppConfig.deprecationFor(version).returns(NotDeprecated.valid).anyNumberOfTimes()
+          MockedAppConfig.apiStatus(version) returns "BETA"
+          MockedAppConfig.endpointsEnabled(version) returns true
+          MockedAppConfig.deprecationFor(version).returns(NotDeprecated.valid).anyNumberOfTimes()
         }
 
-        val apiDefinitionFactory: OtherIncomeDefinitionFactory = new OtherIncomeDefinitionFactory(mockSharedAppConfig)
+        val apiDefinitionFactory: OtherIncomeDefinitionFactory = new OtherIncomeDefinitionFactory(mockAppConfig)
 
         apiDefinitionFactory.definition shouldBe
           Definition(

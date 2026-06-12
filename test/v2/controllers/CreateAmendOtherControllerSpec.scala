@@ -16,21 +16,21 @@
 
 package v2.controllers
 
+import api.config.MockAppConfig
+import api.controllers.{ControllerBaseSpec, ControllerTestRunner}
+import api.models.audit.{AuditEvent, AuditResponse, GenericAuditDetail}
+import api.models.domain.TaxYear
+import api.models.errors.*
+import api.models.outcomes.ResponseWrapper
+import api.routing.Version2
+import api.services.MockAuditService
 import play.api.Configuration
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
-import shared.config.MockSharedAppConfig
-import shared.controllers.{ControllerBaseSpec, ControllerTestRunner}
-import shared.models.audit.{AuditEvent, AuditResponse, GenericAuditDetail}
-import shared.models.domain.TaxYear
-import shared.models.errors._
-import shared.models.outcomes.ResponseWrapper
-import shared.routing.Version2
-import shared.services.MockAuditService
 import v2.controllers.validators.MockCreateAmendOtherValidatorFactory
 import v2.fixtures.other.CreateAmendOtherFixtures.{requestBodyJson, requestBodyModel}
 import v2.mocks.services.MockCreateAmendOtherService
-import v2.models.request.createAmendOther._
+import v2.models.request.createAmendOther.*
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -41,7 +41,7 @@ class CreateAmendOtherControllerSpec
     with MockCreateAmendOtherValidatorFactory
     with MockAuditService
     with MockCreateAmendOtherService
-    with MockSharedAppConfig {
+    with MockAppConfig {
 
   val taxYear: String = "2019-20"
 
@@ -100,11 +100,11 @@ class CreateAmendOtherControllerSpec
       idGenerator = mockIdGenerator
     )
 
-    MockedSharedAppConfig.featureSwitchConfig.anyNumberOfTimes() returns Configuration(
+    MockedAppConfig.featureSwitchConfig.anyNumberOfTimes() returns Configuration(
       "supporting-agents-access-control.enabled" -> true
     )
 
-    MockedSharedAppConfig.endpointAllowsSupportingAgents(controller.endpointName).anyNumberOfTimes() returns false
+    MockedAppConfig.endpointAllowsSupportingAgents(controller.endpointName).anyNumberOfTimes() returns false
 
     protected def callController(): Future[Result] = controller.createAmendOther(validNino, taxYear)(fakeRequest.withBody(requestBodyJson))
 

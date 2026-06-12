@@ -16,6 +16,6 @@
 
 package v2.models.request.retrieveOther
 
-import shared.models.domain.{Nino, TaxYear}
+import api.models.domain.{Nino, TaxYear}
 
 case class RetrieveOtherRequest(nino: Nino, taxYear: TaxYear)

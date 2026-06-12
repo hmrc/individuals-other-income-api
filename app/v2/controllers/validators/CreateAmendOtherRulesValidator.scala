@@ -16,12 +16,12 @@
 
 package v2.controllers.validators
 
+import api.controllers.validators.RulesValidator
+import api.controllers.validators.resolvers.*
+import api.models.domain.TaxYear
+import api.models.errors.*
 import cats.data.Validated
 import cats.implicits.toFoldableOps
-import shared.controllers.validators.RulesValidator
-import shared.controllers.validators.resolvers.*
-import shared.models.domain.TaxYear
-import shared.models.errors.*
 import v2.models.request.createAmendOther.*
 
 object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherRequest] with ResolverSupport {

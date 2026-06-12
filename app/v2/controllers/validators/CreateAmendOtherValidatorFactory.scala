@@ -16,15 +16,15 @@
 
 package v2.controllers.validators
 
+import api.config.AppConfig
+import api.controllers.validators.Validator
 import play.api.libs.json.JsValue
-import shared.config.SharedAppConfig
-import shared.controllers.validators.Validator
 import v2.models.request.createAmendOther.CreateAmendOtherRequest
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class CreateAmendOtherValidatorFactory @Inject() (appConfig: SharedAppConfig) {
+class CreateAmendOtherValidatorFactory @Inject() (appConfig: AppConfig) {
 
   def validator(nino: String, taxYear: String, body: JsValue): Validator[CreateAmendOtherRequest] =
     new CreateAmendOtherValidator(nino, taxYear, body)(appConfig)

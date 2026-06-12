@@ -16,11 +16,11 @@
 
 package config
 
+import api.definition.ApiDefinitionFactory
+import api.routing.VersionRoutingMap
 import com.google.inject.AbstractModule
 import definition.OtherIncomeDefinitionFactory
 import routing.OtherIncomeVersionRoutingMap
-import shared.definition.ApiDefinitionFactory
-import shared.routing.VersionRoutingMap
 
 class OtherIncomePlayModule extends AbstractModule {
 

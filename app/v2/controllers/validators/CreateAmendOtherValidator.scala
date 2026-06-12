@@ -16,14 +16,14 @@
 
 package v2.controllers.validators
 
+import api.config.AppConfig
+import api.controllers.validators.Validator
+import api.controllers.validators.resolvers.*
+import api.models.domain.TaxYear
+import api.models.errors.MtdError
 import cats.data.Validated
 import cats.implicits.*
 import play.api.libs.json.JsValue
-import shared.config.SharedAppConfig
-import shared.controllers.validators.Validator
-import shared.controllers.validators.resolvers.*
-import shared.models.domain.TaxYear
-import shared.models.errors.MtdError
 import v2.models.request.createAmendOther.{CreateAmendOtherRequest, CreateAmendOtherRequestBody}
 
 object CreateAmendOtherValidator {
@@ -32,9 +32,9 @@ object CreateAmendOtherValidator {
 
 }
 
-class CreateAmendOtherValidator(nino: String, taxYear: String, body: JsValue)(appConfig: SharedAppConfig) extends Validator[CreateAmendOtherRequest] {
+class CreateAmendOtherValidator(nino: String, taxYear: String, body: JsValue)(appConfig: AppConfig) extends Validator[CreateAmendOtherRequest] {
 
-  import CreateAmendOtherValidator._
+  import CreateAmendOtherValidator.*
 
   private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
   private lazy val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.ending(minimumTaxYear))

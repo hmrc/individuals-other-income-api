@@ -16,14 +16,14 @@
 
 package v2.controllers.validators
 
-import shared.config.MockSharedAppConfig
-import shared.models.domain.{Nino, TaxYear}
-import shared.models.errors.*
-import shared.models.utils.JsonErrorValidators
-import shared.utils.UnitSpec
+import api.config.MockAppConfig
+import api.models.domain.{Nino, TaxYear}
+import api.models.errors.*
+import api.models.utils.JsonErrorValidators
+import api.utils.UnitSpec
 import v2.models.request.deleteOther.DeleteOtherRequest
 
-class DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockSharedAppConfig {
+class DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino                      = "AA123456A"
@@ -33,7 +33,7 @@ class DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with Mo
   private val parsedTaxYear = TaxYear.fromMtd(validTaxYear)
 
   def validator(nino: String = validNino, taxYear: String = validTaxYear) =
-    new DeleteOtherValidator(nino, taxYear)(mockSharedAppConfig)
+    new DeleteOtherValidator(nino, taxYear)(mockAppConfig)
 
   def validate(nino: String = validNino, taxYear: String = validTaxYear) =
     validator(nino, taxYear).validateAndWrapResult()
