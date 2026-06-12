@@ -16,14 +16,14 @@
 
 package v2.controllers.validators
 
-import shared.config.SharedAppConfig
-import shared.controllers.validators.Validator
+import api.config.AppConfig
+import api.controllers.validators.Validator
 import v2.models.request.retrieveOther.RetrieveOtherRequest
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class RetrieveOtherValidatorFactory @Inject() (appConfig: SharedAppConfig) {
+class RetrieveOtherValidatorFactory @Inject() (appConfig: AppConfig) {
 
   def validator(nino: String, taxYear: String): Validator[RetrieveOtherRequest] =
     new RetrieveOtherValidator(nino, taxYear)(appConfig)

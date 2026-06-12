@@ -16,17 +16,17 @@
 
 package v2.endpoints
 
+import api.models.errors
+import api.models.errors.*
+import api.models.utils.JsonErrorValidators
+import api.services.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
+import api.support.IntegrationBaseSpec
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status.*
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import play.api.test.Helpers.AUTHORIZATION
-import shared.models.errors
-import shared.models.errors.*
-import shared.models.utils.JsonErrorValidators
-import shared.services.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
-import shared.support.IntegrationBaseSpec
 import v2.fixtures.other.CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
 
 class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonErrorValidators {

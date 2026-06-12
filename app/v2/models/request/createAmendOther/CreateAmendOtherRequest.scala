@@ -16,6 +16,6 @@
 
 package v2.models.request.createAmendOther
 
-import shared.models.domain.{Nino, TaxYear}
+import api.models.domain.{Nino, TaxYear}
 
 case class CreateAmendOtherRequest(nino: Nino, taxYear: TaxYear, body: CreateAmendOtherRequestBody)
