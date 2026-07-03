@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package routing
+package v3.controllers.validators
 
 import api.config.AppConfig
-import api.routing.*
-import play.api.routing.Router
+import api.controllers.validators.Validator
+import v3.models.request.retrieveOther.RetrieveOtherRequest
 
 import javax.inject.{Inject, Singleton}
 
-@Singleton case class OtherIncomeVersionRoutingMap @Inject() (appConfig: AppConfig, defaultRouter: Router, v2Router: v2.Routes, v3Router: v3.Routes)
-    extends VersionRoutingMap {
+@Singleton
+class RetrieveOtherValidatorFactory @Inject() (appConfig: AppConfig) {
 
-  /** Routes corresponding to available versions.
-    */
-  val map: Map[Version, Router] = Map(
-    Version2 -> v2Router,
-    Version3 -> v3Router
-  )
+  def validator(nino: String, taxYear: String): Validator[RetrieveOtherRequest] =
+    new RetrieveOtherValidator(nino, taxYear)(appConfig)
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,8 @@
  * limitations under the License.
  */
 
-package routing
+package v3.models.request.createAmendOther
 
-import api.config.AppConfig
-import api.routing.*
-import play.api.routing.Router
+import api.models.domain.{Nino, TaxYear}
 
-import javax.inject.{Inject, Singleton}
-
-@Singleton case class OtherIncomeVersionRoutingMap @Inject() (appConfig: AppConfig, defaultRouter: Router, v2Router: v2.Routes, v3Router: v3.Routes)
-    extends VersionRoutingMap {
-
-  /** Routes corresponding to available versions.
-    */
-  val map: Map[Version, Router] = Map(
-    Version2 -> v2Router,
-    Version3 -> v3Router
-  )
-
-}
+case class CreateAmendOtherRequest(nino: Nino, taxYear: TaxYear, body: CreateAmendOtherRequestBody)

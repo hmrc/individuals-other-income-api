@@ -46,7 +46,7 @@ http://localhost:9680/api-documentation/docs/openapi/preview
 Enter the specification URL using the appropriate port and API version:
 
 ```text
-http://localhost:7761/api/conf/2.0/application.yaml
+http://localhost:7761/api/conf/3.0/application.yaml
 ```
 
 ## Changelog

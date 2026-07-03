@@ -18,7 +18,7 @@ package definition
 
 import api.config.AppConfig
 import api.definition.*
-import api.routing.Version2
+import api.routing.{Version2, Version3}
 
 import javax.inject.{Inject, Singleton}
 
@@ -37,6 +37,11 @@ class OtherIncomeDefinitionFactory @Inject() (protected val appConfig: AppConfig
             version = Version2,
             status = buildAPIStatus(Version2),
             endpointsEnabled = appConfig.endpointsEnabled(Version2)
+          ),
+          APIVersion(
+            version = Version3,
+            status = buildAPIStatus(Version3),
+            endpointsEnabled = appConfig.endpointsEnabled(Version3)
           )
         ),
         requiresTrust = None
