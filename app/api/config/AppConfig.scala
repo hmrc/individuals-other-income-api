@@ -43,6 +43,7 @@ class AppConfig @Inject() (val config: ServicesConfig, protected[config] val con
 
   def desDownstreamConfig: DownstreamConfig = downstreamConfig("des")
   def ifsDownstreamConfig: DownstreamConfig = downstreamConfig("ifs")
+  def hipDownstreamConfig: DownstreamConfig = downstreamConfig("hip")
 
   // API Config
   def apiGatewayContext: String                    = config.getString("api.gateway.context")

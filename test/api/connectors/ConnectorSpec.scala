@@ -130,4 +130,10 @@ trait ConnectorSpec extends UnitSpec with Status with MimeTypes with HeaderNames
     MockedAppConfig.ifsDownstreamConfig.anyNumberOfTimes() returns config
   }
 
+  protected trait hipTest extends StandardConnectorTest {
+    override val name = "hip"
+
+    MockedAppConfig.hipDownstreamConfig.anyNumberOfTimes() returns config
+  }
+
 }

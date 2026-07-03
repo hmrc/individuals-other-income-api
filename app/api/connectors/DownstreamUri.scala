@@ -34,4 +34,7 @@ object DownstreamUri {
   def IfsUri[Resp](value: String)(implicit appConfig: AppConfig): DownstreamUri[Resp] =
     withStandardStrategy(value, appConfig.ifsDownstreamConfig)
 
+  def hipUri[Resp](value: String)(implicit appConfig: AppConfig): DownstreamUri[Resp] =
+    withStandardStrategy(value, appConfig.hipDownstreamConfig)
+
 }

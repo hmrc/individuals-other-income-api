@@ -66,22 +66,23 @@ object DownstreamStrategy {
     * @param downstreamConfig
     *   configuration for the downstream host & endpoint
     */
-  def basicAuthStrategy(downstreamConfig: BasicAuthDownstreamConfig): DownstreamStrategy = new DownstreamStrategy {
-    override def baseUrl: String = downstreamConfig.baseUrl
+  def basicAuthStrategy(downstreamConfig: BasicAuthDownstreamConfig, additionalContractHeaders: => Seq[(String, String)] = Nil): DownstreamStrategy =
+    new DownstreamStrategy {
+      override def baseUrl: String = downstreamConfig.baseUrl
 
-    override def contractHeaders(correlationId: String)(implicit ec: ExecutionContext): Future[Seq[(String, String)]] = {
-      val encodedToken = Base64.getEncoder.encodeToString(s"${downstreamConfig.clientId}:${downstreamConfig.clientSecret}".getBytes(Charsets.UTF_8))
+      override def contractHeaders(correlationId: String)(implicit ec: ExecutionContext): Future[Seq[(String, String)]] = {
+        val encodedToken = Base64.getEncoder.encodeToString(s"${downstreamConfig.clientId}:${downstreamConfig.clientSecret}".getBytes(Charsets.UTF_8))
 
-      Future.successful(
-        List(
-          "Authorization" -> s"Basic $encodedToken",
-          "Environment"   -> downstreamConfig.env,
-          "CorrelationId" -> correlationId
-        ))
+        Future.successful(
+          List(
+            "Authorization" -> s"Basic $encodedToken",
+            "Environment"   -> downstreamConfig.env,
+            "CorrelationId" -> correlationId
+          ) ++ additionalContractHeaders)
+      }
+
+      override def environmentHeaders: Seq[String] = downstreamConfig.environmentHeaders.getOrElse(Nil)
     }
-
-    override def environmentHeaders: Seq[String] = downstreamConfig.environmentHeaders.getOrElse(Nil)
-  }
 
   /** Creates a strategy based on a choice of two strategies and the value of a feature switch.
     * @param onStrategy

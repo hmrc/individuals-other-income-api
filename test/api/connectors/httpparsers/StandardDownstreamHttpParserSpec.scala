@@ -66,10 +66,6 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
         httpReads.read(method, url, httpResponse) shouldBe Left(expected)
       }
 
-      handleErrorsCorrectly(httpReads)
-      handleInternalErrorsCorrectly(httpReads)
-      handleUnexpectedResponse(httpReads)
-      handleBvrsCorrectly(httpReads)
     }
 
     "a success code is specified" should {
@@ -82,6 +78,11 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
         httpReads.read(method, url, httpResponse) shouldBe Right(downstreamResponse)
       }
     }
+    handleErrorsCorrectly(httpReads)
+    handleInternalErrorsCorrectly(httpReads)
+    handleUnexpectedResponse(httpReads)
+    handleBvrsCorrectly(httpReads)
+    handleHipErrorsCorrectly(httpReads)
   }
 
   "The generic HTTP parser for empty response" when {
@@ -96,10 +97,6 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
         }
       }
 
-      handleErrorsCorrectly(httpReads)
-      handleInternalErrorsCorrectly(httpReads)
-      handleUnexpectedResponse(httpReads)
-      handleBvrsCorrectly(httpReads)
     }
 
     "a success code is specified" should {
@@ -112,6 +109,11 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
         httpReads.read(method, url, httpResponse) shouldBe Right(ResponseWrapper(correlationId, ()))
       }
     }
+    handleErrorsCorrectly(httpReads)
+    handleInternalErrorsCorrectly(httpReads)
+    handleUnexpectedResponse(httpReads)
+    handleBvrsCorrectly(httpReads)
+    handleHipErrorsCorrectly(httpReads)
   }
 
   val singleErrorJson: JsValue = Json.parse(
@@ -245,6 +247,44 @@ class StandardDownstreamHttpParserSpec extends UnitSpec {
                 )))
           )
         )
+      }
+    }
+  }
+
+  val multipleFailureErrorTypesJson: JsValue = Json.parse(
+    """
+      |{
+      |  "origin": "HIP",
+      |  "response": {
+      |    "failures": [
+      |      {
+      |        "type": "INVALID_NINO",
+      |        "reason": "Submission has not passed validation. Invalid parameter nino."
+      |      },
+      |      {
+      |        "type": "INVALID_TAX_YEAR",
+      |        "reason": "Submission has not passed validation. Invalid parameter taxYear."
+      |      }
+      |    ]
+      |  }
+      |}
+    """.stripMargin
+  )
+
+  private def handleHipErrorsCorrectly[A](httpReads: HttpReads[DownstreamOutcome[A]]): Unit = {
+    List(BAD_REQUEST, NOT_FOUND, UNPROCESSABLE_ENTITY).foreach { responseStatus =>
+      s"receiving a $responseStatus response with multiple HIP errors containing types in failures array" should {
+        "return a Left ResponseWrapper containing the extracted error types" in {
+          val httpResponse = HttpResponse(
+            responseStatus,
+            multipleFailureErrorTypesJson,
+            Map("CorrelationId" -> List(correlationId))
+          )
+
+          httpReads.read(method, url, httpResponse) shouldBe Left(
+            ResponseWrapper(correlationId, DownstreamErrors(List(DownstreamErrorCode("INVALID_NINO"), DownstreamErrorCode("INVALID_TAX_YEAR"))))
+          )
+        }
       }
     }
   }
