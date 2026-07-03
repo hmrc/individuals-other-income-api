@@ -18,7 +18,7 @@ package v3.controllers
 
 import api.config.AppConfig
 import api.controllers.*
-import api.routing.Version2
+import api.routing.Version3
 import api.services.{AuditService, EnrolmentsAuthService, MtdIdLookupService}
 import api.utils.IdGenerator
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -59,7 +59,7 @@ class DeleteOtherController @Inject() (val authService: EnrolmentsAuthService,
           auditService = auditService,
           auditType = "DeleteOtherIncome",
           transactionName = "delete-other-income",
-          apiVersion = Version2,
+          apiVersion = Version3,
           params = Map("nino" -> nino, "taxYear" -> taxYear),
           requestBody = None
         ))

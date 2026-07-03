@@ -22,7 +22,7 @@ import api.models.audit.{AuditEvent, AuditResponse, GenericAuditDetail}
 import api.models.domain.TaxYear
 import api.models.errors.*
 import api.models.outcomes.ResponseWrapper
-import api.routing.Version2
+import api.routing.Version3
 import api.services.MockAuditService
 import play.api.Configuration
 import play.api.libs.json.JsValue
@@ -108,7 +108,7 @@ class DeleteOtherControllerSpec
         detail = GenericAuditDetail(
           userType = "Individual",
           agentReferenceNumber = None,
-          versionNumber = Version2.name,
+          versionNumber = Version3.name,
           params = Map("nino" -> validNino, "taxYear" -> taxYear),
           requestBody = requestBody,
           `X-CorrelationId` = correlationId,

@@ -31,12 +31,7 @@ class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockAppConfig {
       "return a valid Definition case class" in {
         MockedAppConfig.apiGatewayContext returns "individuals/other-income"
 
-        List(Version2).foreach { version =>
-          MockedAppConfig.apiStatus(version) returns "BETA"
-          MockedAppConfig.endpointsEnabled(version) returns true
-          MockedAppConfig.deprecationFor(version).returns(NotDeprecated.valid).anyNumberOfTimes()
-        }
-        List(Version3).foreach { version =>
+        List(Version2, Version3).foreach { version =>
           MockedAppConfig.apiStatus(version) returns "BETA"
           MockedAppConfig.endpointsEnabled(version) returns true
           MockedAppConfig.deprecationFor(version).returns(NotDeprecated.valid).anyNumberOfTimes()

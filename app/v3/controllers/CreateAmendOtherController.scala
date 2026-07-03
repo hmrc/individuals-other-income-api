@@ -18,7 +18,7 @@ package v3.controllers
 
 import api.config.AppConfig
 import api.controllers.*
-import api.routing.Version2
+import api.routing.Version3
 import api.services.{AuditService, EnrolmentsAuthService, MtdIdLookupService}
 import api.utils.IdGenerator
 import play.api.libs.json.JsValue
@@ -60,7 +60,7 @@ class CreateAmendOtherController @Inject() (val authService: EnrolmentsAuthServi
           auditService = auditService,
           auditType = "CreateAmendOtherIncome",
           transactionName = "create-amend-other-income",
-          apiVersion = Version2,
+          apiVersion = Version3,
           params = Map("nino" -> nino, "taxYear" -> taxYear),
           requestBody = Some(request.body),
           includeResponse = true
