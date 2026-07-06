@@ -41,9 +41,9 @@ class AppConfig @Inject() (val config: ServicesConfig, protected[config] val con
 
   def minimumPermittedTaxYear: Int = config.getInt("minimumPermittedTaxYear")
 
-  def desDownstreamConfig: DownstreamConfig = downstreamConfig("des")
-  def ifsDownstreamConfig: DownstreamConfig = downstreamConfig("ifs")
-  def hipDownstreamConfig: DownstreamConfig = downstreamConfig("hip")
+  def desDownstreamConfig: DownstreamConfig          = downstreamConfig("des")
+  def ifsDownstreamConfig: DownstreamConfig          = downstreamConfig("ifs")
+  def hipDownstreamConfig: BasicAuthDownstreamConfig = basicAuthDownstreamConfig("hip")
 
   // API Config
   def apiGatewayContext: String                    = config.getString("api.gateway.context")

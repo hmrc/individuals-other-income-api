@@ -37,4 +37,17 @@ trait AppConfigBase {
     DownstreamConfig(baseUrl, env, token, environmentHeaders)
   }
 
+  protected def basicAuthDownstreamConfig(serviceName: String): BasicAuthDownstreamConfig = {
+    val baseUrl = config.baseUrl(serviceName)
+
+    val serviceKey = serviceKeyFor(serviceName)
+
+    val env                = config.getString(s"$serviceKey.env")
+    val clientId           = config.getString(s"$serviceKey.clientId")
+    val clientSecret       = config.getString(s"$serviceKey.clientSecret")
+    val environmentHeaders = configuration.getOptional[Seq[String]](s"$serviceKey.environmentHeaders")
+
+    BasicAuthDownstreamConfig(baseUrl, env, clientId, clientSecret, environmentHeaders)
+  }
+
 }

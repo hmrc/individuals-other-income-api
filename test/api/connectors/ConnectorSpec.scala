@@ -16,7 +16,7 @@
 
 package api.connectors
 
-import api.config.{DownstreamConfig, MockAppConfig}
+import api.config.{BasicAuthDownstreamConfig, DownstreamConfig, MockAppConfig}
 import api.mocks.MockHttpClient
 import api.utils.UnitSpec
 import org.scalamock.handlers.CallHandler
@@ -25,6 +25,8 @@ import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.net.URL
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 import scala.concurrent.{ExecutionContext, Future}
 
 trait ConnectorSpec extends UnitSpec with Status with MimeTypes with HeaderNames {
@@ -130,10 +132,26 @@ trait ConnectorSpec extends UnitSpec with Status with MimeTypes with HeaderNames
     MockedAppConfig.ifsDownstreamConfig.anyNumberOfTimes() returns config
   }
 
-  protected trait hipTest extends StandardConnectorTest {
-    override val name = "hip"
+  protected trait HipTest extends ConnectorTest {
+    private val clientId     = "clientId"
+    private val clientSecret = "clientSecret"
 
-    MockedAppConfig.hipDownstreamConfig.anyNumberOfTimes() returns config
+    private val token =
+      Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes(StandardCharsets.UTF_8))
+
+    private val environment = "hip-environment"
+
+    protected final lazy val requiredHeaders: Seq[(String, String)] = List(
+      "Authorization"        -> s"Basic $token",
+      "Environment"          -> environment,
+      "User-Agent"           -> "this-api",
+      "CorrelationId"        -> correlationId,
+      "Gov-Test-Scenario"    -> "DEFAULT"
+    ) ++ intent.map("intent" -> _)
+
+    MockedAppConfig.hipDownstreamConfig
+      .anyNumberOfTimes() returns BasicAuthDownstreamConfig(this.baseUrl, environment, clientId, clientSecret, Some(allowedHeaders))
+
   }
 
 }
