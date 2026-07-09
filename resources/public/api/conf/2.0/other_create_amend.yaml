@@ -40,7 +40,7 @@ requestBody:
           description: Full Other Income Amendment
           value:
             $ref: './examples/otherIncome/pre_TYS/amend_request.json'
-        TY 2023-24 or later:
+        TY 2023-24 to TY 2025-26:
           description: Full Other Income Amendment
           value:
             $ref: './examples/otherIncome/2023_24/amend_request.json'
@@ -68,6 +68,8 @@ responses:
             $ref: './common/errors.yaml#/components/examples/ruleTaxYearNotSupported'
           RULE_TAX_YEAR_RANGE_INVALID:
             $ref: './common/errors.yaml#/components/examples/ruleTaxYearRangeInvalid'
+          RULE_TAX_YEAR_FOR_VERSION_NOT_SUPPORTED:
+            $ref: "./common/errors.yaml#/components/examples/ruleTaxYearForVersionNotSupported"
           FORMAT_COUNTRY_CODE:
             $ref: './common/errors.yaml#/components/examples/formatCountryCode'
           RULE_COUNTRY_CODE:
