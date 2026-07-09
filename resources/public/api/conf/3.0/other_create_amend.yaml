@@ -12,7 +12,6 @@ description: |
   | -------------------------------- | --------------------------------------------------------------------------------------------------------- |
   | N/A - DEFAULT                    | Simulates success response.                                                                               |
   | OUTSIDE_AMENDMENT_WINDOW         | Simulates the scenario where request cannot be completed as it is outside the amendment window.           |
-  | REQUEST_CANNOT_BE_FULFILLED      | Simulates the scenario where the request could not be processed.                                          |
   | STATEFUL                         | Performs a stateful create or update.                                                                     |
 
 parameters:
@@ -32,18 +31,12 @@ requestBody:
   content:
     application/json:
       schema:
-        oneOf:
-          - $ref: './schemas/pre_TYS/other_amend_request.json'
-          - $ref: './schemas/2023_24/other_amend_request.json'
+          $ref: './schemas/other_create_amend/def1/request.json'
       examples:
-        Before TY 2023-24:
+        TY 2025-26:
           description: Full Other Income Amendment
           value:
-            $ref: './examples/otherIncome/pre_TYS/amend_request.json'
-        TY 2023-24 or later:
-          description: Full Other Income Amendment
-          value:
-            $ref: './examples/otherIncome/2023_24/amend_request.json'
+            $ref: './examples/other_create_amend/def1/request.json'
 responses:
   "204":
     description: No Content
@@ -90,8 +83,6 @@ responses:
             $ref: './common/errors.yaml#/components/examples/ruleUnalignedCessationTaxYear'
           RULE_INCORRECT_GOV_TEST_SCENARIO:
             $ref: './common/errors.yaml#/components/examples/ruleIncorrectGovTestScenario'
-          RULE_DATE_RANGE_INVALID:
-              $ref: './common/errors.yaml#/components/examples/ruleDateRangeInvalid'
           RULE_OUTSIDE_AMENDMENT_WINDOW:
             $ref: './common/errors.yaml#/components/examples/ruleOutsideAmendmentWindow'
 
@@ -107,16 +98,3 @@ responses:
         examples:
           CLIENT_OR_AGENT_NOT_AUTHORISED:
             $ref: './common/errors.yaml#/components/examples/clientOrAgentNotAuthorised'
-
-  "422":
-    description: Unprocessable Entity
-    headers:
-      X-CorrelationId:
-        $ref: './common/headers.yaml#/components/parameters/correlationId'
-    content:
-      application/json:
-        schema:
-          $ref: './schemas/error_response.yaml'
-        examples:
-          RULE_REQUEST_CANNOT_BE_FULFILLED:
-            $ref: './common/errors.yaml#/components/examples/requestCannotBeFulfilled'
