@@ -65,6 +65,12 @@ class DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with Mo
       }
     }
 
+    "return RuleTaxYearForVersionNotSupportedError error" when {
+      "a tax year that is not supported by this version is supplied" in new SetupConfig {
+        validate(validNino, "2026-27") shouldBe singleError(RuleTaxYearForVersionNotSupportedError)
+      }
+    }
+
     "return multiple errors" when {
       "request supplied has multiple errors (path parameters)" in new SetupConfig {
         validate("A12344A", "20178") shouldBe
