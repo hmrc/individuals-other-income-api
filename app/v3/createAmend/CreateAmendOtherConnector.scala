@@ -14,30 +14,32 @@
  * limitations under the License.
  */
 
-package v3.mocks.connectors
+package v3.createAmend
 
-import api.connectors.DownstreamOutcome
-import org.scalamock.handlers.CallHandler
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.TestSuite
+import api.config.AppConfig
+import api.connectors.DownstreamUri.IfsUri
+import api.connectors.httpparsers.StandardDownstreamHttpParser.*
+import api.connectors.{BaseDownstreamConnector, DownstreamOutcome}
 import uk.gov.hmrc.http.HeaderCarrier
-import v3.createAmend.CreateAmendOtherConnector
+import uk.gov.hmrc.http.client.HttpClientV2
 import v3.createAmend.def1.model.request.Def1_CreateAmendOtherRequestData
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockCreateAmendOtherConnector extends TestSuite with MockFactory {
+@Singleton
+class CreateAmendOtherConnector @Inject() (val http: HttpClientV2, val appConfig: AppConfig) extends BaseDownstreamConnector {
 
-  val mockCreateAmendOtherConnector: CreateAmendOtherConnector = mock[CreateAmendOtherConnector]
+  def createAmend(request: Def1_CreateAmendOtherRequestData)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      correlationId: String): Future[DownstreamOutcome[Unit]] = {
 
-  object MockCreateAmendOtherConnector {
+    import request.*
 
-    def createAmendOther(request: Def1_CreateAmendOtherRequestData): CallHandler[Future[DownstreamOutcome[Unit]]] = {
-      (mockCreateAmendOtherConnector
-        .createAmend(_: Def1_CreateAmendOtherRequestData)(_: HeaderCarrier, _: ExecutionContext, _: String))
-        .expects(request, *, *, *)
-    }
+    val url = IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/$nino")
 
+    put(body, url)
   }
 
 }

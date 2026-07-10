@@ -27,13 +27,13 @@ import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import play.api.test.Helpers.AUTHORIZATION
-import v3.fixtures.other.CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
+import v3.createAmend.def1.fixtures.Def1_CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
 
 class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonErrorValidators {
 
   "Calling the 'create and amend other income' endpoint" should {
     "return a 204 status code" when {
-      "any valid request is made" in new NonTysTest {
+      "any valid request is made" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -44,7 +44,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         response.body shouldBe ""
       }
 
-      "any valid request is made (TYS)" in new TysIfsTest {
+      "any valid request is made (TYS)" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -55,7 +55,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         response.body shouldBe ""
       }
 
-      "any valid request is made (TYS) without foreignTaxCreditRelief" in new TysIfsTest {
+      "any valid request is made (TYS) without foreignTaxCreditRelief" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -68,7 +68,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
     }
 
     "return a TaxYearFormatError" when {
-      "a request body having invalid tax year format is supplied" in new NonTysTest {
+      "a request body having invalid tax year format is supplied" in new IfsTest {
 
         val invalidRequestBodyJson: JsValue = Json.parse(
           """
@@ -76,7 +76,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
             |   "businessReceipts": [
             |      {
             |         "grossAmount": 5000.99,
-            |         "taxYear": "2018-193"
+            |         "taxYear": "2025-263"
             |      }
             |   ],
             |   "allOtherIncomeReceivedWhilstAbroad": [
@@ -134,76 +134,8 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
       }
     }
 
-    "return a RuleTaxYearRangeInvalidError" when {
-      "a request body having invalid tax year range is supplied" in new NonTysTest {
-
-        val invalidRequestBodyJson: JsValue = Json.parse(
-          """
-            |{
-            |   "businessReceipts": [
-            |      {
-            |         "grossAmount": 5000.99,
-            |         "taxYear": "2018-23"
-            |      }
-            |   ],
-            |   "allOtherIncomeReceivedWhilstAbroad": [
-            |      {
-            |         "countryCode": "FRA",
-            |         "amountBeforeTax": 1999.99,
-            |         "taxTakenOff": 2.23,
-            |         "specialWithholdingTax": 3.23,
-            |         "foreignTaxCreditRelief": false,
-            |         "taxableAmount": 4.23,
-            |         "residentialFinancialCostAmount": 2999.99,
-            |         "broughtFwdResidentialFinancialCostAmount": 1999.99
-            |      },
-            |      {
-            |         "countryCode": "IND",
-            |         "amountBeforeTax": 2999.99,
-            |         "taxTakenOff": 3.23,
-            |         "specialWithholdingTax": 4.23,
-            |         "foreignTaxCreditRelief": true,
-            |         "taxableAmount": 5.23,
-            |         "residentialFinancialCostAmount": 3999.99,
-            |         "broughtFwdResidentialFinancialCostAmount": 2999.99
-            |      }
-            |   ],
-            |   "overseasIncomeAndGains": {
-            |      "gainAmount": 3000.99
-            |   },
-            |   "chargeableForeignBenefitsAndGifts": {
-            |      "transactionBenefit": 1999.99,
-            |      "protectedForeignIncomeSourceBenefit": 2999.99,
-            |      "protectedForeignIncomeOnwardGift": 3999.99,
-            |      "benefitReceivedAsASettler": 4999.99,
-            |      "onwardGiftReceivedAsASettler": 5999.99
-            |   },
-            |   "omittedForeignIncome": {
-            |      "amount": 4000.99
-            |   }
-            |}
-    """.stripMargin
-        )
-
-        override def setupStubs(): Unit = {
-          DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
-        }
-
-        val response: WSResponse = await(request().put(invalidRequestBodyJson))
-        response.status shouldBe BAD_REQUEST
-        response.json shouldBe Json.toJson(
-          ErrorWrapper(
-            correlationId = correlationId,
-            error = RuleTaxYearRangeInvalidError.withPath("/businessReceipts/0/taxYear"),
-            errors = None
-          ))
-
-        response.header("Content-Type") shouldBe Some("application/json")
-      }
-    }
-
     "return a 400 with multiple errors" when {
-      "all field value validations fail on the request body" in new NonTysTest {
+      "all field value validations fail on the request body" in new IfsTest {
 
         val allInvalidValueRequestBodyJson: JsValue = Json.parse(
           """
@@ -308,7 +240,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         response.json shouldBe Json.toJson(wrappedErrors)
       }
 
-      "complex error scenario" in new NonTysTest {
+      "complex error scenario" in new IfsTest {
 
         val createAmendErrorsRequest: JsValue = Json.parse(
           """
@@ -562,7 +494,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
           |      },
           |      {
           |         "grossAmount": 6000.999,
-          |         "taxYear": "2019-20"
+          |         "taxYear": "2025-26"
           |      }
           |   ],
           |   "allOtherIncomeReceivedWhilstAbroad": [
@@ -676,7 +608,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
                                 expectedStatus: Int,
                                 expectedBody: MtdError,
                                 scenario: Option[String]): Unit = {
-          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new NonTysTest {
+          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new IfsTest {
             override val nino: String       = requestNino
             override val mtdTaxYear: String = requestTaxYear
 
@@ -687,23 +619,22 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         }
 
         val input = Seq(
-          ("AA1123A", "2019-20", validRequestBodyJson, BAD_REQUEST, NinoFormatError, None),
-          ("AA123456A", "20177", validRequestBodyJson, BAD_REQUEST, TaxYearFormatError, None),
-          ("AA123456A", "2019-21", validRequestBodyJson, BAD_REQUEST, RuleTaxYearRangeInvalidError, None),
+          ("AA1123A", "2025-26", validRequestBodyJson, BAD_REQUEST, NinoFormatError, None),
+          ("AA123456A", "20257", validRequestBodyJson, BAD_REQUEST, TaxYearFormatError, None),
           ("AA123456A", "2018-19", validRequestBodyJson, BAD_REQUEST, RuleTaxYearNotSupportedError, None),
-          ("AA123456A", "2019-20", invalidCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeError, None),
-          ("AA123456A", "2019-20", ruleCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeRuleError, None),
-          ("AA123456A", "2019-20", nonsenseRequestBody, BAD_REQUEST, RuleIncorrectOrEmptyBodyError, None),
-          ("AA123456A", "2019-20", allInvalidValueRequestBodyJson, BAD_REQUEST, allInvalidValueRequestError, None),
-          ("AA123456A", "2019-20", nonValidRequestBodyJson, BAD_REQUEST, nonValidRequestBodyErrors, Some("(invalid request body format)")),
-          ("AA123456A", "2019-20", missingFieldRequestBodyJson, BAD_REQUEST, missingFieldRequestBodyErrors, Some("(missing mandatory fields)"))
+          ("AA123456A", "2025-26", invalidCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeError, None),
+          ("AA123456A", "2025-26", ruleCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeRuleError, None),
+          ("AA123456A", "2025-26", nonsenseRequestBody, BAD_REQUEST, RuleIncorrectOrEmptyBodyError, None),
+          ("AA123456A", "2025-26", allInvalidValueRequestBodyJson, BAD_REQUEST, allInvalidValueRequestError, None),
+          ("AA123456A", "2025-26", nonValidRequestBodyJson, BAD_REQUEST, nonValidRequestBodyErrors, Some("(invalid request body format)")),
+          ("AA123456A", "2025-26", missingFieldRequestBodyJson, BAD_REQUEST, missingFieldRequestBodyErrors, Some("(missing mandatory fields)"))
         )
         input.foreach(validationErrorTest.tupled)
       }
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new NonTysTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new IfsTest {
 
             override def setupStubs(): Unit = {
               DownstreamStub.onError(DownstreamStub.PUT, downstreamUri, downstreamStatus, errorBody(downstreamCode))
@@ -726,20 +657,15 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         val errors = List(
           (BAD_REQUEST, "INVALID_TAXABLE_ENTITY_ID", BAD_REQUEST, NinoFormatError),
           (BAD_REQUEST, "INVALID_TAX_YEAR", BAD_REQUEST, TaxYearFormatError),
-          (BAD_REQUEST, "INVALID_CORRELATIONID", INTERNAL_SERVER_ERROR, InternalError),
           (BAD_REQUEST, "INVALID_PAYLOAD", INTERNAL_SERVER_ERROR, InternalError),
           (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError),
           (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
-          (UNPROCESSABLE_ENTITY, "UNALIGNED_CESSATION_TAX_YEAR", BAD_REQUEST, RuleUnalignedCessationTaxYearError)
-        )
-
-        val extraTysErrors = List(
-          (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
+          (UNPROCESSABLE_ENTITY, "UNALIGNED_CESSATION_TAX_YEAR", BAD_REQUEST, RuleUnalignedCessationTaxYearError),
           (UNPROCESSABLE_ENTITY, "OUTSIDE_AMENDMENT_WINDOW", BAD_REQUEST, RuleOutsideAmendmentWindowError),
           (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError)
         )
 
-        (errors ++ extraTysErrors).foreach(serviceErrorTest.tupled)
+        errors.foreach(serviceErrorTest.tupled)
       }
     }
   }
@@ -774,16 +700,10 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
 
   }
 
-  private trait NonTysTest extends Test {
-    def mtdTaxYear: String = "2021-22"
+  private trait IfsTest extends Test {
+    def mtdTaxYear: String = "2025-26"
 
-    def downstreamUri: String = s"/income-tax/income/other/$nino/$mtdTaxYear"
-  }
-
-  private trait TysIfsTest extends Test {
-    def mtdTaxYear: String = "2023-24"
-
-    def downstreamUri: String = s"/income-tax/income/other/23-24/$nino"
+    def downstreamUri: String = s"/income-tax/income/other/25-26/$nino"
   }
 
 }
