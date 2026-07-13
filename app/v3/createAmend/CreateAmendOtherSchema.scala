@@ -29,6 +29,6 @@ object CreateAmendOtherSchema {
   case object Def1 extends CreateAmendOtherSchema
 
   def schemaFor(taxYearString: String)(implicit appConfig: AppConfig): Validated[Seq[MtdError], CreateAmendOtherSchema] =
-    ResolveTaxYearMinimum(TaxYear.ending(appConfig.minimumPermittedTaxYear))(taxYearString).map(_ => Def1)
+    ResolveTaxYearMinimum(TaxYear.ending(2026))(taxYearString).map(_ => Def1)
 
 }

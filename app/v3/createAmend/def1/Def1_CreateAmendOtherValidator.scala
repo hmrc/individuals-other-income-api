@@ -16,7 +16,6 @@
 
 package v3.createAmend.def1
 
-import api.config.AppConfig
 import api.controllers.validators.Validator
 import api.controllers.validators.resolvers.*
 import api.models.domain.TaxYear
@@ -26,25 +25,16 @@ import cats.implicits.*
 import play.api.libs.json.JsValue
 import v3.createAmend.def1.model.request.{Def1_CreateAmendOtherRequestBody, Def1_CreateAmendOtherRequestData}
 
-object Def1_CreateAmendOtherValidator {
+class Def1_CreateAmendOtherValidator(nino: String, taxYear: String, body: JsValue) extends Validator[Def1_CreateAmendOtherRequestData] {
 
-  private val resolveJson = ResolveNonEmptyJsonObject.resolver[Def1_CreateAmendOtherRequestBody]
-
-}
-
-class Def1_CreateAmendOtherValidator(nino: String, taxYear: String, body: JsValue)(implicit appConfig: AppConfig)
-    extends Validator[Def1_CreateAmendOtherRequestData] {
-
-  import Def1_CreateAmendOtherValidator.*
-
-  private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
-  private lazy val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.ending(minimumTaxYear))
+  private val resolveJson    = ResolveNonEmptyJsonObject.resolver[Def1_CreateAmendOtherRequestBody]
+  private val rulesValidator = Def1_CreateAmendOtherRulesValidator
 
   override def validate: Validated[Seq[MtdError], Def1_CreateAmendOtherRequestData] =
     (
       ResolveNino(nino),
-      resolveTaxYear(taxYear),
       resolveJson(body)
-    ).mapN(Def1_CreateAmendOtherRequestData.apply) andThen Def1_CreateAmendOtherRulesValidator.validateBusinessRules
+    ).mapN((validNino, validBody) =>
+      Def1_CreateAmendOtherRequestData(validNino, TaxYear.fromMtd(taxYear), validBody)) andThen rulesValidator.validateBusinessRules
 
 }

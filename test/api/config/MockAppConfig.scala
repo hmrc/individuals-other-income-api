@@ -73,6 +73,9 @@ trait MockAppConfig extends TestSuite with MockFactory {
     def setMinimumPermittedTaxYear(): CallHandler0[Int] = MockedAppConfig.minimumPermittedTaxYear(2020)
     setMinimumPermittedTaxYear()
 
+    def setDef1MinimumTaxYear(): CallHandler0[Int] = MockedAppConfig.minimumPermittedTaxYear(2026)
+    setDef1MinimumTaxYear()
+
   }
 
 }

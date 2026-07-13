@@ -28,7 +28,7 @@ object Def1_CreateAmendOtherFixtures {
     businessDescription = Some("Description"),
     incomeSource = Some("string"),
     amount = 99999999999.99,
-    taxYearIncomeToBeTaxed = "2019-20"
+    taxYearIncomeToBeTaxed = "2025-26"
   )
 
   val postCessationReceiptsItemJson: JsValue = Json.parse(
@@ -40,21 +40,21 @@ object Def1_CreateAmendOtherFixtures {
        | "businessDescription": "Description",
        | "incomeSource": "string",
        | "amount": 99999999999.99,
-       | "taxYearIncomeToBeTaxed": "2019-20"
+       | "taxYearIncomeToBeTaxed": "2025-26"
        | }
        |""".stripMargin
   )
 
   val businessReceiptsModel: BusinessReceiptsItem = BusinessReceiptsItem(
     grossAmount = 1000.99,
-    taxYear = "2018-19"
+    taxYear = "2024-25"
   )
 
   val businessReceiptsJson: JsValue = Json.parse(
     s"""
        |{
        |   "grossAmount": 1000.99,
-       |   "taxYear": "2018-19"
+       |   "taxYear": "2024-25"
        |}
        |""".stripMargin
   )

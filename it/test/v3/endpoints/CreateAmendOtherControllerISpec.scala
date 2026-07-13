@@ -44,18 +44,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         response.body shouldBe ""
       }
 
-      "any valid request is made (TYS)" in new IfsTest {
-
-        override def setupStubs(): Unit = {
-          DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
-        }
-
-        val response: WSResponse = await(request().put(requestBodyAlignedTaxYear))
-        response.status shouldBe NO_CONTENT
-        response.body shouldBe ""
-      }
-
-      "any valid request is made (TYS) without foreignTaxCreditRelief" in new IfsTest {
+      "any valid request is made without foreignTaxCreditRelief" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -130,6 +119,74 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
             error = TaxYearFormatError.withPath("/businessReceipts/0/taxYear"),
             errors = None
           ))
+        response.header("Content-Type") shouldBe Some("application/json")
+      }
+    }
+
+    "return a RuleTaxYearRangeInvalidError" when {
+      "a request body having invalid tax year range is supplied" in new IfsTest {
+
+        val invalidRequestBodyJson: JsValue = Json.parse(
+          """
+            |{
+            |   "businessReceipts": [
+            |      {
+            |         "grossAmount": 5000.99,
+            |         "taxYear": "2018-23"
+            |      }
+            |   ],
+            |   "allOtherIncomeReceivedWhilstAbroad": [
+            |      {
+            |         "countryCode": "FRA",
+            |         "amountBeforeTax": 1999.99,
+            |         "taxTakenOff": 2.23,
+            |         "specialWithholdingTax": 3.23,
+            |         "foreignTaxCreditRelief": false,
+            |         "taxableAmount": 4.23,
+            |         "residentialFinancialCostAmount": 2999.99,
+            |         "broughtFwdResidentialFinancialCostAmount": 1999.99
+            |      },
+            |      {
+            |         "countryCode": "IND",
+            |         "amountBeforeTax": 2999.99,
+            |         "taxTakenOff": 3.23,
+            |         "specialWithholdingTax": 4.23,
+            |         "foreignTaxCreditRelief": true,
+            |         "taxableAmount": 5.23,
+            |         "residentialFinancialCostAmount": 3999.99,
+            |         "broughtFwdResidentialFinancialCostAmount": 2999.99
+            |      }
+            |   ],
+            |   "overseasIncomeAndGains": {
+            |      "gainAmount": 3000.99
+            |   },
+            |   "chargeableForeignBenefitsAndGifts": {
+            |      "transactionBenefit": 1999.99,
+            |      "protectedForeignIncomeSourceBenefit": 2999.99,
+            |      "protectedForeignIncomeOnwardGift": 3999.99,
+            |      "benefitReceivedAsASettler": 4999.99,
+            |      "onwardGiftReceivedAsASettler": 5999.99
+            |   },
+            |   "omittedForeignIncome": {
+            |      "amount": 4000.99
+            |   }
+            |}
+        """.stripMargin
+        )
+
+        override def setupStubs(): Unit = {
+          DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
+        }
+
+        val response: WSResponse = await(request().put(invalidRequestBodyJson))
+        response.status shouldBe BAD_REQUEST
+        response.json shouldBe Json.toJson(
+          ErrorWrapper(
+            correlationId = correlationId,
+            error = RuleTaxYearRangeInvalidError.withPath("/businessReceipts/0/taxYear"),
+            errors = None
+          ))
+
         response.header("Content-Type") shouldBe Some("application/json")
       }
     }

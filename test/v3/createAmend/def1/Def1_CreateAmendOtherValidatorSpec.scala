@@ -34,19 +34,19 @@ import v3.createAmend.def1.fixtures.Def1_CreateAmendOtherFixtures.{
 }
 import v3.createAmend.def1.model.request.{Def1_CreateAmendOtherRequestBody, Def1_CreateAmendOtherRequestData, PostCessationReceiptsItem}
 
-class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
+class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino                      = "AA123456A"
-  private val validTaxYear                   = "2019-20"
+  private val validTaxYear                   = "2025-26"
 
   private val parsedNino    = Nino(validNino)
   private val parsedTaxYear = TaxYear.fromMtd(validTaxYear)
 
   private val validRequestBodyJson: JsValue = requestBodyWithPCRJson
 
-  def validator(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
-    new Def1_CreateAmendOtherValidator(nino, taxYear, body)(mockAppConfig)
+  def validator(nino: String, taxYear: String, body: JsValue): Def1_CreateAmendOtherValidator =
+    new Def1_CreateAmendOtherValidator(nino, taxYear, body)
 
   private def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
     validator(nino, taxYear, body).validateAndWrapResult()
@@ -76,7 +76,7 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
               businessDescription = Some("  Description  "),
               incomeSource = Some("  string  "),
               99999999999.99,
-              "2019-20"
+              "2025-26"
             ))),
           None,
           None,
@@ -108,18 +108,6 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
     "return NinoFormatError error" when {
       "an invalid nino is supplied" in new SetupConfig {
         validate("A12344A", validTaxYear, validRequestBodyJson) shouldBe singleError(NinoFormatError)
-      }
-    }
-
-    "return TaxYearFormatError error" when {
-      "an invalid tax year is supplied" in new SetupConfig {
-        validate(validNino, "20178", validRequestBodyJson) shouldBe singleError(TaxYearFormatError)
-      }
-    }
-
-    "return RuleTaxYearNotSupportedError error" when {
-      "an invalid tax year is supplied" in new SetupConfig {
-        validate(validNino, "2017-18", validRequestBodyJson) shouldBe singleError(RuleTaxYearNotSupportedError)
       }
     }
 
@@ -361,13 +349,6 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
                   ))
               ))
             ))
-      }
-    }
-
-    "return multiple errors" when {
-      "request supplied has multiple errors (path parameters)" in new SetupConfig {
-        validate("A12344A", "20178", validRequestBodyJson) shouldBe
-          Left(ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError))))
       }
     }
   }
