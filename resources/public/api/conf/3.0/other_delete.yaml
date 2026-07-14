@@ -11,13 +11,12 @@ description: |
   | -------------------------------- | ----------------------------------------------------------------------------------------------- |
   | N/A - DEFAULT                    | Simulates success response.                                                                     |
   | NOT FOUND                        | Simulates the scenario where no data is found.                                                  |
-  | OUTSIDE_AMENDMENT_WINDOW         | Simulates the scenario where request cannot be completed as it is outside the amendment window. |
-  | REQUEST_CANNOT_BE_FULFILLED      | Simulates the scenario where the request could not be processed.                                |
+  | OUTSIDE_AMENDMENT_WINDOW         | Simulates the scenario where request cannot be completed as it is outside the amendment window. |                              |
   | STATEFUL                         | Performs a stateful delete.                                                                     |
 
 parameters:
   - $ref: './common/pathParameters.yaml#/components/parameters/nino'
-  - $ref: './common/pathParameters.yaml#/components/parameters/taxYearMinimum2021'
+  - $ref: './common/pathParameters.yaml#/components/parameters/taxYearMinimum2025'
   - $ref: './common/headers.yaml#/components/parameters/acceptHeader'
   - $ref: './common/headers.yaml#/components/parameters/authorizationWriteScopeHeader'
   - $ref: './common/headers.yaml#/components/parameters/testScenarioHeader'
@@ -82,15 +81,3 @@ responses:
         examples:
           MATCHING_RESOURCE_NOT_FOUND:
             $ref: './common/errors.yaml#/components/examples/notFound'
-  "422":
-    description: Unprocessable Entity
-    headers:
-      X-CorrelationId:
-        $ref: './common/headers.yaml#/components/parameters/correlationId'
-    content:
-      application/json:
-        schema:
-          $ref: './schemas/error_response.yaml'
-        examples:
-          RULE_REQUEST_CANNOT_BE_FULFILLED:
-            $ref: './common/errors.yaml#/components/examples/requestCannotBeFulfilled'
