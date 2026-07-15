@@ -71,10 +71,10 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
         }
 
         val input = Seq(
-          ("AA1123A", "2019-20", BAD_REQUEST, NinoFormatError),
-          ("AA123456A", "20177", BAD_REQUEST, TaxYearFormatError),
-          ("AA123456A", "2015-17", BAD_REQUEST, RuleTaxYearRangeInvalidError),
-          ("AA123456A", "2018-19", BAD_REQUEST, RuleTaxYearNotSupportedError)
+          ("AA1123A", "2025-26", BAD_REQUEST, NinoFormatError),
+          ("AA123456A", "20255", BAD_REQUEST, TaxYearFormatError),
+          ("AA123456A", "2025-27", BAD_REQUEST, RuleTaxYearRangeInvalidError),
+          ("AA123456A", "2024-25", BAD_REQUEST, RuleTaxYearNotSupportedError)
         )
         input.foreach(validationErrorTest.tupled)
       }

@@ -16,18 +16,17 @@
 
 package v3.deleteOther
 
-import api.config.MockAppConfig
 import api.controllers.validators.Validator
 import api.utils.UnitSpec
 import v3.deleteOther.model.request.DeleteOtherRequestData
 import v3.deleteOther.def1.Def1_DeleteOtherValidator
 
-class DeleteOtherValidatorFactorySpec extends UnitSpec with MockAppConfig {
+class DeleteOtherValidatorFactorySpec extends UnitSpec {
 
   private val validNino    = "AA123456A"
   private val validTaxYear = "2025-26"
 
-  private val validatorFactory = new DeleteOtherValidatorFactory(mockAppConfig)
+  private val validatorFactory = new DeleteOtherValidatorFactory
 
   "validator" should {
     "return the Def1 validator" when {

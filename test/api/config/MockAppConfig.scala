@@ -34,9 +34,6 @@ trait MockAppConfig extends TestSuite with MockFactory {
     def minimumPermittedTaxYear(year: Int): CallHandler0[Int] =
       (() => mockAppConfig.minimumPermittedTaxYear: Int).expects().returning(year).anyNumberOfTimes()
 
-    def minimumPermittedTYSTaxYear(year: Int): CallHandler0[Int] =
-      (() => mockAppConfig.minimumPermittedTYSTaxYear: Int).expects().returning(year).anyNumberOfTimes()
-
     def desDownstreamConfig: CallHandler0[DownstreamConfig] = (() => mockAppConfig.desDownstreamConfig: DownstreamConfig).expects()
     def ifsDownstreamConfig: CallHandler0[DownstreamConfig] = (() => mockAppConfig.ifsDownstreamConfig: DownstreamConfig).expects()
 
@@ -73,10 +70,8 @@ trait MockAppConfig extends TestSuite with MockFactory {
   }
 
   trait SetupConfig {
-    def setMinimumPermittedTaxYear(): CallHandler0[Int]    = MockedAppConfig.minimumPermittedTaxYear(2020)
-    def setMinimumPermittedTYSTaxYear(): CallHandler0[Int] = MockedAppConfig.minimumPermittedTYSTaxYear(2026)
+    def setMinimumPermittedTaxYear(): CallHandler0[Int] = MockedAppConfig.minimumPermittedTaxYear(2020)
     setMinimumPermittedTaxYear()
-    setMinimumPermittedTYSTaxYear()
   }
 
 }

@@ -33,7 +33,7 @@ class Def1_DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
   private val parsedTaxYear = TaxYear.fromMtd(validTaxYear)
 
   def validator(nino: String = validNino, taxYear: String = validTaxYear) =
-    new Def1_DeleteOtherValidator(nino, taxYear)(mockAppConfig)
+    new Def1_DeleteOtherValidator(nino, taxYear)
 
   def validate(nino: String = validNino, taxYear: String = validTaxYear) =
     validator(nino, taxYear).validateAndWrapResult()
@@ -55,7 +55,7 @@ class Def1_DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
     "return TaxYearFormatError error" when {
       "an invalid tax year is supplied" in new SetupConfig {
-        validate(validNino, "20178") shouldBe singleError(TaxYearFormatError)
+        validate(validNino, "20256") shouldBe singleError(TaxYearFormatError)
       }
     }
 
@@ -67,7 +67,7 @@ class Def1_DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
 
     "return multiple errors" when {
       "request supplied has multiple errors (path parameters)" in new SetupConfig {
-        validate("A12344A", "20178") shouldBe
+        validate("A12344A", "20256") shouldBe
           Left(ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError))))
       }
     }
