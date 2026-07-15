@@ -39,7 +39,8 @@ class AppConfig @Inject() (val config: ServicesConfig, protected[config] val con
   // MTD ID Lookup Config
   def mtdIdBaseUrl: String = config.baseUrl("mtd-id-lookup")
 
-  def minimumPermittedTaxYear: Int = config.getInt("minimumPermittedTaxYear")
+  def minimumPermittedTaxYear: Int    = config.getInt("minimumPermittedTaxYear")
+  def minimumPermittedTYSTaxYear: Int = config.getInt("minimumPermittedTYSTaxYear")
 
   def desDownstreamConfig: DownstreamConfig          = downstreamConfig("des")
   def ifsDownstreamConfig: DownstreamConfig          = downstreamConfig("ifs")

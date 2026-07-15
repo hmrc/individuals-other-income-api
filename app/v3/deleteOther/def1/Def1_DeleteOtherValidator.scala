@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package v3.deleteOther
+package v3.deleteOther.def1
 
 import api.config.AppConfig
 import api.controllers.validators.Validator
@@ -23,17 +23,18 @@ import api.models.domain.TaxYear
 import api.models.errors.MtdError
 import cats.data.Validated
 import cats.implicits.*
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.def1.model.request.Def1_DeleteOtherRequest
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
-class DeleteOtherValidator(nino: String, taxYear: String)(appConfig: AppConfig) extends Validator[DeleteOtherRequest] {
+class Def1_DeleteOtherValidator(nino: String, taxYear: String)(appConfig: AppConfig) extends Validator[DeleteOtherRequestData] {
 
-  private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
+  private lazy val minimumTaxYear = appConfig.minimumPermittedTYSTaxYear
   private lazy val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.ending(minimumTaxYear))
 
-  override def validate: Validated[Seq[MtdError], DeleteOtherRequest] =
+  override def validate: Validated[Seq[MtdError], DeleteOtherRequestData] =
     (
       ResolveNino(nino),
       resolveTaxYear(taxYear)
-    ).mapN(DeleteOtherRequest.apply)
+    ).mapN(Def1_DeleteOtherRequest.apply)
 
 }

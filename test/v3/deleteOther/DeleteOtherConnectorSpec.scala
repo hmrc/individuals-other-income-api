@@ -22,33 +22,21 @@ import api.mocks.MockHttpClient
 import api.models.domain.{Nino, TaxYear}
 import api.models.outcomes.ResponseWrapper
 import uk.gov.hmrc.http.StringContextOps
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.def1.model.request.Def1_DeleteOtherRequest
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 import scala.concurrent.Future
 
 class DeleteOtherConnectorSpec extends ConnectorSpec {
 
   "DeleteOtherConnector" should {
-    "return the expected response for a non-TYS request" when {
-      "a valid request is made" in new IfsTest with Test {
-        def taxYear: TaxYear = TaxYear.fromMtd("2019-20")
-        val outcome          = Right(ResponseWrapper(correlationId, ()))
-
-        willDelete(
-          url = url"$baseUrl/income-tax/income/other/$nino/2019-20"
-        ).returns(Future.successful(outcome))
-
-        await(connector.deleteOther(request)) shouldBe outcome
-      }
-    }
-
     "return the expected response for a TYS request" when {
       "a valid request is made" in new IfsTest with Test {
-        def taxYear: TaxYear = TaxYear.fromMtd("2023-24")
+        def taxYear: TaxYear = TaxYear.fromMtd("2025-26")
         val outcome          = Right(ResponseWrapper(correlationId, ()))
 
         willDelete(
-          url = url"$baseUrl/income-tax/income/other/23-24/$nino"
+          url = url"$baseUrl/income-tax/income/other/25-26/$nino"
         ).returns(Future.successful(outcome))
 
         await(connector.deleteOther(request)) shouldBe outcome
@@ -62,8 +50,8 @@ class DeleteOtherConnectorSpec extends ConnectorSpec {
 
     protected val nino: String = "AA111111A"
 
-    protected val request: DeleteOtherRequest =
-      DeleteOtherRequest(
+    protected val request: DeleteOtherRequestData =
+      Def1_DeleteOtherRequest(
         nino = Nino(nino),
         taxYear = taxYear
       )

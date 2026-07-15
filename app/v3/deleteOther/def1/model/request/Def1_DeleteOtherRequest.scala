@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package v3.deleteOther.model.request
+package v3.deleteOther.def1.model.request
 
 import api.models.domain.{Nino, TaxYear}
+import v3.deleteOther.DeleteOtherSchema
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
-case class DeleteOtherRequest(nino: Nino, taxYear: TaxYear)
+case class Def1_DeleteOtherRequest(nino: Nino, taxYear: TaxYear) extends DeleteOtherRequestData {
+  val schema: DeleteOtherSchema = DeleteOtherSchema.Def1
+}

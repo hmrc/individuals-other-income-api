@@ -16,15 +16,12 @@
 
 package v3.deleteOther
 
-import api.controllers.validators.{MockValidatorFactory, Validator}
-import org.scalamock.handlers.CallHandler
-import v3.deleteOther.model.request.DeleteOtherRequestData
+sealed trait DeleteOtherSchema
 
-trait MockDeleteOtherValidatorFactory extends MockValidatorFactory[DeleteOtherRequestData] {
+object DeleteOtherSchema {
 
-  val mockDeleteOtherValidatorFactory: DeleteOtherValidatorFactory = mock[DeleteOtherValidatorFactory]
+  case object Def1 extends DeleteOtherSchema
 
-  def validator(): CallHandler[Validator[DeleteOtherRequestData]] =
-    (mockDeleteOtherValidatorFactory.validator(_: String, _: String)).expects(*, *)
+  val schema: DeleteOtherSchema = Def1
 
 }

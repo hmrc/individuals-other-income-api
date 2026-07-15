@@ -22,7 +22,7 @@ import api.connectors.httpparsers.StandardDownstreamHttpParser.*
 import api.connectors.{BaseDownstreamConnector, DownstreamOutcome}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,19 +31,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class DeleteOtherConnector @Inject() (val http: HttpClientV2, val appConfig: AppConfig) extends BaseDownstreamConnector {
 
   def deleteOther(
-      request: DeleteOtherRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[DownstreamOutcome[Unit]] = {
+      request: DeleteOtherRequestData)(implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[DownstreamOutcome[Unit]] = {
 
     import request.*
 
-    val downstreamUri = if (taxYear.useTaxYearSpecificApi) {
-      IfsUri[Unit](
-        s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}"
-      )
-    } else {
-      IfsUri[Unit](
-        s"income-tax/income/other/${nino.value}/${taxYear.asMtd}"
-      )
-    }
+    val downstreamUri = IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
 
     delete(downstreamUri)
 

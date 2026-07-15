@@ -27,7 +27,8 @@ import api.services.MockAuditService
 import play.api.Configuration
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.def1.model.request.Def1_DeleteOtherRequest
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -40,9 +41,9 @@ class DeleteOtherControllerSpec
     with MockDeleteOtherValidatorFactory
     with MockAppConfig {
 
-  val taxYear: String = "2019-20"
+  val taxYear: String = "2025-26"
 
-  val requestData: DeleteOtherRequest = DeleteOtherRequest(
+  val requestData: DeleteOtherRequestData = Def1_DeleteOtherRequest(
     nino = parsedNino,
     taxYear = TaxYear.fromMtd(taxYear)
   )

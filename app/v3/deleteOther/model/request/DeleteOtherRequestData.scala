@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-package v3.deleteOther
+package v3.deleteOther.model.request
 
-import api.controllers.validators.{MockValidatorFactory, Validator}
-import org.scalamock.handlers.CallHandler
-import v3.deleteOther.model.request.DeleteOtherRequestData
+import api.models.domain.{Nino, TaxYear}
 
-trait MockDeleteOtherValidatorFactory extends MockValidatorFactory[DeleteOtherRequestData] {
-
-  val mockDeleteOtherValidatorFactory: DeleteOtherValidatorFactory = mock[DeleteOtherValidatorFactory]
-
-  def validator(): CallHandler[Validator[DeleteOtherRequestData]] =
-    (mockDeleteOtherValidatorFactory.validator(_: String, _: String)).expects(*, *)
-
+trait DeleteOtherRequestData {
+  def nino: Nino
+  def taxYear: TaxYear
 }

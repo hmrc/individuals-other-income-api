@@ -31,20 +31,6 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
 
   "Calling the 'delete other employment' endpoint" should {
     "return a 204 status code" when {
-      "any valid request is made" in new NonTysTest {
-
-        override def setupStubs(): StubMapping = {
-          AuditStub.audit()
-          AuthStub.authorised()
-          MtdIdLookupStub.ninoFound(nino)
-          DownstreamStub.onSuccess(DownstreamStub.DELETE, downstreamUri, NO_CONTENT)
-        }
-
-        val response: WSResponse = await(request().delete())
-        response.status shouldBe NO_CONTENT
-        response.body shouldBe ""
-        response.header("X-CorrelationId").nonEmpty shouldBe true
-      }
 
       "any valid request with a Tax Year Specific (TYS) tax year is made" in new TysIfsTest {
 
@@ -66,7 +52,7 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
 
       "validation error" when {
         def validationErrorTest(requestNino: String, requestTaxYear: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"validation fails with ${expectedBody.code} error" in new NonTysTest {
+          s"validation fails with ${expectedBody.code} error" in new TysIfsTest {
 
             override val nino: String    = requestNino
             override val taxYear: String = requestTaxYear
@@ -95,7 +81,7 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new NonTysTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new TysIfsTest {
 
             override def setupStubs(): StubMapping = {
               AuditStub.audit()
@@ -122,19 +108,15 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
         val errors = Seq(
           (BAD_REQUEST, "INVALID_TAXABLE_ENTITY_ID", BAD_REQUEST, NinoFormatError),
           (BAD_REQUEST, "INVALID_TAX_YEAR", BAD_REQUEST, TaxYearFormatError),
-          (BAD_REQUEST, "INVALID_CORRELATIONID", INTERNAL_SERVER_ERROR, InternalError),
           (NOT_FOUND, "NO_DATA_FOUND", NOT_FOUND, NotFoundError),
           (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
-          (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError)
-        )
-
-        val extraTysErrors = Seq(
+          (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError),
           (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
           (UNPROCESSABLE_ENTITY, "OUTSIDE_AMENDMENT_WINDOW", BAD_REQUEST, RuleOutsideAmendmentWindowError),
           (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError)
         )
 
-        (errors ++ extraTysErrors).foreach(serviceErrorTest.tupled)
+        errors.foreach(serviceErrorTest.tupled)
       }
     }
   }
@@ -161,14 +143,9 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
 
   }
 
-  private trait NonTysTest extends Test {
-    def taxYear: String       = "2019-20"
-    def downstreamUri: String = s"/income-tax/income/other/$nino/2019-20"
-  }
-
   private trait TysIfsTest extends Test {
-    def taxYear: String       = "2023-24"
-    def downstreamUri: String = s"/income-tax/income/other/23-24/$nino"
+    def taxYear: String       = "2025-26"
+    def downstreamUri: String = s"/income-tax/income/other/25-26/$nino"
   }
 
 }

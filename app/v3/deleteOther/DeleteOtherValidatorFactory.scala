@@ -18,14 +18,22 @@ package v3.deleteOther
 
 import api.config.AppConfig
 import api.controllers.validators.Validator
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.DeleteOtherSchema.Def1
+import v3.deleteOther.def1.Def1_DeleteOtherValidator
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class DeleteOtherValidatorFactory @Inject() (appConfig: AppConfig) {
 
-  def validator(nino: String, taxYear: String): Validator[DeleteOtherRequest] =
-    new DeleteOtherValidator(nino, taxYear)(appConfig)
+  def validator(nino: String, taxYear: String): Validator[DeleteOtherRequestData] = {
+    val schema = DeleteOtherSchema.schema
+
+    schema match {
+      case Def1 => new Def1_DeleteOtherValidator(nino, taxYear)(appConfig)
+    }
+
+  }
 
 }

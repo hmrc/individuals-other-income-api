@@ -21,7 +21,7 @@ import api.services.ServiceOutcome
 import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.TestSuite
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,9 +32,9 @@ trait MockDeleteOtherService extends TestSuite with MockFactory {
 
   object MockDeleteOtherService {
 
-    def delete(requestData: DeleteOtherRequest): CallHandler[Future[ServiceOutcome[Unit]]] = (
+    def delete(requestData: DeleteOtherRequestData): CallHandler[Future[ServiceOutcome[Unit]]] = (
       mockDeleteOtherService
-        .delete(_: DeleteOtherRequest)(
+        .delete(_: DeleteOtherRequestData)(
           _: RequestContext,
           _: ExecutionContext
         )

@@ -21,7 +21,8 @@ import api.models.domain.{Nino, TaxYear}
 import api.models.errors.*
 import api.models.outcomes.ResponseWrapper
 import api.services.ServiceSpec
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.def1.model.request.Def1_DeleteOtherRequest
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 import scala.concurrent.Future
 
@@ -74,9 +75,9 @@ class DeleteOtherServiceSpec extends ServiceSpec {
     implicit val logContext: EndpointLogContext = EndpointLogContext("c", "ep")
 
     private val nino    = Nino("AA112233A")
-    private val taxYear = TaxYear.fromMtd("2019-20")
+    private val taxYear = TaxYear.fromMtd("2025-26")
 
-    val request: DeleteOtherRequest = DeleteOtherRequest(
+    val request: DeleteOtherRequestData = Def1_DeleteOtherRequest(
       nino = nino,
       taxYear = taxYear
     )

@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package v3.deleteOther
+package v3.deleteOther.def1
 
 import api.config.MockAppConfig
 import api.models.domain.{Nino, TaxYear}
 import api.models.errors.*
 import api.models.utils.JsonErrorValidators
 import api.utils.UnitSpec
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.def1.model.request.Def1_DeleteOtherRequest
 
-class DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
+class Def1_DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino                      = "AA123456A"
-  private val validTaxYear                   = "2019-20"
+  private val validTaxYear                   = "2025-26"
 
   private val parsedNino    = Nino(validNino)
   private val parsedTaxYear = TaxYear.fromMtd(validTaxYear)
 
   def validator(nino: String = validNino, taxYear: String = validTaxYear) =
-    new DeleteOtherValidator(nino, taxYear)(mockAppConfig)
+    new Def1_DeleteOtherValidator(nino, taxYear)(mockAppConfig)
 
   def validate(nino: String = validNino, taxYear: String = validTaxYear) =
     validator(nino, taxYear).validateAndWrapResult()
@@ -43,7 +43,7 @@ class DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with Mo
   "running a validation" should {
     "return no errors" when {
       "a valid request is supplied" in new SetupConfig {
-        validate(validNino, validTaxYear) shouldBe Right(DeleteOtherRequest(parsedNino, parsedTaxYear))
+        validate(validNino, validTaxYear) shouldBe Right(Def1_DeleteOtherRequest(parsedNino, parsedTaxYear))
       }
     }
 
@@ -61,7 +61,7 @@ class DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with Mo
 
     "return RuleTaxYearNotSupportedError error" when {
       "an invalid tax year is supplied" in new SetupConfig {
-        validate(validNino, "2017-18") shouldBe singleError(RuleTaxYearNotSupportedError)
+        validate(validNino, "2024-25") shouldBe singleError(RuleTaxYearNotSupportedError)
       }
     }
 

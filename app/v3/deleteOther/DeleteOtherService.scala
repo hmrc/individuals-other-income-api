@@ -20,7 +20,7 @@ import api.controllers.RequestContext
 import api.models.errors.*
 import api.services.{BaseService, ServiceOutcome}
 import cats.implicits.*
-import v3.deleteOther.model.request.DeleteOtherRequest
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class DeleteOtherService @Inject() (connector: DeleteOtherConnector) extends BaseService {
 
-  def delete(request: DeleteOtherRequest)(implicit ctx: RequestContext, ec: ExecutionContext): Future[ServiceOutcome[Unit]] = {
+  def delete(request: DeleteOtherRequestData)(implicit ctx: RequestContext, ec: ExecutionContext): Future[ServiceOutcome[Unit]] = {
 
     connector.deleteOther(request).map(_.leftMap(mapDownstreamErrors(downstreamErrorMap)))
 
@@ -38,19 +38,15 @@ class DeleteOtherService @Inject() (connector: DeleteOtherConnector) extends Bas
     val errors = Map(
       "INVALID_TAXABLE_ENTITY_ID" -> NinoFormatError,
       "INVALID_TAX_YEAR"          -> TaxYearFormatError,
-      "INVALID_CORRELATIONID"     -> InternalError,
       "NO_DATA_FOUND"             -> NotFoundError,
       "SERVER_ERROR"              -> InternalError,
-      "SERVICE_UNAVAILABLE"       -> InternalError
+      "SERVICE_UNAVAILABLE"       -> InternalError,
+      "INVALID_CORRELATION_ID"    -> InternalError,
+      "OUTSIDE_AMENDMENT_WINDOW"  -> RuleOutsideAmendmentWindowError,
+      "TAX_YEAR_NOT_SUPPORTED"    -> RuleTaxYearNotSupportedError
     )
 
-    val extraTysErrors = Map(
-      "INVALID_CORRELATION_ID"   -> InternalError,
-      "OUTSIDE_AMENDMENT_WINDOW" -> RuleOutsideAmendmentWindowError,
-      "TAX_YEAR_NOT_SUPPORTED"   -> RuleTaxYearNotSupportedError
-    )
-
-    errors ++ extraTysErrors
+    errors
   }
 
 }
