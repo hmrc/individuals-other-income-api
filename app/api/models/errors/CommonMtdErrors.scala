@@ -86,6 +86,12 @@ object RuleRequestCannotBeFulfilledError
 object RuleTaxYearNotSupportedError
     extends MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "The tax year specified does not lie within the supported range", BAD_REQUEST)
 
+object RuleTaxYearForVersionNotSupportedError
+    extends MtdError(
+      "RULE_TAX_YEAR_FOR_VERSION_NOT_SUPPORTED",
+      "This version of the API supports tax years up to, and including, 2025-26. For tax years 2026-27 onwards, a new version is in development",
+      BAD_REQUEST)
+
 object RuleUnalignedCessationTaxYearError
     extends MtdError("RULE_UNALIGNED_CESSATION_TAX_YEAR", "The tax year provided must be the same as the tax year of income to be taxed", BAD_REQUEST)
 

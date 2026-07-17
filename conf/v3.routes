@@ -1,4 +1,4 @@
 
-PUT        /:nino/:taxYear          v3.controllers.CreateAmendOtherController.createAmendOther(nino: String, taxYear: String)
-GET        /:nino/:taxYear          v3.controllers.RetrieveOtherController.retrieveOther(nino: String, taxYear: String)
-DELETE     /:nino/:taxYear          v3.controllers.DeleteOtherController.deleteOther(nino: String, taxYear: String)
+PUT        /:nino/:taxYear          v3.createAmendOther.CreateAmendOtherController.createAmendOther(nino: String, taxYear: String)
+GET        /:nino/:taxYear          v3.retrieveOther.RetrieveOtherController.retrieveOther(nino: String, taxYear: String)
+DELETE     /:nino/:taxYear          v3.deleteOther.DeleteOtherController.deleteOther(nino: String, taxYear: String)

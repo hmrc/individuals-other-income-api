@@ -10,8 +10,7 @@ description: |
   | Header Value (Gov-Test-Scenario) | Scenario                                                                                                                        |
   | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
   | N/A - DEFAULT                    | Simulates success response.                                                                                                     |
-  | NOT FOUND                        | Simulates the scenario where no data is found.                                                                                  |
-  | REQUEST_CANNOT_BE_FULFILLED      | Simulates the scenario where the request could not be processed.                                                                |
+  | NOT FOUND                        | Simulates the scenario where no data is found.                                                                                  |                                                                |
   | DYNAMIC                          | The following response values will change to correspond to the values submitted in the request:<br> • taxYear<br> • submittedOn |
   | STATEFUL                         | Performs a stateful retrieve.                                                                                                   |
 
@@ -37,17 +36,17 @@ responses:
       application/json:
         schema:
           oneOf:
-            - $ref: './schemas/pre_TYS/other_retrieve_response.json'
-            - $ref: './schemas/2023_24/other_retrieve_response.json'
+            - $ref: './schemas/other_retrieve/def1/other_retrieve_response.json'
+            - $ref: './schemas/other_retrieve/def2/other_retrieve_response.json'
         examples:
           Before TY 2023-24:
             description: Full Other Income Amendment
             value:
-              $ref: './examples/otherIncome/pre_TYS/retrieve_response.json'
-          TY 2023-24 or later:
+              $ref: './examples/otherIncome/other_retrieve/def1/retrieve_response.json'
+          TY 2023-24 to TY 2025-26:
             description: Full Other Income Amendment
             value:
-              $ref: './examples/otherIncome/2023_24/retrieve_response.json'
+              $ref: './examples/otherIncome/other_retrieve/def2/retrieve_response.json'
 
   "400":
     description: Bad request
@@ -95,16 +94,3 @@ responses:
         examples:
           MATCHING_RESOURCE_NOT_FOUND:
             $ref: './common/errors.yaml#/components/examples/notFound'
-
-  "422":
-    description: Unprocessable Entity
-    headers:
-      X-CorrelationId:
-        $ref: './common/headers.yaml#/components/parameters/correlationId'
-    content:
-      application/json:
-        schema:
-          $ref: './schemas/error_response.yaml'
-        examples:
-          RULE_REQUEST_CANNOT_BE_FULFILLED:
-            $ref: './common/errors.yaml#/components/examples/requestCannotBeFulfilled'

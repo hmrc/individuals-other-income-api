@@ -114,6 +114,12 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
       }
     }
 
+    "return RuleTaxYearForVersionNotSupportedError error" when {
+      "a tax year that is not supported by this version is supplied" in new SetupConfig {
+        validate(validNino, "2026-27", validRequestBodyJson) shouldBe singleError(RuleTaxYearForVersionNotSupportedError)
+      }
+    }
+
     "return RuleIncorrectOrEmptyBodyError error" when {
       "an empty JSON body is submitted" in new SetupConfig {
         validate(body = JsObject.empty) shouldBe singleError(RuleIncorrectOrEmptyBodyError)

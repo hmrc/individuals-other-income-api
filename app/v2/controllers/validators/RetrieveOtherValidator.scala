@@ -20,7 +20,7 @@ import api.config.AppConfig
 import api.controllers.validators.Validator
 import api.controllers.validators.resolvers.*
 import api.models.domain.TaxYear
-import api.models.errors.MtdError
+import api.models.errors.*
 import cats.data.Validated
 import cats.implicits.*
 import v2.models.request.retrieveOther.RetrieveOtherRequest
@@ -28,7 +28,11 @@ import v2.models.request.retrieveOther.RetrieveOtherRequest
 class RetrieveOtherValidator(nino: String, taxYear: String)(appConfig: AppConfig) extends Validator[RetrieveOtherRequest] {
 
   private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
-  private lazy val resolveTaxYear = ResolveTaxYearMinimum(TaxYear.ending(minimumTaxYear))
+
+  private lazy val resolveTaxYear = ResolveTaxYearMinMax(
+    (TaxYear.fromDownstreamInt(minimumTaxYear), TaxYear.fromMtd("2025-26")),
+    RuleTaxYearNotSupportedError,
+    RuleTaxYearForVersionNotSupportedError)
 
   override def validate: Validated[Seq[MtdError], RetrieveOtherRequest] =
     (

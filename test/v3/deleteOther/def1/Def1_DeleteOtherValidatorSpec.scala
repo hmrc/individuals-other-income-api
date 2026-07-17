@@ -1,0 +1,76 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package v3.deleteOther.def1
+
+import api.config.MockAppConfig
+import api.models.domain.{Nino, TaxYear}
+import api.models.errors.*
+import api.models.utils.JsonErrorValidators
+import api.utils.UnitSpec
+import v3.deleteOther.def1.model.request.Def1_DeleteOtherRequest
+
+class Def1_DeleteOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
+
+  private implicit val correlationId: String = "correlationId"
+  private val validNino                      = "AA123456A"
+  private val validTaxYear                   = "2025-26"
+
+  private val parsedNino    = Nino(validNino)
+  private val parsedTaxYear = TaxYear.fromMtd(validTaxYear)
+
+  def validator(nino: String = validNino, taxYear: String = validTaxYear) =
+    new Def1_DeleteOtherValidator(nino, taxYear)
+
+  def validate(nino: String = validNino, taxYear: String = validTaxYear) =
+    validator(nino, taxYear).validateAndWrapResult()
+
+  def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
+
+  "running a validation" should {
+    "return no errors" when {
+      "a valid request is supplied" in new SetupConfig {
+        validate(validNino, validTaxYear) shouldBe Right(Def1_DeleteOtherRequest(parsedNino, parsedTaxYear))
+      }
+    }
+
+    "return NinoFormatError error" when {
+      "an invalid nino is supplied" in new SetupConfig {
+        validate("A12344A", validTaxYear) shouldBe singleError(NinoFormatError)
+      }
+    }
+
+    "return TaxYearFormatError error" when {
+      "an invalid tax year is supplied" in new SetupConfig {
+        validate(validNino, "20256") shouldBe singleError(TaxYearFormatError)
+      }
+    }
+
+    "return RuleTaxYearNotSupportedError error" when {
+      "an invalid tax year is supplied" in new SetupConfig {
+        validate(validNino, "2024-25") shouldBe singleError(RuleTaxYearNotSupportedError)
+      }
+    }
+
+    "return multiple errors" when {
+      "request supplied has multiple errors (path parameters)" in new SetupConfig {
+        validate("A12344A", "20256") shouldBe
+          Left(ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError))))
+      }
+    }
+  }
+
+}
