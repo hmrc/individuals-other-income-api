@@ -19,21 +19,12 @@ package definition
 import api.config.AppConfig
 import api.definition.*
 import api.definition.APIAccessType.{CONTROLLED, PUBLIC}
-import api.routing.{Version, Version2, Version3}
+import api.routing.{Version2, Version3}
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class OtherIncomeDefinitionFactory @Inject() (protected val appConfig: AppConfig) extends ApiDefinitionFactory {
-
-  override def buildAPIStatus(version: Version): APIStatus = {
-    APIStatus.parser
-      .lift(appConfig.apiStatus(version))
-      .getOrElse {
-        logger.error("[ApiDefinition][buildApiStatus] no API Status found in config. Reverting to Alpha")
-        APIStatus.ALPHA
-      }
-  }
 
   val definition: Definition =
     Definition(

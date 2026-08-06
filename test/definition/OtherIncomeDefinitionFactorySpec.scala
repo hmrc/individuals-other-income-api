@@ -72,12 +72,16 @@ class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockAppConfig {
     "the controlled access flag is enabled" should {
       "return CONTROLLED" in {
 
-        MockedAppConfig.apiGatewayContext returns "individuals/foreign-income"
-        MockedAppConfig.apiGatewayContext.returns("individuals/disposals-income").anyNumberOfTimes()
+        MockedAppConfig.apiGatewayContext returns "individuals/other-income"
+
         MockedAppConfig.apiStatus(Version2).returns("BETA").anyNumberOfTimes()
-        MockedAppConfig.apiStatus(Version3).returns("BETA").anyNumberOfTimes()
         MockedAppConfig.endpointsEnabled(Version2).returns(true).anyNumberOfTimes()
+        MockedAppConfig.deprecationFor(Version2).returns(NotDeprecated.valid).anyNumberOfTimes()
+
+        MockedAppConfig.apiStatus(Version3).returns("BETA").anyNumberOfTimes()
         MockedAppConfig.endpointsEnabled(Version3).returns(true).anyNumberOfTimes()
+        MockedAppConfig.deprecationFor(Version3).returns(NotDeprecated.valid).anyNumberOfTimes()
+
         MockedAppConfig.controlledAccessEnabled.returns(true).anyNumberOfTimes()
 
         val definition: Definition = new OtherIncomeDefinitionFactory(mockAppConfig).definition
@@ -90,10 +94,15 @@ class OtherIncomeDefinitionFactorySpec extends UnitSpec with MockAppConfig {
       "return PUBLIC" in {
 
         MockedAppConfig.apiGatewayContext returns "individuals/other-income"
-        MockedAppConfig.apiStatus(Version2).returns("BETA").anyNumberOfTimes()
-        MockedAppConfig.apiStatus(Version3).returns("BETA").anyNumberOfTimes()
+
         MockedAppConfig.endpointsEnabled(Version2).returns(true).anyNumberOfTimes()
+        MockedAppConfig.apiStatus(Version2).returns("BETA").anyNumberOfTimes()
+        MockedAppConfig.deprecationFor(Version2).returns(NotDeprecated.valid).anyNumberOfTimes()
+
         MockedAppConfig.endpointsEnabled(Version3).returns(true).anyNumberOfTimes()
+        MockedAppConfig.apiStatus(Version3).returns("BETA").anyNumberOfTimes()
+        MockedAppConfig.deprecationFor(Version3).returns(NotDeprecated.valid).anyNumberOfTimes()
+
         MockedAppConfig.controlledAccessEnabled.returns(false).anyNumberOfTimes()
 
         val definition: Definition = new OtherIncomeDefinitionFactory(mockAppConfig).definition
