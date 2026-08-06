@@ -11,7 +11,6 @@ description: |
   | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
   | N/A - DEFAULT                    | Simulates success response.                                                                                                     |
   | NOT FOUND                        | Simulates the scenario where no data is found.                                                                                  |                                                                |
-  | DYNAMIC                          | The following response values will change to correspond to the values submitted in the request:<br> • taxYear<br> • submittedOn |
   | STATEFUL                         | Performs a stateful retrieve.                                                                                                   |
 
 parameters:
@@ -38,6 +37,7 @@ responses:
           oneOf:
             - $ref: './schemas/other_retrieve/def1/other_retrieve_response.json'
             - $ref: './schemas/other_retrieve/def2/other_retrieve_response.json'
+            - $ref: './schemas/other_retrieve/def3/other_retrieve_response.json'
         examples:
           Before TY 2023-24:
             description: Full Other Income Amendment
@@ -47,6 +47,10 @@ responses:
             description: Full Other Income Amendment
             value:
               $ref: './examples/otherIncome/other_retrieve/def2/retrieve_response.json'
+          TY 2026-27 onwards:
+            description: Full Other Income Amendment
+            value:
+              $ref: './examples/otherIncome/other_retrieve/def3/retrieve_response.json'
 
   "400":
     description: Bad request

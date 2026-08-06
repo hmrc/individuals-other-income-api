@@ -1,0 +1,103 @@
+{
+  "submittedOn": "2026-12-07T14:44:58.128Z",
+  "postCessationReceipts": [
+    {
+      "customerReference": "String",
+      "businessName": "Business Name",
+      "dateBusinessCeased": "2025-05-30",
+      "businessDescription": "Description",
+      "incomeSource": "string",
+      "amount": 1999.99,
+      "taxYearIncomeToBeTaxed": "2026-27"
+    }
+  ],
+  "allOtherIncomeReceivedWhilstAbroad": [
+    {
+      "countryCode": "FRA",
+      "amountBeforeTax": 1999.99,
+      "taxTakenOff": 1999.99,
+      "specialWithholdingTax": 1999.99,
+      "foreignTaxCreditRelief": true,
+      "taxableAmount": 1999.99,
+      "residentialFinancialCostAmount": 1999.99,
+      "broughtFwdResidentialFinancialCostAmount": 1999.99
+    }
+  ],
+  "overseasIncomeAndGains": {
+    "gainAmount": 1999.99
+  },
+  "chargeableForeignBenefitsAndGifts": {
+    "transactionBenefit": 1999.99,
+    "protectedForeignIncomeSourceBenefit": 1999.99,
+    "protectedForeignIncomeOnwardGift": 1999.99,
+    "benefitReceivedAsASettler": 1999.99,
+    "onwardGiftReceivedAsASettler": 1999.99
+  },
+  "omittedForeignIncome": {
+    "amount": 1999.99
+  },
+  "benefitFromPreOwnedAssets": [
+    {
+      "typeOfAsset": "Residential property",
+      "amountOfBenefit": 1999.99
+    }
+  ],
+  "additionalIncome": {
+    "propertyIncomeDistributions": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    },
+    "personalInsuranceBenefits": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    },
+    "incomeFromUnauthorisedUnitTrust": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    },
+    "profitsFromCertificateOfDeposit": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    },
+    "nonCashBenefitsFromFormerEmployer": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    },
+    "authorisedPaymentsFromOverseasPensionScheme": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    },
+    "taxableAnnualPayments": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    },
+    "miscellaneousIncome": {
+      "amountBeforeTax": 1999.99,
+      "allowableExpenses": 1999.99,
+      "taxDeducted": 1999.99,
+      "lossesBroughtForward": 1999.99,
+      "carryForwardLosses": 1999.99
+    }
+  }
+}

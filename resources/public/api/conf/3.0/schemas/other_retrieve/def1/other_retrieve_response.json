@@ -1,7 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Before TY 2023-24",
-  "description": "Retrieve Other Income Request",
   "type": "object",
   "properties": {
     "submittedOn": {"$ref": "../../other_definitions.json#/definitions/submittedOn"},

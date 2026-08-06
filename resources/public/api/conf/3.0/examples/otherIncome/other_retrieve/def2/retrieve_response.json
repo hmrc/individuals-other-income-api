@@ -1,45 +1,45 @@
 {
-  "submittedOn": "2021-04-06T09:37:17.000Z",
+  "submittedOn": "2025-12-07T14:44:58.128Z",
   "postCessationReceipts": [
     {
       "customerReference": "String",
       "businessName": "Business Name",
-      "dateBusinessCeased": "2023-05-30",
+      "dateBusinessCeased": "2025-05-30",
       "businessDescription": "Description",
       "incomeSource": "string",
       "amount": 1999.99,
-      "taxYearIncomeToBeTaxed": "2021-22"
+      "taxYearIncomeToBeTaxed": "2025-26"
     }
   ],
-  "businessReceipts":[
+  "businessReceipts": [
     {
-      "grossAmount":1999.99,
-      "taxYear":"2021-22"
+      "grossAmount": 1999.99,
+      "taxYear": "2025-26"
     }
   ],
-  "allOtherIncomeReceivedWhilstAbroad":[
+  "allOtherIncomeReceivedWhilstAbroad": [
     {
-      "countryCode":"FRA",
-      "amountBeforeTax":1999.99,
-      "taxTakenOff":1999.99,
-      "specialWithholdingTax":1999.99,
-      "foreignTaxCreditRelief":true,
-      "taxableAmount":1999.99,
-      "residentialFinancialCostAmount":1999.99,
-      "broughtFwdResidentialFinancialCostAmount":1999.99
+      "countryCode": "FRA",
+      "amountBeforeTax": 1999.99,
+      "taxTakenOff": 1999.99,
+      "specialWithholdingTax": 1999.99,
+      "foreignTaxCreditRelief": true,
+      "taxableAmount": 1999.99,
+      "residentialFinancialCostAmount": 1999.99,
+      "broughtFwdResidentialFinancialCostAmount": 1999.99
     }
   ],
-  "overseasIncomeAndGains":{
-    "gainAmount":1999.99
+  "overseasIncomeAndGains": {
+    "gainAmount": 1999.99
   },
-  "chargeableForeignBenefitsAndGifts":{
-    "transactionBenefit":1999.99,
-    "protectedForeignIncomeSourceBenefit":1999.99,
-    "protectedForeignIncomeOnwardGift":1999.99,
-    "benefitReceivedAsASettler":1999.99,
-    "onwardGiftReceivedAsASettler":1999.99
+  "chargeableForeignBenefitsAndGifts": {
+    "transactionBenefit": 1999.99,
+    "protectedForeignIncomeSourceBenefit": 1999.99,
+    "protectedForeignIncomeOnwardGift": 1999.99,
+    "benefitReceivedAsASettler": 1999.99,
+    "onwardGiftReceivedAsASettler": 1999.99
   },
-  "omittedForeignIncome":{
-    "amount":1999.99
+  "omittedForeignIncome": {
+    "amount": 1999.99
   }
 }

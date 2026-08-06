@@ -238,6 +238,84 @@
       "required": [
         "amount"
       ]
+    },
+    "benefitFromPreOwnedAssets": {
+      "type": "array",
+      "description": "Financial details about benefits arising from pre-owned assets.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "typeOfAsset": {
+            "type": "string",
+            "description": "The type of pre-owned asset.",
+            "example": "Residential property",
+            "pattern": "^(?=.*\\S+)[0-9A-Za-zÀ-˿’\\\\\\- _&`():.'^]{1,100}$"
+          },
+          "amountOfBenefit": {
+            "type": "number",
+            "description": "The amount of benefit arising from the pre-owned asset. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
+            "example": "1999.99",
+            "multipleOf": 0.01,
+            "minimum": 0,
+            "maximum": 99999999999.99
+          }
+        },
+        "required": [
+          "typeOfAsset",
+          "amountOfBenefit"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "additionalIncomeBreakdown": {
+      "type": "object",
+      "description": "The container that holds the key value for additional income breakdown.",
+      "properties": {
+        "amountBeforeTax": {
+          "type": "number",
+          "description": "The total amount of additional taxable income before any tax was deducted. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
+          "example": 1999.99,
+          "multipleOf": 0.01,
+          "minimum": 0,
+          "maximum": 99999999999.99
+        },
+        "allowableExpenses": {
+          "type": "number",
+          "description": "The total amount of allowable expenses. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
+          "example": 1999.99,
+          "multipleOf": 0.01,
+          "minimum": 0,
+          "maximum": 99999999999.99
+        },
+        "taxDeducted": {
+          "type": "number",
+          "description": "The amount of tax deducted from additional taxable income. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
+          "example": 1999.99,
+          "multipleOf": 0.01,
+          "minimum": 0,
+          "maximum": 99999999999.99
+        },
+        "lossesBroughtForward": {
+          "type": "number",
+          "description": "The total amount of losses brought forward from earlier tax years. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
+          "example": 1999.99,
+          "multipleOf": 0.01,
+          "minimum": 0,
+          "maximum": 99999999999.99
+        },
+        "carryForwardLosses": {
+          "type": "number",
+          "description": "The total amount of losses to carry forward to a future tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.",
+          "example": 1999.99,
+          "multipleOf": 0.01,
+          "minimum": 0,
+          "maximum": 99999999999.99
+        }
+      },
+      "required": [
+        "amountBeforeTax"
+      ],
+      "additionalProperties": false
     }
   }
 }
