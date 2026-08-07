@@ -3,17 +3,17 @@
     {
       "customerReference": "String",
       "businessName": "Business Name",
-      "dateBusinessCeased": "2023-05-30",
+      "dateBusinessCeased": "2025-05-30",
       "businessDescription": "Description",
       "incomeSource": "string",
       "amount": 1999.99,
-      "taxYearIncomeToBeTaxed": "2021-22"
+      "taxYearIncomeToBeTaxed": "2025-26"
     }
   ],
   "businessReceipts":[
     {
       "grossAmount":1999.99,
-      "taxYear":"2021-22"
+      "taxYear":"2025-26"
     }
   ],
   "allOtherIncomeReceivedWhilstAbroad":[

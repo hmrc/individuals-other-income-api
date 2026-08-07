@@ -32,11 +32,16 @@ requestBody:
     application/json:
       schema:
           $ref: './schemas/other_create_amend/def1/request.json'
+          $ref: './schemas/other_create_amend/def2/request.json'
       examples:
         TY 2025-26:
           description: Full Other Income Amendment
           value:
             $ref: './examples/other_create_amend/def1/request.json'
+        TY 2026-27:
+          description: Full Other Income Amendment
+          value:
+            $ref: './examples/other_create_amend/def2/request.json'
 responses:
   "204":
     description: No Content
@@ -85,6 +90,10 @@ responses:
             $ref: './common/errors.yaml#/components/examples/ruleIncorrectGovTestScenario'
           RULE_OUTSIDE_AMENDMENT_WINDOW:
             $ref: './common/errors.yaml#/components/examples/ruleOutsideAmendmentWindow'
+          RULE_TAX_DEDUCTED_EXCEEDS_AMOUNT_BEFORE_TAX:
+            $ref: './common/errors.yaml#/components/examples/ruleTaxDeductedExceedsAmountBeforeTax'
+          RULE_INCORRECT_BUSINESS_CEASED_DATE:
+            $ref: './common/errors.yaml#/components/examples/ruleIncorrectBusinessCeasedDate'
 
   "403":
     description: Forbidden

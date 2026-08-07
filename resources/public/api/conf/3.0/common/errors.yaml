@@ -122,6 +122,18 @@ components:
         code: RULE_OUTSIDE_AMENDMENT_WINDOW
         message: You are outside the amendment window
 
+    ruleTaxDeductedExceedsAmountBeforeTax:
+      description: The supplied taxDeducted exceeds amountBeforeTax.
+      value:
+        code: RULE_TAX_DEDUCTED_EXCEEDS_AMOUNT_BEFORE_TAX
+        message: taxDeducted must be less than or equal to amountBeforeTax
+
+    ruleIncorrectBusinessCeasedDate:
+      description: The supplied business ceased date is today or in the future.
+      value:
+        code: RULE_INCORRECT_BUSINESS_CEASED_DATE
+        message: Business ceased date must be before today
+
     # 403
 
     clientOrAgentNotAuthorised:
