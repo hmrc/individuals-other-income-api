@@ -267,6 +267,77 @@
         "additionalProperties": false
       }
     },
+    "additionalIncome": {
+      "type": "object",
+      "description": "The container that holds details of additional taxable income.",
+      "properties": {
+        "propertyIncomeDistributions": {
+          "description": "The container that holds the key value for Property Income Distributions (PIDs) from Real Estate Investment Trusts (REITs) and Property Authorised Investment Funds (PAIFs).",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        },
+        "personalInsuranceBenefits": {
+          "description": "The container that holds the key value for personal insurance benefits.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        },
+        "incomeFromUnauthorisedUnitTrust": {
+          "description": "The container that holds the key value for income from unauthorised unit trusts.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        },
+        "profitsFromCertificateOfDeposit": {
+          "description": "The container that holds the key value for profits from certificates of deposit.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        },
+        "nonCashBenefitsFromFormerEmployer": {
+          "description": "The container that holds the key value for non-cash benefits received from a former employer.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        },
+        "authorisedPaymentsFromOverseasPensionScheme": {
+          "description": "The container that holds the key value for authorised payments from overseas pension schemes.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        },
+        "taxableAnnualPayments": {
+          "description": "The container that holds the key value for taxable annual payments.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        },
+        "miscellaneousIncome": {
+          "description": "The container that holds the key value for miscellaneous income.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/additionalIncomeBreakdown"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "additionalIncomeBreakdown": {
       "type": "object",
       "description": "The container that holds the key value for additional income breakdown.",
