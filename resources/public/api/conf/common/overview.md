@@ -1,5 +1,7 @@
 > HMRC is no longer accepting production credential access requests for new 2026–27 quarterly update products, as the market window for these products has now closed.
 
+Use the Individuals Other Income API to submit, edit and retrieve information about a customer’s other taxable income.
+
 This API is related to the following customer journey:
 * Submit other income
 
