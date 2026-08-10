@@ -32,8 +32,8 @@ requestBody:
     application/json:
       schema:
         oneOf:
-          $ref: './schemas/other_create_amend/def1/request.json'
-          $ref: './schemas/other_create_amend/def2/request.json'
+          - $ref: './schemas/other_create_amend/def1/request.json'
+          - $ref: './schemas/other_create_amend/def2/request.json'
       examples:
         TY 2025-26:
           description: Full Other Income Amendment
