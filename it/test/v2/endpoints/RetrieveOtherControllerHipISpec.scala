@@ -71,7 +71,7 @@ class RetrieveOtherControllerHipISpec extends IntegrationBaseSpec {
       }
 
       val input = Seq(
-        ("AA1123A", "2019-20", BAD_REQUEST, NinoFormatError),
+        ("AA1123A", "2024-25", BAD_REQUEST, NinoFormatError),
         ("AA123456A", "20177", BAD_REQUEST, TaxYearFormatError),
         ("AA123456A", "2015-17", BAD_REQUEST, RuleTaxYearRangeInvalidError),
         ("AA123456A", "2018-19", BAD_REQUEST, RuleTaxYearNotSupportedError),
@@ -101,26 +101,29 @@ class RetrieveOtherControllerHipISpec extends IntegrationBaseSpec {
       def errorBody(code: String): String =
         s"""
            |{
-           |   "code": "$code",
-           |   "reason": "downstream message"
+           |  "origin": "HoD",
+           |  "response": {
+           |    "failures": [
+           |      {
+           |        "type": "$code",
+           |        "reason": "downstream message"
+           |      }
+           |    ]
+           |  }
            |}
-            """.stripMargin
+           """.stripMargin
 
       val errors = Seq(
         (BAD_REQUEST, "INVALID_TAXABLE_ENTITY_ID", BAD_REQUEST, NinoFormatError),
         (BAD_REQUEST, "INVALID_TAX_YEAR", BAD_REQUEST, TaxYearFormatError),
-        (BAD_REQUEST, "INVALID_CORRELATIONID", INTERNAL_SERVER_ERROR, InternalError),
+        (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
         (NOT_FOUND, "NO_DATA_FOUND", NOT_FOUND, NotFoundError),
         (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
-        (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError)
-      )
-
-      val extraTysErrors = Seq(
-        (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
+        (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError),
         (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError)
       )
 
-      (errors ++ extraTysErrors).foreach(serviceErrorTest.tupled)
+      errors.foreach(serviceErrorTest.tupled)
     }
   }
 
