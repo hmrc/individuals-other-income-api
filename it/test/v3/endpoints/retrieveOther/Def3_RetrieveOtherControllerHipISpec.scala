@@ -25,13 +25,10 @@ import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSRequest, WSResponse}
 import play.api.test.Helpers.AUTHORIZATION
-import v3.retrieveOther.def2.Def2_RetrieveOtherControllerFixture
-import v3.retrieveOther.def2.Def2_RetrieveOtherControllerFixture.fullRetrieveOtherResponse
+import v3.retrieveOther.def3.Def3_RetrieveOtherControllerFixture
+import v3.retrieveOther.def3.Def3_RetrieveOtherControllerFixture.fullRetrieveOtherResponse
 
-class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
-
-  override def servicesConfig: Map[String, Any] =
-    Map("feature-switch.ifs_hip_migration_1916.enabled" -> false) ++ super.servicesConfig
+class Def3_RetrieveOtherControllerHipISpec extends IntegrationBaseSpec {
 
   "Calling the 'retrieve other' endpoint" should {
     "return a 200 status code" when {
@@ -44,6 +41,8 @@ class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
         }
 
         val response: WSResponse = await(request.get())
+        println(response)
+        println(response.json)
         response.status shouldBe OK
         response.json shouldBe fullRetrieveOtherResponse
         response.header("Content-Type") shouldBe Some("application/json")
@@ -74,7 +73,7 @@ class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
         }
 
         val input = Seq(
-          ("AA1123A", "2024-25", BAD_REQUEST, NinoFormatError),
+          ("AA1123A", "2026-27", BAD_REQUEST, NinoFormatError),
           ("AA123456A", "20177", BAD_REQUEST, TaxYearFormatError),
           ("AA123456A", "2015-17", BAD_REQUEST, RuleTaxYearRangeInvalidError),
           ("AA123456A", "2018-19", BAD_REQUEST, RuleTaxYearNotSupportedError)
@@ -102,27 +101,30 @@ class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
 
         def errorBody(code: String): String =
           s"""
-           |{
-           |   "code": "$code",
-           |   "reason": "downstream message"
-           |}
-            """.stripMargin
+             |{
+             |  "origin": "HoD",
+             |  "response": {
+             |    "failures": [
+             |      {
+             |        "type": "$code",
+             |        "reason": "downstream message"
+             |      }
+             |    ]
+             |  }
+             |}
+             """.stripMargin
 
         val errors = Seq(
           (BAD_REQUEST, "INVALID_TAXABLE_ENTITY_ID", BAD_REQUEST, NinoFormatError),
           (BAD_REQUEST, "INVALID_TAX_YEAR", BAD_REQUEST, TaxYearFormatError),
-          (BAD_REQUEST, "INVALID_CORRELATIONID", INTERNAL_SERVER_ERROR, InternalError),
+          (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
           (NOT_FOUND, "NO_DATA_FOUND", NOT_FOUND, NotFoundError),
           (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
-          (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError)
-        )
-
-        val extraTysErrors = Seq(
-          (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
+          (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError),
           (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError)
         )
 
-        (errors ++ extraTysErrors).foreach(serviceErrorTest.tupled)
+        errors.foreach(serviceErrorTest.tupled)
       }
     }
   }
@@ -131,11 +133,11 @@ class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
 
     def nino: String = "AA123456A"
 
-    def taxYear: String = "2024-25"
+    def taxYear: String = "2026-27"
 
-    def downstreamUri: String = s"/income-tax/income/other/24-25/$nino"
+    def downstreamUri: String = s"/itsa/income-tax/v1/26-27/income/other/$nino"
 
-    val downstreamResponse: JsValue = Def2_RetrieveOtherControllerFixture.fullRetrieveOtherResponse
+    val downstreamResponse: JsValue = Def3_RetrieveOtherControllerFixture.fullRetrieveOtherResponse
 
     def mtdUri: String = s"/$nino/$taxYear"
 

@@ -28,30 +28,11 @@ import play.api.test.Helpers.AUTHORIZATION
 import v2.fixtures.RetrieveOtherControllerFixture
 import v2.fixtures.RetrieveOtherControllerFixture.fullRetrieveOtherResponse
 
-class RetrieveOtherControllerISpec extends IntegrationBaseSpec {
-
-  override def servicesConfig: Map[String, Any] =
-    Map("feature-switch.ifs_hip_migration_1916.enabled" -> false) ++ super.servicesConfig
+class RetrieveOtherControllerHipISpec extends IntegrationBaseSpec {
 
   "Calling the 'retrieve other' endpoint" should {
-    "return a 200 status code" when {
 
-      "any valid request is made" in new NonTysTest {
-        override def setupStubs(): StubMapping = {
-          AuditStub.audit()
-          AuthStub.authorised()
-          MtdIdLookupStub.ninoFound(nino)
-          DownstreamStub.onSuccess(DownstreamStub.GET, downstreamUri, OK, downstreamResponse)
-        }
-
-        val response: WSResponse = await(request.get())
-        response.status shouldBe OK
-        response.json shouldBe fullRetrieveOtherResponse
-        response.header("Content-Type") shouldBe Some("application/json")
-      }
-    }
-
-    "any valid request is made for Tax Year Specific (TYS)" in new TysIfsTest {
+    "any valid request is made for Tax Year Specific (TYS)" in new Test {
       override def setupStubs(): StubMapping = {
         AuditStub.audit()
         AuthStub.authorised()
@@ -70,7 +51,7 @@ class RetrieveOtherControllerISpec extends IntegrationBaseSpec {
 
     "validation error" when {
       def validationErrorTest(requestNino: String, requestTaxYear: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-        s"validation fails with ${expectedBody.code} error" in new NonTysTest {
+        s"validation fails with ${expectedBody.code} error" in new Test {
 
           override def nino: String = requestNino
 
@@ -101,7 +82,7 @@ class RetrieveOtherControllerISpec extends IntegrationBaseSpec {
 
     "downstream service error" when {
       def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-        s"downstream returns an $downstreamCode error and status $downstreamStatus" in new NonTysTest {
+        s"downstream returns an $downstreamCode error and status $downstreamStatus" in new Test {
 
           override def setupStubs(): StubMapping = {
             AuditStub.audit()
@@ -145,10 +126,11 @@ class RetrieveOtherControllerISpec extends IntegrationBaseSpec {
 
   private trait Test {
 
-    def nino: String = "AA123456A"
-    def taxYear: String
+    def nino: String    = "AA123456A"
+    def taxYear: String = "2023-24"
 
-    def downstreamUri: String
+    def downstreamUri: String = s"/itsa/income-tax/v1/23-24/income/other/$nino"
+
     val downstreamResponse: JsValue = RetrieveOtherControllerFixture.fullRetrieveOtherResponse
 
     def mtdUri: String = s"/$nino/$taxYear"
@@ -165,16 +147,6 @@ class RetrieveOtherControllerISpec extends IntegrationBaseSpec {
         )
     }
 
-  }
-
-  private trait NonTysTest extends Test {
-    def taxYear: String       = "2019-20"
-    def downstreamUri: String = s"/income-tax/income/other/$nino/$taxYear"
-  }
-
-  private trait TysIfsTest extends Test {
-    def taxYear: String       = "2023-24"
-    def downstreamUri: String = s"/income-tax/income/other/23-24/$nino"
   }
 
 }

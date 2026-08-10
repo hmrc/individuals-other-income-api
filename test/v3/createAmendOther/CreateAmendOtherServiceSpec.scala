@@ -25,6 +25,7 @@ import api.services.ServiceSpec
 import play.api.Configuration
 import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.requestBodyModel
 import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+
 import scala.concurrent.Future
 
 class CreateAmendOtherServiceSpec extends ServiceSpec {

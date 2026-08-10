@@ -20,8 +20,9 @@ import api.connectors.ConnectorSpec
 import api.models.domain.{Nino, TaxYear}
 import api.models.outcomes.ResponseWrapper
 import uk.gov.hmrc.http.StringContextOps
-import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
 import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.requestBodyModel
+import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+
 import scala.concurrent.Future
 
 class CreateAmendOtherConnectorSpec extends ConnectorSpec {

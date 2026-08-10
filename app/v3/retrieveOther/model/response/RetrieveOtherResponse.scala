@@ -20,6 +20,7 @@ import api.utils.JsonWritesUtil.writesFrom
 import play.api.libs.json.OWrites
 import v3.retrieveOther.def1.model.response.Def1_RetrieveOtherResponse
 import v3.retrieveOther.def2.model.response.Def2_RetrieveOtherResponse
+import v3.retrieveOther.def3.model.response.Def3_RetrieveOtherResponse
 
 trait RetrieveOtherResponse
 
@@ -30,6 +31,8 @@ object RetrieveOtherResponse {
       implicitly[OWrites[Def1_RetrieveOtherResponse]].writes(def1)
     case def2: Def2_RetrieveOtherResponse =>
       implicitly[OWrites[Def2_RetrieveOtherResponse]].writes(def2)
+    case def3: Def3_RetrieveOtherResponse =>
+      implicitly[OWrites[Def3_RetrieveOtherResponse]].writes(def3)
   }
 
 }

@@ -19,9 +19,10 @@ package v3.retrieveOther
 import api.config.AppConfig
 import api.controllers.validators.Validator
 import cats.data.Validated.{Invalid, Valid}
-import v3.retrieveOther.RetrieveOtherSchema.{Def1, Def2}
+import v3.retrieveOther.RetrieveOtherSchema.{Def1, Def2, Def3}
 import v3.retrieveOther.def1.Def1_RetrieveOtherValidator
 import v3.retrieveOther.def2.Def2_RetrieveOtherValidator
+import v3.retrieveOther.def3.Def3_RetrieveOtherValidator
 import v3.retrieveOther.model.request.RetrieveOtherRequestData
 
 import javax.inject.{Inject, Singleton}
@@ -35,6 +36,7 @@ class RetrieveOtherValidatorFactory @Inject() (implicit appConfig: AppConfig) {
     schema match {
       case Valid(Def1)     => new Def1_RetrieveOtherValidator(nino, taxYear)
       case Valid(Def2)     => new Def2_RetrieveOtherValidator(nino, taxYear)
+      case Valid(Def3)     => new Def3_RetrieveOtherValidator(nino, taxYear)
       case Invalid(errors) => Validator.returningErrors(errors)
     }
   }

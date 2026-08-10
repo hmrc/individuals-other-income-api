@@ -27,8 +27,9 @@ import api.services.MockAuditService
 import play.api.Configuration
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
-import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
 import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.{requestBodyJson, requestBodyModel}
+import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

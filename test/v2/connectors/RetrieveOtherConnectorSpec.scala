@@ -20,6 +20,7 @@ import api.connectors.{ConnectorSpec, DownstreamOutcome}
 import api.models.domain.{Nino, TaxYear, Timestamp}
 import api.models.outcomes.ResponseWrapper
 import org.scalamock.handlers.CallHandler
+import play.api.Configuration
 import uk.gov.hmrc.http.StringContextOps
 import v2.models.request.retrieveOther.RetrieveOtherRequest
 import v2.models.response.retrieveOther.RetrieveOtherResponse
@@ -32,7 +33,7 @@ class RetrieveOtherConnectorSpec extends ConnectorSpec {
 
     "return the expected response for a non-TYS request" when {
       "a valid request is made" in new DesTest with Test {
-        val outcome = Right(ResponseWrapper(correlationId, response))
+        val outcome: Right[Nothing, ResponseWrapper[RetrieveOtherResponse]] = Right(ResponseWrapper(correlationId, response))
 
         stubHttpResponse(outcome)
 
@@ -42,12 +43,28 @@ class RetrieveOtherConnectorSpec extends ConnectorSpec {
     }
 
     "return the expected response for a TYS request" when {
-      "a valid request is made" in new IfsTest with Test {
+      "a valid request is made (IFS enabled)" in new IfsTest with Test {
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1916.enabled" -> false))
         override def taxYear: TaxYear = TaxYear.fromMtd("2023-24")
 
-        val outcome = Right(ResponseWrapper(correlationId, response))
+        val outcome: Right[Nothing, ResponseWrapper[RetrieveOtherResponse]] = Right(ResponseWrapper(correlationId, response))
 
         stubTysHttpResponse(outcome)
+
+        val result: DownstreamOutcome[RetrieveOtherResponse] = await(connector.retrieve(request))
+        result shouldBe outcome
+      }
+
+      "a valid request is made (HIP enabled)" in new HipTest with Test {
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1916.enabled" -> true))
+
+        override def taxYear: TaxYear = TaxYear.fromMtd("2024-25")
+
+        val outcome: Right[Nothing, ResponseWrapper[RetrieveOtherResponse]] = Right(ResponseWrapper(correlationId, response))
+
+        willGet(
+          url"$baseUrl/itsa/income-tax/v1/24-25/income/other/$nino"
+        ).returns(Future.successful(outcome))
 
         val result: DownstreamOutcome[RetrieveOtherResponse] = await(connector.retrieve(request))
         result shouldBe outcome

@@ -16,8 +16,8 @@
 
 package v3.retrieveOther
 
-import api.config.AppConfig
-import api.connectors.DownstreamUri.{DesUri, IfsUri}
+import api.config.{AppConfig, ConfigFeatureSwitches}
+import api.connectors.DownstreamUri.{DesUri, HipUri, IfsUri}
 import api.connectors.httpparsers.StandardDownstreamHttpParser.reads
 import api.connectors.{BaseDownstreamConnector, DownstreamOutcome, DownstreamUri}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -39,9 +39,15 @@ class RetrieveOtherConnector @Inject() (val http: HttpClientV2, val appConfig: A
     import request.*
     import schema.*
 
+    lazy val downstream1916Uri = if (ConfigFeatureSwitches().isEnabled("ifs_hip_migration_1916")) {
+      HipUri(s"itsa/income-tax/v1/${taxYear.asTysDownstream}/income/other/${nino.value}")
+    } else {
+      IfsUri(s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
+    }
+
     val downstreamUri: DownstreamUri[DownstreamResp] =
       if (taxYear.useTaxYearSpecificApi) {
-        IfsUri(s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
+        downstream1916Uri
       } else {
         DesUri(s"income-tax/income/other/${nino.value}/${taxYear.asMtd}")
       }

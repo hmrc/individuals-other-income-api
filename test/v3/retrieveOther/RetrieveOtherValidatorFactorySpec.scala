@@ -16,8 +16,8 @@
 
 package v3.retrieveOther
 
-import api.controllers.validators.{AlwaysErrorsValidator, Validator}
 import api.config.MockAppConfig
+import api.controllers.validators.{AlwaysErrorsValidator, Validator}
 import api.utils.UnitSpec
 import v3.retrieveOther.def1.Def1_RetrieveOtherValidator
 import v3.retrieveOther.def2.Def2_RetrieveOtherValidator

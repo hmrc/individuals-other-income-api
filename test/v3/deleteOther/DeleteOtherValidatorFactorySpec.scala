@@ -18,8 +18,8 @@ package v3.deleteOther
 
 import api.controllers.validators.Validator
 import api.utils.UnitSpec
-import v3.deleteOther.model.request.DeleteOtherRequestData
 import v3.deleteOther.def1.Def1_DeleteOtherValidator
+import v3.deleteOther.model.request.DeleteOtherRequestData
 
 class DeleteOtherValidatorFactorySpec extends UnitSpec {
 

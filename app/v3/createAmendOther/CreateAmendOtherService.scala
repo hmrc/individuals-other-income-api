@@ -21,6 +21,7 @@ import api.models.errors.*
 import api.services.{BaseService, ServiceOutcome}
 import cats.implicits.*
 import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 

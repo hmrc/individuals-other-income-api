@@ -16,11 +16,11 @@
 
 package v3.retrieveOther
 
+import api.config.MockAppConfig
 import api.models.domain.{TaxYear, TaxYearPropertyCheckSupport}
 import api.models.errors.*
 import api.utils.UnitSpec
 import cats.data.Validated.{Invalid, Valid}
-import api.config.MockAppConfig
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import v3.retrieveOther.RetrieveOtherSchema.*
 
@@ -38,9 +38,15 @@ class RetrieveOtherSchemaSpec extends UnitSpec with MockAppConfig with ScalaChec
         }
       }
 
-      "use Def2 schema for tax years 2023-24 onwards" in new Test {
-        forTaxYearsFrom(TaxYear.fromMtd("2023-24")) { taxYear =>
+      "use Def2 schema for tax years between 2023-24 and 2025-26" in new Test {
+        forTaxYearsInRange(TaxYear.fromMtd("2023-24"), TaxYear.fromMtd("2025-26")) { taxYear =>
           schemaFor(taxYear.asMtd) shouldBe Valid(Def2)
+        }
+      }
+
+      "use Def3 schema for tax years 2026-27 onwards" in new Test {
+        forTaxYearsFrom(TaxYear.fromMtd("2026-27")) { taxYear =>
+          schemaFor(taxYear.asMtd) shouldBe Valid(Def3)
         }
       }
 

@@ -26,6 +26,7 @@ import cats.data.Validated.Valid
 import play.api.libs.json.Reads
 import v3.retrieveOther.def1.model.response.Def1_RetrieveOtherResponse
 import v3.retrieveOther.def2.model.response.Def2_RetrieveOtherResponse
+import v3.retrieveOther.def3.model.response.Def3_RetrieveOtherResponse
 import v3.retrieveOther.model.response.RetrieveOtherResponse
 
 import scala.math.Ordered.orderingToOrdered
@@ -44,14 +45,21 @@ object RetrieveOtherSchema {
     val connectorReads: Reads[DownstreamResp] = Def2_RetrieveOtherResponse.reads
   }
 
+  case object Def3 extends RetrieveOtherSchema {
+    type DownstreamResp = Def3_RetrieveOtherResponse
+    val connectorReads: Reads[DownstreamResp] = Def3_RetrieveOtherResponse.reads
+  }
+
   def schemaFor(taxYearString: String)(implicit appConfig: AppConfig): Validated[Seq[MtdError], RetrieveOtherSchema] =
     ResolveTaxYearMinimum(TaxYear.ending(appConfig.minimumPermittedTaxYear))(taxYearString) andThen schemaFor
 
   def schemaFor(taxYear: TaxYear): Validated[Seq[MtdError], RetrieveOtherSchema] = {
     if (taxYear <= TaxYear.fromMtd("2022-23")) {
       Valid(Def1)
-    } else {
+    } else if (taxYear <= TaxYear.fromMtd("2025-26")) {
       Valid(Def2)
+    } else {
+      Valid(Def3)
     }
   }
 

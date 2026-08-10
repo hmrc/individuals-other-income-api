@@ -28,10 +28,7 @@ import play.api.test.Helpers.AUTHORIZATION
 import v3.retrieveOther.def2.Def2_RetrieveOtherControllerFixture
 import v3.retrieveOther.def2.Def2_RetrieveOtherControllerFixture.fullRetrieveOtherResponse
 
-class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
-
-  override def servicesConfig: Map[String, Any] =
-    Map("feature-switch.ifs_hip_migration_1916.enabled" -> false) ++ super.servicesConfig
+class Def2_RetrieveOtherControllerHipISpec extends IntegrationBaseSpec {
 
   "Calling the 'retrieve other' endpoint" should {
     "return a 200 status code" when {
@@ -102,27 +99,30 @@ class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
 
         def errorBody(code: String): String =
           s"""
-           |{
-           |   "code": "$code",
-           |   "reason": "downstream message"
-           |}
-            """.stripMargin
+             |{
+             |  "origin": "HoD",
+             |  "response": {
+             |    "failures": [
+             |      {
+             |        "type": "$code",
+             |        "reason": "downstream message"
+             |      }
+             |    ]
+             |  }
+             |}
+             """.stripMargin
 
         val errors = Seq(
           (BAD_REQUEST, "INVALID_TAXABLE_ENTITY_ID", BAD_REQUEST, NinoFormatError),
           (BAD_REQUEST, "INVALID_TAX_YEAR", BAD_REQUEST, TaxYearFormatError),
-          (BAD_REQUEST, "INVALID_CORRELATIONID", INTERNAL_SERVER_ERROR, InternalError),
+          (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
           (NOT_FOUND, "NO_DATA_FOUND", NOT_FOUND, NotFoundError),
           (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
-          (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError)
-        )
-
-        val extraTysErrors = Seq(
-          (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
+          (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError),
           (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError)
         )
 
-        (errors ++ extraTysErrors).foreach(serviceErrorTest.tupled)
+        errors.foreach(serviceErrorTest.tupled)
       }
     }
   }
@@ -133,7 +133,7 @@ class Def2_RetrieveOtherControllerISpec extends IntegrationBaseSpec {
 
     def taxYear: String = "2024-25"
 
-    def downstreamUri: String = s"/income-tax/income/other/24-25/$nino"
+    def downstreamUri: String = s"/itsa/income-tax/v1/24-25/income/other/$nino"
 
     val downstreamResponse: JsValue = Def2_RetrieveOtherControllerFixture.fullRetrieveOtherResponse
 
