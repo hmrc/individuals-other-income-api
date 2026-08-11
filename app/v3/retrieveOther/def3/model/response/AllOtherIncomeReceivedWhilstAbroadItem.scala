@@ -16,8 +16,7 @@
 
 package v3.retrieveOther.def3.model.response
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{JsPath, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class AllOtherIncomeReceivedWhilstAbroadItem(countryCode: String,
                                                   amountBeforeTax: Option[BigDecimal],
@@ -29,17 +28,5 @@ case class AllOtherIncomeReceivedWhilstAbroadItem(countryCode: String,
                                                   broughtFwdResidentialFinancialCostAmount: Option[BigDecimal])
 
 object AllOtherIncomeReceivedWhilstAbroadItem {
-
-  implicit val reads: Reads[AllOtherIncomeReceivedWhilstAbroadItem] = (
-    (JsPath \ "countryCode").read[String] and
-      (JsPath \ "amountBeforeTax").readNullable[BigDecimal] and
-      (JsPath \ "taxTakenOff").readNullable[BigDecimal] and
-      (JsPath \ "specialWithholdingTax").readNullable[BigDecimal] and
-      (JsPath \ "foreignTaxCreditRelief").readNullable[Boolean] and
-      (JsPath \ "taxableAmount").read[BigDecimal] and
-      (JsPath \ "residentialFinancialCostAmount").readNullable[BigDecimal] and
-      (JsPath \ "broughtFwdResidentialFinancialCostAmount").readNullable[BigDecimal]
-  )(AllOtherIncomeReceivedWhilstAbroadItem.apply)
-
-  implicit val writes: OWrites[AllOtherIncomeReceivedWhilstAbroadItem] = Json.writes[AllOtherIncomeReceivedWhilstAbroadItem]
+  implicit val format: OFormat[AllOtherIncomeReceivedWhilstAbroadItem] = Json.format[AllOtherIncomeReceivedWhilstAbroadItem]
 }

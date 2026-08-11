@@ -39,12 +39,7 @@ object Def3_RetrieveOtherResponse extends JsonUtils {
       (JsPath \ "postCessationReceipts").readNullable[Seq[PostCessationReceiptsItem]].mapEmptySeqToNone and
       (JsPath \ "allOtherIncomeReceivedWhilstAbroad").readNullable[Seq[AllOtherIncomeReceivedWhilstAbroadItem]].mapEmptySeqToNone and
       (JsPath \ "overseasIncomeAndGains").readNullable[OverseasIncomeAndGains] and
-      (JsPath \ "chargeableForeignBenefitsAndGifts")
-        .readNullable[ChargeableForeignBenefitsAndGifts]
-        .map(_.flatMap {
-          case ChargeableForeignBenefitsAndGifts.empty => None
-          case chargeableForeignBenefitsAndGifts       => Some(chargeableForeignBenefitsAndGifts)
-        }) and
+      (JsPath \ "chargeableForeignBenefitsAndGifts").readNullable[ChargeableForeignBenefitsAndGifts] and
       (JsPath \ "omittedForeignIncome").readNullable[OmittedForeignIncome] and
       (JsPath \ "benefitFromPreOwnedAssets").readNullable[Seq[BenefitFromPreOwnedAssetsItem]].mapEmptySeqToNone and
       (JsPath \ "additionalIncome").readNullable[AdditionalIncome]

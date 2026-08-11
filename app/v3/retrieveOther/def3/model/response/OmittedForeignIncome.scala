@@ -16,12 +16,10 @@
 
 package v3.retrieveOther.def3.model.response
 
-import play.api.libs.json.{JsPath, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class OmittedForeignIncome(amount: BigDecimal)
 
 object OmittedForeignIncome {
-  implicit val reads: Reads[OmittedForeignIncome] = (JsPath \ "amount").read[BigDecimal].map(OmittedForeignIncome(_))
-
-  implicit val writes: OWrites[OmittedForeignIncome] = Json.writes[OmittedForeignIncome]
+  implicit val format: OFormat[OmittedForeignIncome] = Json.format[OmittedForeignIncome]
 }

@@ -17,7 +17,7 @@
 package v3.retrieveOther.def3.model.response
 
 import api.utils.UnitSpec
-import play.api.libs.json.{JsError, JsObject, Json}
+import play.api.libs.json.{JsError, Json}
 
 class ChargeableForeignBenefitsAndGiftsSpec extends UnitSpec {
 
@@ -45,14 +45,6 @@ class ChargeableForeignBenefitsAndGiftsSpec extends UnitSpec {
     "read from valid JSON" should {
       "produce the expected ChargeableForeignBenefitsAndGifts object" in {
         json.as[ChargeableForeignBenefitsAndGifts] shouldBe model
-      }
-    }
-
-    "read from empty JSON" should {
-      "produce an empty ChargeableForeignBenefitsAndGifts object" in {
-        val emptyJson = JsObject.empty
-
-        emptyJson.as[ChargeableForeignBenefitsAndGifts] shouldBe ChargeableForeignBenefitsAndGifts.empty
       }
     }
 

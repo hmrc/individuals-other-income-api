@@ -45,12 +45,9 @@ class RetrieveOtherConnector @Inject() (val http: HttpClientV2, val appConfig: A
       IfsUri(s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
     }
 
-    val downstreamUri: DownstreamUri[DownstreamResp] =
-      if (taxYear.useTaxYearSpecificApi) {
-        downstream1916Uri
-      } else {
-        DesUri(s"income-tax/income/other/${nino.value}/${taxYear.asMtd}")
-      }
+    lazy val downstream1621Uri = DesUri(s"income-tax/income/other/${nino.value}/${taxYear.asMtd}")
+
+    val downstreamUri: DownstreamUri[DownstreamResp] = if (taxYear.useTaxYearSpecificApi) downstream1916Uri else downstream1621Uri
 
     get(downstreamUri)
   }

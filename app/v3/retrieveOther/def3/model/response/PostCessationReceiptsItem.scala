@@ -16,8 +16,7 @@
 
 package v3.retrieveOther.def3.model.response
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{JsPath, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class PostCessationReceiptsItem(customerReference: Option[String],
                                      businessName: Option[String],
@@ -28,16 +27,5 @@ case class PostCessationReceiptsItem(customerReference: Option[String],
                                      taxYearIncomeToBeTaxed: String)
 
 object PostCessationReceiptsItem {
-
-  implicit val reads: Reads[PostCessationReceiptsItem] = (
-    (JsPath \ "customerReference").readNullable[String] and
-      (JsPath \ "businessName").readNullable[String] and
-      (JsPath \ "dateBusinessCeased").readNullable[String] and
-      (JsPath \ "businessDescription").readNullable[String] and
-      (JsPath \ "incomeSource").readNullable[String] and
-      (JsPath \ "amount").read[BigDecimal] and
-      (JsPath \ "taxYearIncomeToBeTaxed").read[String]
-  )(PostCessationReceiptsItem.apply)
-
-  implicit val writes: OWrites[PostCessationReceiptsItem] = Json.writes[PostCessationReceiptsItem]
+  implicit val format: OFormat[PostCessationReceiptsItem] = Json.format[PostCessationReceiptsItem]
 }

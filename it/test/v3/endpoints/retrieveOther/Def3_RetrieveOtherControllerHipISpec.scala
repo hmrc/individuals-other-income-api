@@ -41,8 +41,6 @@ class Def3_RetrieveOtherControllerHipISpec extends IntegrationBaseSpec {
         }
 
         val response: WSResponse = await(request.get())
-        println(response)
-        println(response.json)
         response.status shouldBe OK
         response.json shouldBe fullRetrieveOtherResponse
         response.header("Content-Type") shouldBe Some("application/json")
