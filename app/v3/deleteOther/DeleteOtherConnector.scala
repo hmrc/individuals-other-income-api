@@ -16,8 +16,8 @@
 
 package v3.deleteOther
 
-import api.config.AppConfig
-import api.connectors.DownstreamUri.IfsUri
+import api.config.{AppConfig, ConfigFeatureSwitches}
+import api.connectors.DownstreamUri.{HipUri, IfsUri}
 import api.connectors.httpparsers.StandardDownstreamHttpParser.*
 import api.connectors.{BaseDownstreamConnector, DownstreamOutcome}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,7 +35,13 @@ class DeleteOtherConnector @Inject() (val http: HttpClientV2, val appConfig: App
 
     import request.*
 
-    val downstreamUri = IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
+    lazy val ifsUri = IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
+    lazy val hipUri = HipUri[Unit](s"itsa/income-tax/v1/${taxYear.asTysDownstream}/income/other/${nino.value}")
+    lazy val downstreamUri = if (taxYear.year >= 2026 && ConfigFeatureSwitches().isEnabled("ifs_hip_migration_1917")) {
+      hipUri
+    } else {
+      ifsUri
+    }
 
     delete(downstreamUri)
 

@@ -21,6 +21,7 @@ import api.connectors.ConnectorSpec
 import api.mocks.MockHttpClient
 import api.models.domain.{Nino, TaxYear}
 import api.models.outcomes.ResponseWrapper
+import play.api.Configuration
 import uk.gov.hmrc.http.StringContextOps
 import v3.deleteOther.def1.model.request.Def1_DeleteOtherRequest
 import v3.deleteOther.model.request.DeleteOtherRequestData
@@ -31,12 +32,28 @@ class DeleteOtherConnectorSpec extends ConnectorSpec {
 
   "DeleteOtherConnector" should {
     "return the expected response for a TYS request" when {
-      "a valid request is made" in new IfsTest with Test {
+      "a valid request is made and feature switch is disabled (IFS enabled)" in new IfsTest with Test {
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1917.enabled" -> false))
+
         def taxYear: TaxYear = TaxYear.fromMtd("2025-26")
         val outcome          = Right(ResponseWrapper(correlationId, ()))
 
         willDelete(
           url = url"$baseUrl/income-tax/income/other/25-26/$nino"
+        ).returns(Future.successful(outcome))
+
+        await(connector.deleteOther(request)) shouldBe outcome
+      }
+
+      "a valid request is made and feature switch is enabled (HIP enabled)" in new HipTest with Test {
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1917.enabled" -> true))
+
+        def taxYear: TaxYear = TaxYear.fromMtd("2025-26")
+
+        val outcome = Right(ResponseWrapper(correlationId, ()))
+
+        willDelete(
+          url = url"$baseUrl/itsa/income-tax/v1/25-26/income/other/$nino"
         ).returns(Future.successful(outcome))
 
         await(connector.deleteOther(request)) shouldBe outcome

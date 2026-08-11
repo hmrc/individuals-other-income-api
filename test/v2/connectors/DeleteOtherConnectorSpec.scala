@@ -21,6 +21,7 @@ import api.connectors.ConnectorSpec
 import api.mocks.MockHttpClient
 import api.models.domain.{Nino, TaxYear}
 import api.models.outcomes.ResponseWrapper
+import play.api.Configuration
 import uk.gov.hmrc.http.StringContextOps
 import v2.models.request.deleteOther.DeleteOtherRequest
 
@@ -34,6 +35,8 @@ class DeleteOtherConnectorSpec extends ConnectorSpec {
         def taxYear: TaxYear = TaxYear.fromMtd("2019-20")
         val outcome          = Right(ResponseWrapper(correlationId, ()))
 
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1917.enabled" -> true))
+
         willDelete(
           url = url"$baseUrl/income-tax/income/other/$nino/2019-20"
         ).returns(Future.successful(outcome))
@@ -43,12 +46,56 @@ class DeleteOtherConnectorSpec extends ConnectorSpec {
     }
 
     "return the expected response for a TYS request" when {
-      "a valid request is made" in new IfsTest with Test {
+      "a valid request is made and feature switch is disabled (IFS enabled) for a tax year before 2025/26" in new IfsTest with Test {
         def taxYear: TaxYear = TaxYear.fromMtd("2023-24")
         val outcome          = Right(ResponseWrapper(correlationId, ()))
 
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1917.enabled" -> false))
+
         willDelete(
           url = url"$baseUrl/income-tax/income/other/23-24/$nino"
+        ).returns(Future.successful(outcome))
+
+        await(connector.deleteOther(request)) shouldBe outcome
+      }
+
+      "a valid request is made and feature switch is disabled (IFS enabled) for tax year 2025/26" in new IfsTest with Test {
+        def taxYear: TaxYear = TaxYear.fromMtd("2025-26")
+
+        val outcome = Right(ResponseWrapper(correlationId, ()))
+
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1917.enabled" -> false))
+
+        willDelete(
+          url = url"$baseUrl/income-tax/income/other/25-26/$nino"
+        ).returns(Future.successful(outcome))
+
+        await(connector.deleteOther(request)) shouldBe outcome
+      }
+
+      "a valid request is made and feature switch is enabled (HIP enabled) for a tax year before 2025/26" in new IfsTest with Test {
+        def taxYear: TaxYear = TaxYear.fromMtd("2023-24")
+
+        val outcome = Right(ResponseWrapper(correlationId, ()))
+
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1917.enabled" -> true))
+
+        willDelete(
+          url = url"$baseUrl/income-tax/income/other/23-24/$nino"
+        ).returns(Future.successful(outcome))
+
+        await(connector.deleteOther(request)) shouldBe outcome
+      }
+
+      "a valid request is made and feature switch is enabled (HIP enabled) for tax year 2025/26" in new HipTest with Test {
+        def taxYear: TaxYear = TaxYear.fromMtd("2025-26")
+
+        val outcome = Right(ResponseWrapper(correlationId, ()))
+
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1917.enabled" -> true))
+
+        willDelete(
+          url = url"$baseUrl/itsa/income-tax/v1/25-26/income/other/$nino"
         ).returns(Future.successful(outcome))
 
         await(connector.deleteOther(request)) shouldBe outcome

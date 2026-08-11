@@ -27,7 +27,10 @@ import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.libs.ws.{WSRequest, WSResponse}
 import play.api.test.Helpers.AUTHORIZATION
 
-class DeleteOtherControllerISpec extends IntegrationBaseSpec {
+class DeleteOtherControllerIfsISpec extends IntegrationBaseSpec {
+
+  override def servicesConfig: Map[String, Any] =
+    Map("feature-switch.ifs_hip_migration_1917.enabled" -> false) ++ super.servicesConfig
 
   "Calling the 'delete other employment' endpoint" should {
     "return a 204 status code" when {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,32 +21,18 @@ import api.services.{AuditStub, AuthStub, DownstreamStub, MtdIdLookupStub}
 import api.support.IntegrationBaseSpec
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.HeaderNames.ACCEPT
-import play.api.http.Status.*
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.Json
 import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.libs.ws.{WSRequest, WSResponse}
 import play.api.test.Helpers.AUTHORIZATION
 
-class DeleteOtherControllerISpec extends IntegrationBaseSpec {
+class DeleteOtherControllerHipISpec extends IntegrationBaseSpec {
 
   "Calling the 'delete other employment' endpoint" should {
     "return a 204 status code" when {
-      "any valid request is made" in new NonTysTest {
 
-        override def setupStubs(): StubMapping = {
-          AuditStub.audit()
-          AuthStub.authorised()
-          MtdIdLookupStub.ninoFound(nino)
-          DownstreamStub.onSuccess(DownstreamStub.DELETE, downstreamUri, NO_CONTENT)
-        }
-
-        val response: WSResponse = await(request().delete())
-        response.status shouldBe NO_CONTENT
-        response.body shouldBe ""
-        response.header("X-CorrelationId").nonEmpty shouldBe true
-      }
-
-      "any valid request with a Tax Year Specific (TYS) tax year is made" in new TysIfsTest {
+      "any valid request with a Tax Year Specific (TYS) tax year is made" in new TysHipTest {
 
         override def setupStubs(): StubMapping = {
           AuditStub.audit()
@@ -66,7 +52,7 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
 
       "validation error" when {
         def validationErrorTest(requestNino: String, requestTaxYear: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"validation fails with ${expectedBody.code} error" in new NonTysTest {
+          s"validation fails with ${expectedBody.code} error" in new TysHipTest {
 
             override val nino: String    = requestNino
             override val taxYear: String = requestTaxYear
@@ -96,7 +82,7 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new NonTysTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new TysHipTest {
 
             override def setupStubs(): StubMapping = {
               AuditStub.audit()
@@ -112,13 +98,20 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
           }
         }
 
-        def errorBody(code: String): String =
+        def errorBody(`type`: String): String =
           s"""
              |{
-             |   "code": "$code",
-             |   "reason": "downstream message"
+             |  "origin": "HoD",
+             |  "response": {
+             |    "failures": [
+             |      {
+             |        "type": "${`type`}",
+             |        "reason": "downstream message"
+             |      }
+             |    ]
+             |  }
              |}
-            """.stripMargin
+        """.stripMargin
 
         val errors = Seq(
           (BAD_REQUEST, "INVALID_TAXABLE_ENTITY_ID", BAD_REQUEST, NinoFormatError),
@@ -140,11 +133,9 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
     }
   }
 
-  private trait Test {
+  private trait TysHipTest {
 
     val nino: String = "AA123456A"
-    def taxYear: String
-    def downstreamUri: String
 
     def mtdUri: String = s"/$nino/$taxYear"
 
@@ -160,16 +151,9 @@ class DeleteOtherControllerISpec extends IntegrationBaseSpec {
         )
     }
 
-  }
+    def taxYear: String = "2025-26"
 
-  private trait NonTysTest extends Test {
-    def taxYear: String       = "2019-20"
-    def downstreamUri: String = s"/income-tax/income/other/$nino/2019-20"
-  }
-
-  private trait TysIfsTest extends Test {
-    def taxYear: String       = "2023-24"
-    def downstreamUri: String = s"/income-tax/income/other/23-24/$nino"
+    def downstreamUri: String = s"/itsa/income-tax/v1/25-26/income/other/$nino"
   }
 
 }
