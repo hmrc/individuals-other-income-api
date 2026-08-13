@@ -35,12 +35,10 @@ class DeleteOtherConnector @Inject() (val http: HttpClientV2, val appConfig: App
 
     import request.*
 
-    lazy val ifsUri = IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
-    lazy val hipUri = HipUri[Unit](s"itsa/income-tax/v1/${taxYear.asTysDownstream}/income/other/${nino.value}")
-    lazy val downstreamUri = if (taxYear.year >= 2026 && ConfigFeatureSwitches().isEnabled("ifs_hip_migration_1917")) {
-      hipUri
+    val downstreamUri = if (taxYear.year >= 2026 && ConfigFeatureSwitches().isEnabled("ifs_hip_migration_1917")) {
+      HipUri[Unit](s"itsa/income-tax/v1/${taxYear.asTysDownstream}/income/other/${nino.value}")
     } else {
-      ifsUri
+      IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/${nino.value}")
     }
 
     delete(downstreamUri)

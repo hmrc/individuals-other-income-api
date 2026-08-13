@@ -32,7 +32,7 @@ class DeleteOtherControllerHipISpec extends IntegrationBaseSpec {
   "Calling the 'delete other employment' endpoint" should {
     "return a 204 status code" when {
 
-      "any valid request with a Tax Year Specific (TYS) tax year is made" in new TysHipTest {
+      "any valid request with a Tax Year Specific (TYS) tax year is made" in new Test {
 
         override def setupStubs(): StubMapping = {
           AuditStub.audit()
@@ -52,7 +52,7 @@ class DeleteOtherControllerHipISpec extends IntegrationBaseSpec {
 
       "validation error" when {
         def validationErrorTest(requestNino: String, requestTaxYear: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"validation fails with ${expectedBody.code} error" in new TysHipTest {
+          s"validation fails with ${expectedBody.code} error" in new Test {
 
             override val nino: String    = requestNino
             override val taxYear: String = requestTaxYear
@@ -81,7 +81,7 @@ class DeleteOtherControllerHipISpec extends IntegrationBaseSpec {
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new TysHipTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new Test {
 
             override def setupStubs(): StubMapping = {
               AuditStub.audit()
@@ -128,7 +128,7 @@ class DeleteOtherControllerHipISpec extends IntegrationBaseSpec {
     }
   }
 
-  private trait TysHipTest {
+  private trait Test {
 
     val nino: String = "AA123456A"
 
