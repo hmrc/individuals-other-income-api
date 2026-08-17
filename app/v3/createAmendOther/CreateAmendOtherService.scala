@@ -20,7 +20,7 @@ import api.controllers.RequestContext
 import api.models.errors.*
 import api.services.{BaseService, ServiceOutcome}
 import cats.implicits.*
-import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+import v3.createAmendOther.model.request.CreateAmendOtherRequestData
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,22 +28,24 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CreateAmendOtherService @Inject() (connector: CreateAmendOtherConnector) extends BaseService {
 
-  def createAmend(request: Def1_CreateAmendOtherRequestData)(implicit ctx: RequestContext, ec: ExecutionContext): Future[ServiceOutcome[Unit]] = {
+  def createAmend(request: CreateAmendOtherRequestData)(implicit ctx: RequestContext, ec: ExecutionContext): Future[ServiceOutcome[Unit]] = {
 
     connector.createAmend(request).map(_.leftMap(mapDownstreamErrors(downstreamErrorMap)))
   }
 
   private val downstreamErrorMap: Map[String, MtdError] = {
     val errors = Map(
-      "INVALID_TAXABLE_ENTITY_ID"    -> NinoFormatError,
-      "INVALID_TAX_YEAR"             -> TaxYearFormatError,
-      "INVALID_CORRELATION_ID"       -> InternalError,
-      "INVALID_PAYLOAD"              -> InternalError,
-      "SERVER_ERROR"                 -> InternalError,
-      "SERVICE_UNAVAILABLE"          -> InternalError,
-      "UNALIGNED_CESSATION_TAX_YEAR" -> RuleUnalignedCessationTaxYearError,
-      "OUTSIDE_AMENDMENT_WINDOW"     -> RuleOutsideAmendmentWindowError,
-      "TAX_YEAR_NOT_SUPPORTED"       -> RuleTaxYearNotSupportedError
+      "INVALID_TAXABLE_ENTITY_ID"      -> NinoFormatError,
+      "INVALID_TAX_YEAR"               -> TaxYearFormatError,
+      "INVALID_CORRELATION_ID"         -> InternalError,
+      "INVALID_PAYLOAD"                -> InternalError,
+      "SERVER_ERROR"                   -> InternalError,
+      "SERVICE_UNAVAILABLE"            -> InternalError,
+      "UNALIGNED_CESSATION_TAX_YEAR"   -> RuleUnalignedCessationTaxYearError,
+      "OUTSIDE_AMENDMENT_WINDOW"       -> RuleOutsideAmendmentWindowError,
+      "TAX_YEAR_NOT_SUPPORTED"         -> RuleTaxYearNotSupportedError,
+      "INVALID_TAX_DEDUCTED_AMOUNT"    -> RuleTaxDeductedExceedsAmountBeforeTaxError,
+      "INCORRECT_BUSINESS_CEASED_DATE" -> RuleIncorrectBusinessCeasedDateError
     )
 
     errors

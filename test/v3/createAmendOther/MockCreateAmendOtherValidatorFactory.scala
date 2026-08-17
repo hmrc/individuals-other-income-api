@@ -19,13 +19,13 @@ package v3.createAmendOther
 import api.controllers.validators.{MockValidatorFactory, Validator}
 import org.scalamock.handlers.CallHandler
 import play.api.libs.json.JsValue
-import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+import v3.createAmendOther.model.request.CreateAmendOtherRequestData
 
-trait MockCreateAmendOtherValidatorFactory extends MockValidatorFactory[Def1_CreateAmendOtherRequestData] {
+trait MockCreateAmendOtherValidatorFactory extends MockValidatorFactory[CreateAmendOtherRequestData] {
 
   val mockCreateAmendOtherValidatorFactory: CreateAmendOtherValidatorFactory = mock[CreateAmendOtherValidatorFactory]
 
-  def validator(): CallHandler[Validator[Def1_CreateAmendOtherRequestData]] =
+  def validator(): CallHandler[Validator[CreateAmendOtherRequestData]] =
     (mockCreateAmendOtherValidatorFactory.validator(_: String, _: String, _: JsValue)).expects(*, *, *)
 
 }

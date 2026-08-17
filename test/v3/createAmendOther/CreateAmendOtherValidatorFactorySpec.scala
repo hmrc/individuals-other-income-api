@@ -21,7 +21,8 @@ import api.controllers.validators.{AlwaysErrorsValidator, Validator}
 import api.utils.UnitSpec
 import play.api.libs.json.*
 import v3.createAmendOther.def1.Def1_CreateAmendOtherValidator
-import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+import v3.createAmendOther.def2.Def2_CreateAmendOtherValidator
+import v3.createAmendOther.model.request.CreateAmendOtherRequestData
 
 class CreateAmendOtherValidatorFactorySpec extends UnitSpec with MockAppConfig {
 
@@ -34,14 +35,21 @@ class CreateAmendOtherValidatorFactorySpec extends UnitSpec with MockAppConfig {
   "validator" when {
     "given a valid taxYear" should {
       "return the validator for schema definition 1" in new SetupConfig {
-        val result: Validator[Def1_CreateAmendOtherRequestData] =
+        val result: Validator[CreateAmendOtherRequestData] =
           validatorFactory.validator(validNino, validTaxYear, validBody)
 
         result shouldBe a[Def1_CreateAmendOtherValidator]
       }
 
+      "return the validator for schema definition 2" in new SetupConfig {
+        val result: Validator[CreateAmendOtherRequestData] =
+          validatorFactory.validator(validNino, "2026-27", validBody)
+
+        result shouldBe a[Def2_CreateAmendOtherValidator]
+      }
+
       "return an error when given an invalid taxYear" in new SetupConfig {
-        val result: Validator[Def1_CreateAmendOtherRequestData] =
+        val result: Validator[CreateAmendOtherRequestData] =
           validatorFactory.validator(validNino, "2021-22", validBody)
 
         result shouldBe an[AlwaysErrorsValidator]

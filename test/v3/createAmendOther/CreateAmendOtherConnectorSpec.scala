@@ -19,9 +19,10 @@ package v3.createAmendOther
 import api.connectors.ConnectorSpec
 import api.models.domain.{Nino, TaxYear}
 import api.models.outcomes.ResponseWrapper
+import play.api.Configuration
 import uk.gov.hmrc.http.StringContextOps
-import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.requestBodyModel
 import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.requestBodyModel
 
 import scala.concurrent.Future
 
@@ -41,6 +42,8 @@ class CreateAmendOtherConnectorSpec extends ConnectorSpec {
       taxYear = TaxYear.fromMtd(taxYear),
       body = requestBodyModel
     )
+
+    MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1915.enabled" -> false))
 
   }
 

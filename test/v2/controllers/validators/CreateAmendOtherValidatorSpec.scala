@@ -25,6 +25,8 @@ import play.api.libs.json.*
 import v2.fixtures.other.CreateAmendOtherFixtures.*
 import v2.models.request.createAmendOther.{CreateAmendOtherRequest, CreateAmendOtherRequestBody, PostCessationReceiptsItem}
 
+import java.time.LocalDate
+
 class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
 
   private implicit val correlationId: String = "correlationId"
@@ -218,6 +220,12 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
       "return IncomeSourceFormatError when an invalid income source is supplied" in new SetupConfig {
         validate(body = body(postCessationReceiptsItemJson.update("incomeSource", JsString("*" * 106)))) shouldBe
           singleError(IncomeSourceFormatError.withPath("/postCessationReceipts/0/incomeSource"))
+      }
+      "return RuleRequestCannotBeFulfilledError when dateBusinessCeased is equal to or after the current date" in new SetupConfig {
+        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(LocalDate.now.toString)))) shouldBe
+          singleError(RuleRequestCannotBeFulfilledError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
+        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(LocalDate.now.plusDays(1).toString)))) shouldBe
+          singleError(RuleRequestCannotBeFulfilledError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
       }
     }
 

@@ -46,6 +46,8 @@ object ValueFormatError extends MtdError("FORMAT_VALUE", "The value must be betw
 
 }
 
+object TypeOfAssetFormatError extends MtdError("FORMAT_TYPE_OF_ASSET", "The provided type of asset is invalid", BAD_REQUEST)
+
 //Standard Errors
 object NotFoundError extends MtdError("MATCHING_RESOURCE_NOT_FOUND", "Matching resource not found", NOT_FOUND)
 
@@ -107,6 +109,12 @@ object RuleDateRangeInvalidError extends MtdError(code = "RULE_DATE_RANGE_INVALI
 object RuleCountryCodeError extends MtdError("RULE_COUNTRY_CODE", "The country code is not a permitted ISO 3166-1 alpha-3 country code", BAD_REQUEST)
 
 object RuleOutsideAmendmentWindowError extends MtdError("RULE_OUTSIDE_AMENDMENT_WINDOW", "You are outside the amendment window", BAD_REQUEST)
+
+object RuleTaxDeductedExceedsAmountBeforeTaxError
+    extends MtdError("RULE_TAX_DEDUCTED_EXCEEDS_AMOUNT_BEFORE_TAX", "The supplied taxDeducted exceeds amountBeforeTax.", BAD_REQUEST)
+
+object RuleIncorrectBusinessCeasedDateError
+    extends MtdError("RULE_INCORRECT_BUSINESS_CEASED_DATE", "The supplied business ceased date is today or in the future.", BAD_REQUEST)
 
 //Stub Errors
 object RuleIncorrectGovTestScenarioError

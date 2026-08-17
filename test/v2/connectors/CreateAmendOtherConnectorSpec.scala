@@ -19,6 +19,7 @@ package v2.connectors
 import api.connectors.ConnectorSpec
 import api.models.domain.{Nino, TaxYear}
 import api.models.outcomes.ResponseWrapper
+import play.api.Configuration
 import uk.gov.hmrc.http.StringContextOps
 import v2.fixtures.other.CreateAmendOtherFixtures.requestBodyModel
 import v2.models.request.createAmendOther.CreateAmendOtherRequest
@@ -47,6 +48,7 @@ class CreateAmendOtherConnectorSpec extends ConnectorSpec {
   "CreateAmendOtherConnector" when {
     "createAmend" must {
       "return a 204 status for a success scenario" in new IfsTest with Test {
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1915.enabled" -> false))
         val taxYear = "2019-20"
         val outcome = Right(ResponseWrapper(correlationId, ()))
 
@@ -60,11 +62,26 @@ class CreateAmendOtherConnectorSpec extends ConnectorSpec {
       }
 
       "return a 204 status for a success scenario for a Tax Year Specific (TYS) tax year" in new IfsTest with Test {
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1915.enabled" -> false))
         val taxYear = "2023-24"
         val outcome = Right(ResponseWrapper(correlationId, ()))
 
         willPut(
           url = url"$baseUrl/income-tax/income/other/23-24/AA111111A",
+          body = requestBodyModel
+        )
+          .returns(Future.successful(outcome))
+
+        await(connector.createAmend(createAmendOtherRequest)) shouldBe outcome
+      }
+
+      "return a 204 status for a success scenario using HIP" in new HipTest with Test {
+        MockedAppConfig.featureSwitchConfig.returns(Configuration("ifs_hip_migration_1915.enabled" -> true))
+        val taxYear = "2026-27"
+        val outcome = Right(ResponseWrapper(correlationId, ()))
+
+        willPut(
+          url = url"$baseUrl/itsa/income-tax/v1/26-27/income/other/AA111111A",
           body = requestBodyModel
         )
           .returns(Future.successful(outcome))

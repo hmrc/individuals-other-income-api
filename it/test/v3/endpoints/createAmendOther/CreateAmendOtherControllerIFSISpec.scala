@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package v2.endpoints
+package v3.endpoints.createAmendOther
 
 import api.models.errors
 import api.models.errors.*
@@ -27,183 +27,39 @@ import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import play.api.test.Helpers.AUTHORIZATION
-import v2.fixtures.other.CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
+import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
 
-class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonErrorValidators {
+class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonErrorValidators {
+
+  override def servicesConfig: Map[String, Any] = Map("feature-switch.ifs_hip_migration_1915.enabled" -> false) ++ super.servicesConfig
 
   "Calling the 'create and amend other income' endpoint" should {
-    "return a 200 status code" when {
-      "any valid request is made" in new NonTysTest {
+    "return a 204 status code" when {
+      "any valid request is made" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
         }
 
         val response: WSResponse = await(request().put(requestBodyAlignedTaxYear))
-        response.status shouldBe OK
+        response.status shouldBe NO_CONTENT
         response.body shouldBe ""
       }
 
-      "any valid request is made (TYS)" in new TysIfsTest {
-
-        override def setupStubs(): Unit = {
-          DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
-        }
-
-        val response: WSResponse = await(request().put(requestBodyAlignedTaxYear))
-        response.status shouldBe OK
-        response.body shouldBe ""
-      }
-
-      "any valid request is made (TYS) without foreignTaxCreditRelief" in new TysIfsTest {
+      "any valid request is made without foreignTaxCreditRelief" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
         }
 
         val response: WSResponse = await(request().put(requestBodyJsonWithoutForeignTaxCreditRelief))
-        response.status shouldBe OK
+        response.status shouldBe NO_CONTENT
         response.body shouldBe ""
       }
     }
 
-    "return a TaxYearFormatError" when {
-      "a request body having invalid tax year format is supplied" in new NonTysTest {
-
-        val invalidRequestBodyJson: JsValue = Json.parse(
-          """
-            |{
-            |   "businessReceipts": [
-            |      {
-            |         "grossAmount": 5000.99,
-            |         "taxYear": "2018-193"
-            |      }
-            |   ],
-            |   "allOtherIncomeReceivedWhilstAbroad": [
-            |      {
-            |         "countryCode": "FRA",
-            |         "amountBeforeTax": 1999.99,
-            |         "taxTakenOff": 2.23,
-            |         "specialWithholdingTax": 3.23,
-            |         "foreignTaxCreditRelief": false,
-            |         "taxableAmount": 4.23,
-            |         "residentialFinancialCostAmount": 2999.99,
-            |         "broughtFwdResidentialFinancialCostAmount": 1999.99
-            |      },
-            |      {
-            |         "countryCode": "IND",
-            |         "amountBeforeTax": 2999.99,
-            |         "taxTakenOff": 3.23,
-            |         "specialWithholdingTax": 4.23,
-            |         "foreignTaxCreditRelief": true,
-            |         "taxableAmount": 5.23,
-            |         "residentialFinancialCostAmount": 3999.99,
-            |         "broughtFwdResidentialFinancialCostAmount": 2999.99
-            |      }
-            |   ],
-            |   "overseasIncomeAndGains": {
-            |      "gainAmount": 3000.99
-            |   },
-            |   "chargeableForeignBenefitsAndGifts": {
-            |      "transactionBenefit": 1999.99,
-            |      "protectedForeignIncomeSourceBenefit": 2999.99,
-            |      "protectedForeignIncomeOnwardGift": 3999.99,
-            |      "benefitReceivedAsASettler": 4999.99,
-            |      "onwardGiftReceivedAsASettler": 5999.99
-            |   },
-            |   "omittedForeignIncome": {
-            |      "amount": 4000.99
-            |   }
-            |}
-    """.stripMargin
-        )
-
-        override def setupStubs(): Unit = {
-          DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
-        }
-
-        val response: WSResponse = await(request().put(invalidRequestBodyJson))
-        response.status shouldBe BAD_REQUEST
-        response.json shouldBe Json.toJson(
-          ErrorWrapper(
-            correlationId = correlationId,
-            error = TaxYearFormatError.withPath("/businessReceipts/0/taxYear"),
-            errors = None
-          ))
-        response.header("Content-Type") shouldBe Some("application/json")
-      }
-    }
-
-    "return a RuleTaxYearRangeInvalidError" when {
-      "a request body having invalid tax year range is supplied" in new NonTysTest {
-
-        val invalidRequestBodyJson: JsValue = Json.parse(
-          """
-            |{
-            |   "businessReceipts": [
-            |      {
-            |         "grossAmount": 5000.99,
-            |         "taxYear": "2018-23"
-            |      }
-            |   ],
-            |   "allOtherIncomeReceivedWhilstAbroad": [
-            |      {
-            |         "countryCode": "FRA",
-            |         "amountBeforeTax": 1999.99,
-            |         "taxTakenOff": 2.23,
-            |         "specialWithholdingTax": 3.23,
-            |         "foreignTaxCreditRelief": false,
-            |         "taxableAmount": 4.23,
-            |         "residentialFinancialCostAmount": 2999.99,
-            |         "broughtFwdResidentialFinancialCostAmount": 1999.99
-            |      },
-            |      {
-            |         "countryCode": "IND",
-            |         "amountBeforeTax": 2999.99,
-            |         "taxTakenOff": 3.23,
-            |         "specialWithholdingTax": 4.23,
-            |         "foreignTaxCreditRelief": true,
-            |         "taxableAmount": 5.23,
-            |         "residentialFinancialCostAmount": 3999.99,
-            |         "broughtFwdResidentialFinancialCostAmount": 2999.99
-            |      }
-            |   ],
-            |   "overseasIncomeAndGains": {
-            |      "gainAmount": 3000.99
-            |   },
-            |   "chargeableForeignBenefitsAndGifts": {
-            |      "transactionBenefit": 1999.99,
-            |      "protectedForeignIncomeSourceBenefit": 2999.99,
-            |      "protectedForeignIncomeOnwardGift": 3999.99,
-            |      "benefitReceivedAsASettler": 4999.99,
-            |      "onwardGiftReceivedAsASettler": 5999.99
-            |   },
-            |   "omittedForeignIncome": {
-            |      "amount": 4000.99
-            |   }
-            |}
-    """.stripMargin
-        )
-
-        override def setupStubs(): Unit = {
-          DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
-        }
-
-        val response: WSResponse = await(request().put(invalidRequestBodyJson))
-        response.status shouldBe BAD_REQUEST
-        response.json shouldBe Json.toJson(
-          ErrorWrapper(
-            correlationId = correlationId,
-            error = RuleTaxYearRangeInvalidError.withPath("/businessReceipts/0/taxYear"),
-            errors = None
-          ))
-
-        response.header("Content-Type") shouldBe Some("application/json")
-      }
-    }
-
     "return a 400 with multiple errors" when {
-      "all field value validations fail on the request body" in new NonTysTest {
+      "all field value validations fail on the request body" in new IfsTest {
 
         val allInvalidValueRequestBodyJson: JsValue = Json.parse(
           """
@@ -213,16 +69,6 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
             |         "amount": 99999999999.999,
             |         "taxYearIncomeToBeTaxed": "2019-20"
             |     }
-            |   ],
-            |   "businessReceipts":[
-            |      {
-            |         "grossAmount":5000.999,
-            |         "taxYear":"2019"
-            |      },
-            |      {
-            |         "grossAmount":6000.999,
-            |         "taxYear":"2019-21"
-            |      }
             |   ],
             |   "allOtherIncomeReceivedWhilstAbroad":[
             |      {
@@ -265,12 +111,9 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
 
         val allInvalidValueRequestError: List[MtdError] = List(
           CountryCodeFormatError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"),
-          TaxYearFormatError.withPath("/businessReceipts/0/taxYear"),
           ValueFormatError.withPaths(
             List(
               "/postCessationReceipts/0/amount",
-              "/businessReceipts/0/grossAmount",
-              "/businessReceipts/1/grossAmount",
               "/allOtherIncomeReceivedWhilstAbroad/0/amountBeforeTax",
               "/allOtherIncomeReceivedWhilstAbroad/0/taxTakenOff",
               "/allOtherIncomeReceivedWhilstAbroad/0/specialWithholdingTax",
@@ -293,7 +136,6 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
             )
           ),
           RuleCountryCodeError.withPath("/allOtherIncomeReceivedWhilstAbroad/1/countryCode"),
-          RuleTaxYearRangeInvalidError.withPath("/businessReceipts/1/taxYear"),
           RuleUnalignedCessationTaxYearError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed")
         )
 
@@ -308,21 +150,11 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         response.json shouldBe Json.toJson(wrappedErrors)
       }
 
-      "complex error scenario" in new NonTysTest {
+      "complex error scenario" in new IfsTest {
 
         val createAmendErrorsRequest: JsValue = Json.parse(
           """
             |{
-            |   "businessReceipts":[
-            |      {
-            |         "grossAmount":5000.999,
-            |         "taxYear":"2019"
-            |      },
-            |      {
-            |         "grossAmount":6000.999,
-            |         "taxYear":"2019-21"
-            |      }
-            |   ],
             |   "allOtherIncomeReceivedWhilstAbroad":[
             |      {
             |         "countryCode":"FRANCE",
@@ -375,18 +207,9 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
             |            ]
             |        },
             |        {
-            |            "code": "FORMAT_TAX_YEAR",
-            |            "message": "The taxYear format is invalid",
-            |            "paths": [
-            |                "/businessReceipts/0/taxYear"
-            |            ]
-            |        },
-            |        {
             |            "code": "FORMAT_VALUE",
             |            "message": "The value must be between 0 and 99999999999.99",
             |            "paths": [
-            |                "/businessReceipts/0/grossAmount",
-            |                "/businessReceipts/1/grossAmount",
             |                "/allOtherIncomeReceivedWhilstAbroad/0/amountBeforeTax",
             |                "/allOtherIncomeReceivedWhilstAbroad/0/taxTakenOff",
             |                "/allOtherIncomeReceivedWhilstAbroad/0/specialWithholdingTax",
@@ -414,13 +237,6 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
             |            "paths": [
             |                "/allOtherIncomeReceivedWhilstAbroad/1/countryCode"
             |            ]
-            |        },
-            |        {
-            |            "code": "RULE_TAX_YEAR_RANGE_INVALID",
-            |            "message": "A tax year range of one year is required",
-            |            "paths": [
-            |                "/businessReceipts/1/taxYear"
-            |            ]
             |        }
             |    ],
             |    "message": "Invalid request"
@@ -439,16 +255,6 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
       val validRequestBodyJson: JsValue = Json.parse(
         """
           |{
-          |   "businessReceipts": [
-          |      {
-          |         "grossAmount": 5000.99,
-          |         "taxYear": "2018-19"
-          |      },
-          |      {
-          |         "grossAmount": 6000.99,
-          |         "taxYear": "2019-20"
-          |      }
-          |   ],
           |   "allOtherIncomeReceivedWhilstAbroad": [
           |      {
           |         "countryCode": "FRA",
@@ -555,16 +361,6 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
       val allInvalidValueRequestBodyJson: JsValue = Json.parse(
         """
           |{
-          |   "businessReceipts": [
-          |      {
-          |         "grossAmount": 5000.999,
-          |         "taxYear": "2018-19"
-          |      },
-          |      {
-          |         "grossAmount": 6000.999,
-          |         "taxYear": "2019-20"
-          |      }
-          |   ],
           |   "allOtherIncomeReceivedWhilstAbroad": [
           |      {
           |         "countryCode": "FRA",
@@ -614,18 +410,6 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         """.stripMargin
       )
 
-      val missingFieldRequestBodyJson: JsValue = Json.parse(
-        """
-          |{
-          |   "businessReceipts": [
-          |     {
-          |      "grossAmount": 100.11
-          |     }
-          |   ]
-          |}
-        """.stripMargin
-      )
-
       val countryCodeError: MtdError = CountryCodeFormatError.withPaths(
         Seq(
           "/allOtherIncomeReceivedWhilstAbroad/0/countryCode",
@@ -642,8 +426,6 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
 
       val allInvalidValueRequestError: MtdError = ValueFormatError.withPaths(
         List(
-          "/businessReceipts/0/grossAmount",
-          "/businessReceipts/1/grossAmount",
           "/allOtherIncomeReceivedWhilstAbroad/0/amountBeforeTax",
           "/allOtherIncomeReceivedWhilstAbroad/0/taxTakenOff",
           "/allOtherIncomeReceivedWhilstAbroad/0/specialWithholdingTax",
@@ -666,8 +448,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         )
       )
 
-      val nonValidRequestBodyErrors: MtdError     = RuleIncorrectOrEmptyBodyError.withPath("/overseasIncomeAndGains/gainAmount")
-      val missingFieldRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.withPath("/businessReceipts/0/taxYear")
+      val nonValidRequestBodyErrors: MtdError = RuleIncorrectOrEmptyBodyError.withPath("/overseasIncomeAndGains/gainAmount")
 
       "validation error" when {
         def validationErrorTest(requestNino: String,
@@ -676,7 +457,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
                                 expectedStatus: Int,
                                 expectedBody: MtdError,
                                 scenario: Option[String]): Unit = {
-          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new NonTysTest {
+          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new IfsTest {
             override val nino: String       = requestNino
             override val mtdTaxYear: String = requestTaxYear
 
@@ -687,24 +468,21 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         }
 
         val input = Seq(
-          ("AA1123A", "2019-20", validRequestBodyJson, BAD_REQUEST, NinoFormatError, None),
-          ("AA123456A", "20177", validRequestBodyJson, BAD_REQUEST, TaxYearFormatError, None),
-          ("AA123456A", "2019-21", validRequestBodyJson, BAD_REQUEST, RuleTaxYearRangeInvalidError, None),
+          ("AA1123A", "2025-26", validRequestBodyJson, BAD_REQUEST, NinoFormatError, None),
+          ("AA123456A", "20257", validRequestBodyJson, BAD_REQUEST, TaxYearFormatError, None),
           ("AA123456A", "2018-19", validRequestBodyJson, BAD_REQUEST, RuleTaxYearNotSupportedError, None),
-          ("AA123456A", "2026-27", validRequestBodyJson, BAD_REQUEST, RuleTaxYearForVersionNotSupportedError, None),
-          ("AA123456A", "2019-20", invalidCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeError, None),
-          ("AA123456A", "2019-20", ruleCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeRuleError, None),
-          ("AA123456A", "2019-20", nonsenseRequestBody, BAD_REQUEST, RuleIncorrectOrEmptyBodyError, None),
-          ("AA123456A", "2019-20", allInvalidValueRequestBodyJson, BAD_REQUEST, allInvalidValueRequestError, None),
-          ("AA123456A", "2019-20", nonValidRequestBodyJson, BAD_REQUEST, nonValidRequestBodyErrors, Some("(invalid request body format)")),
-          ("AA123456A", "2019-20", missingFieldRequestBodyJson, BAD_REQUEST, missingFieldRequestBodyErrors, Some("(missing mandatory fields)"))
+          ("AA123456A", "2025-26", invalidCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeError, None),
+          ("AA123456A", "2025-26", ruleCountryCodeRequestBodyJson, BAD_REQUEST, countryCodeRuleError, None),
+          ("AA123456A", "2025-26", nonsenseRequestBody, BAD_REQUEST, RuleIncorrectOrEmptyBodyError, None),
+          ("AA123456A", "2025-26", allInvalidValueRequestBodyJson, BAD_REQUEST, allInvalidValueRequestError, None),
+          ("AA123456A", "2025-26", nonValidRequestBodyJson, BAD_REQUEST, nonValidRequestBodyErrors, Some("(invalid request body format)"))
         )
         input.foreach(validationErrorTest.tupled)
       }
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new NonTysTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new IfsTest {
 
             override def setupStubs(): Unit = {
               DownstreamStub.onError(DownstreamStub.PUT, downstreamUri, downstreamStatus, errorBody(downstreamCode))
@@ -727,20 +505,16 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
         val errors = List(
           (BAD_REQUEST, "INVALID_TAXABLE_ENTITY_ID", BAD_REQUEST, NinoFormatError),
           (BAD_REQUEST, "INVALID_TAX_YEAR", BAD_REQUEST, TaxYearFormatError),
-          (BAD_REQUEST, "INVALID_CORRELATIONID", INTERNAL_SERVER_ERROR, InternalError),
+          (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
           (BAD_REQUEST, "INVALID_PAYLOAD", INTERNAL_SERVER_ERROR, InternalError),
           (SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", INTERNAL_SERVER_ERROR, InternalError),
           (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
-          (UNPROCESSABLE_ENTITY, "UNALIGNED_CESSATION_TAX_YEAR", BAD_REQUEST, RuleUnalignedCessationTaxYearError)
-        )
-
-        val extraTysErrors = List(
-          (BAD_REQUEST, "INVALID_CORRELATION_ID", INTERNAL_SERVER_ERROR, InternalError),
+          (UNPROCESSABLE_ENTITY, "UNALIGNED_CESSATION_TAX_YEAR", BAD_REQUEST, RuleUnalignedCessationTaxYearError),
           (UNPROCESSABLE_ENTITY, "OUTSIDE_AMENDMENT_WINDOW", BAD_REQUEST, RuleOutsideAmendmentWindowError),
           (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError)
         )
 
-        (errors ++ extraTysErrors).foreach(serviceErrorTest.tupled)
+        errors.foreach(serviceErrorTest.tupled)
       }
     }
   }
@@ -765,7 +539,7 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
 
       buildRequest(s"/$nino/$mtdTaxYear")
         .withHttpHeaders(
-          (ACCEPT, "application/vnd.hmrc.2.0+json"),
+          (ACCEPT, "application/vnd.hmrc.3.0+json"),
           (AUTHORIZATION, "Bearer 123")
         )
     }
@@ -775,16 +549,10 @@ class CreateAmendOtherControllerISpec extends IntegrationBaseSpec with JsonError
 
   }
 
-  private trait NonTysTest extends Test {
-    def mtdTaxYear: String = "2021-22"
+  private trait IfsTest extends Test {
+    def mtdTaxYear: String = "2025-26"
 
-    def downstreamUri: String = s"/income-tax/income/other/$nino/$mtdTaxYear"
-  }
-
-  private trait TysIfsTest extends Test {
-    def mtdTaxYear: String = "2023-24"
-
-    def downstreamUri: String = s"/income-tax/income/other/23-24/$nino"
+    def downstreamUri: String = s"/income-tax/income/other/25-26/$nino"
   }
 
 }

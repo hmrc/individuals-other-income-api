@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package v3.createAmendOther.def1.model.request
+package v3.createAmendOther.def2.model.request.additionalIncome
 
-import api.models.domain.{Nino, TaxYear}
-import v3.createAmendOther.model.request.CreateAmendOtherRequestData
+trait AdditionalIncomeSubItem {
+  val amountBeforeTax: BigDecimal
+  val allowableExpenses: Option[BigDecimal]
+  val taxDeducted: Option[BigDecimal]
+  val lossesBroughtForward: Option[BigDecimal]
+  val carryForwardLosses: Option[BigDecimal]
 
-case class Def1_CreateAmendOtherRequestData(nino: Nino, taxYear: TaxYear, body: Def1_CreateAmendOtherRequestBody) extends CreateAmendOtherRequestData
+  def getLowerCaseClassName: String = {
+    s"${this.getClass.getSimpleName.head.toLower}${this.getClass.getSimpleName.tail}"
+  }
+
+}

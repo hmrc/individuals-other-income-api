@@ -20,20 +20,22 @@ import api.config.AppConfig
 import api.controllers.validators.Validator
 import cats.data.Validated.{Invalid, Valid}
 import play.api.libs.json.JsValue
-import v3.createAmendOther.CreateAmendOtherSchema.Def1
+import v3.createAmendOther.CreateAmendOtherSchema.{Def1, Def2}
 import v3.createAmendOther.def1.Def1_CreateAmendOtherValidator
-import v3.createAmendOther.def1.model.request.Def1_CreateAmendOtherRequestData
+import v3.createAmendOther.def2.Def2_CreateAmendOtherValidator
+import v3.createAmendOther.model.request.CreateAmendOtherRequestData
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class CreateAmendOtherValidatorFactory @Inject() (implicit appConfig: AppConfig) {
 
-  def validator(nino: String, taxYear: String, body: JsValue): Validator[Def1_CreateAmendOtherRequestData] =
+  def validator(nino: String, taxYear: String, body: JsValue): Validator[CreateAmendOtherRequestData] =
     val schema = CreateAmendOtherSchema.schemaFor(taxYear)
 
     schema match {
       case Valid(Def1)     => new Def1_CreateAmendOtherValidator(nino, taxYear, body)
+      case Valid(Def2)     => new Def2_CreateAmendOtherValidator(nino, taxYear, body)
       case Invalid(errors) => Validator.returningErrors(errors)
     }
 

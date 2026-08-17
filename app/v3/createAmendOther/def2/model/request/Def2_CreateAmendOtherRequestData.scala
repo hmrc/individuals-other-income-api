@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package v3.createAmendOther.def1.model.request
+package v3.createAmendOther.def2.model.request
 
 import api.models.domain.{Nino, TaxYear}
 import v3.createAmendOther.model.request.CreateAmendOtherRequestData
 
-case class Def1_CreateAmendOtherRequestData(nino: Nino, taxYear: TaxYear, body: Def1_CreateAmendOtherRequestBody) extends CreateAmendOtherRequestData
+case class Def2_CreateAmendOtherRequestData(nino: Nino, taxYear: TaxYear, body: Def2_CreateAmendOtherRequestBody) extends CreateAmendOtherRequestData

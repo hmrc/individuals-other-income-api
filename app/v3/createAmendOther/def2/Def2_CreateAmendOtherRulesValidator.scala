@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package v2.controllers.validators
+package v3.createAmendOther.def2
 
 import api.controllers.validators.RulesValidator
 import api.controllers.validators.resolvers.*
@@ -22,22 +22,24 @@ import api.models.domain.TaxYear
 import api.models.errors.*
 import cats.data.Validated
 import cats.implicits.toFoldableOps
-import v2.models.request.createAmendOther.*
+import v3.createAmendOther.def2.model.request.*
+import v3.createAmendOther.def2.model.request.additionalIncome.{AdditionalIncome, AdditionalIncomeSubItem}
 
 import java.time.LocalDate
 
-object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherRequest] with ResolverSupport {
+object Def2_CreateAmendOtherRulesValidator extends RulesValidator[Def2_CreateAmendOtherRequestData] with ResolverSupport {
 
-  def validateBusinessRules(parsed: CreateAmendOtherRequest): Validated[Seq[MtdError], CreateAmendOtherRequest] = {
+  def validateBusinessRules(parsed: Def2_CreateAmendOtherRequestData): Validated[Seq[MtdError], Def2_CreateAmendOtherRequestData] = {
     import parsed.body
 
     combine(
       validateOptionalSeqWith(body.postCessationReceipts)(validatePostCessationReceiptsItem(parsed.taxYear)),
-      validateOptionalSeqWith(body.businessReceipts)(validateBusinessReceipts),
       validateOptionalSeqWith(body.allOtherIncomeReceivedWhilstAbroad)(validateAllOtherIncomeReceivedWhilstAbroad),
       validateOptionalWith(body.overseasIncomeAndGains)(validateOverseasIncomeAndGains),
       validateOptionalWith(body.chargeableForeignBenefitsAndGifts)(validateChargeableForeignBenefitsAndGifts),
-      validateOptionalWith(body.omittedForeignIncome)(validateOmittedForeignIncome)
+      validateOptionalWith(body.omittedForeignIncome)(validateOmittedForeignIncome),
+      validateOptionalSeqWith(body.benefitFromPreOwnedAssets)(validateBenefitFromPreOwnedAssets),
+      validateOptionalWith(body.additionalIncome)(validateAdditionalIncome)
     ).onSuccess(parsed)
 
   }
@@ -61,22 +63,9 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
   private def resolveNonNegativeNumber(amount: BigDecimal, path: String): Validated[Seq[MtdError], BigDecimal] =
     ResolveParsedNumber()(amount, path)
 
-  private def resolveDate(path: String, value: Option[String]) = {
-    ResolveIsoDate.withMinMaxCheck(value, DateFormatError.withPath(path), RuleDateRangeInvalidError.withPath(path))
+  private def resolveDate(path: String) = {
+    ResolveIsoDate(DateFormatError.withPath(path)).resolver
   }
-
-  private def validateBusinessReceipts(businessReceipts: BusinessReceiptsItem, arrayIndex: Int) =
-    combine(
-      resolveNonNegativeNumber(
-        amount = businessReceipts.grossAmount,
-        path = s"/businessReceipts/$arrayIndex/grossAmount"
-      ),
-      ResolveTaxYear(businessReceipts.taxYear).leftMap(
-        _.map(
-          _.withPath(s"/businessReceipts/$arrayIndex/taxYear")
-        )
-      )
-    )
 
   private def validatePostCessationReceiptsItem(requestTaxYear: TaxYear)(postCessationReceiptsItem: PostCessationReceiptsItem, arrayIndex: Int) = {
 
@@ -117,10 +106,11 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
           Validated
             .cond(requestTaxYear == taxYearIncomeToBeTaxed, (), Seq(RuleUnalignedCessationTaxYearError.withPath(path("taxYearIncomeToBeTaxed"))))
         },
-      resolveDate(path("dateBusinessCeased"), postCessationReceiptsItem.dateBusinessCeased)
+      resolveDate(path("dateBusinessCeased"))
+        .resolveOptionally(postCessationReceiptsItem.dateBusinessCeased)
         .andThen { maybeDate =>
           maybeDate.fold(valid)(date =>
-            Validated.cond(date.isBefore(LocalDate.now), (), Seq(RuleRequestCannotBeFulfilledError.withPath(path("dateBusinessCeased")))))
+            Validated.cond(date.isBefore(LocalDate.now), (), Seq(RuleIncorrectBusinessCeasedDateError.withPath(path("dateBusinessCeased")))))
         }
     )
   }
@@ -192,5 +182,66 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
       amount = omittedForeignIncome.amount,
       path = "/omittedForeignIncome/amount"
     ).toUnit
+
+  private def validateBenefitFromPreOwnedAssets(benefitFromPreOwnedAssets: BenefitFromPreOwnedAssets, arrayIndex: Int) =
+    combine(
+      ResolveStringPattern(
+        value = benefitFromPreOwnedAssets.typeOfAsset,
+        regexFormat = "^(?=.*\\S+)[0-9A-Za-zÀ-˿’\\\\\\- _&`():.'^]{1,100}$".r,
+        error = TypeOfAssetFormatError.withPath(s"/benefitFromPreOwnedAssets/$arrayIndex/typeOfAsset")
+      ),
+      resolveNonNegativeNumber(
+        amount = benefitFromPreOwnedAssets.amountOfBenefit,
+        path = s"/benefitFromPreOwnedAssets/$arrayIndex/amountOfBenefit"
+      )
+    )
+
+  private def resolveTaxDeductedAndAmountBeforeTax(additionalIncomeSubItem: AdditionalIncomeSubItem) = {
+    combine(
+      resolveNonNegativeNumber(
+        amount = additionalIncomeSubItem.amountBeforeTax,
+        path = s"/additionalIncome/${additionalIncomeSubItem.getLowerCaseClassName}/amountBeforeTax"
+      ),
+      resolveOptionalNonNegativeNumber(
+        amount = additionalIncomeSubItem.taxDeducted,
+        path = s"/additionalIncome/${additionalIncomeSubItem.getLowerCaseClassName}/taxDeducted"
+      ),
+      ResolveTaxDeductedLessThanAmountBeforeTax()(additionalIncomeSubItem)
+    )
+  }
+
+  private def validateAdditionalIncomeSubItem(maybeAdditionalIncomeSubItem: Option[AdditionalIncomeSubItem]) = {
+    maybeAdditionalIncomeSubItem match {
+      case None => valid
+      case Some(additionalIncomeSubItem) =>
+        combine(
+          resolveOptionalNonNegativeNumber(
+            amount = additionalIncomeSubItem.allowableExpenses,
+            path = s"/additionalIncome/${additionalIncomeSubItem.getLowerCaseClassName}/allowableExpenses"
+          ),
+          resolveOptionalNonNegativeNumber(
+            amount = additionalIncomeSubItem.lossesBroughtForward,
+            path = s"/additionalIncome/${additionalIncomeSubItem.getLowerCaseClassName}/lossesBroughtForward"
+          ),
+          resolveOptionalNonNegativeNumber(
+            amount = additionalIncomeSubItem.carryForwardLosses,
+            path = s"/additionalIncome/${additionalIncomeSubItem.getLowerCaseClassName}/carryForwardLosses"
+          ),
+          resolveTaxDeductedAndAmountBeforeTax(additionalIncomeSubItem)
+        )
+    }
+  }
+
+  private def validateAdditionalIncome(additionalIncome: AdditionalIncome) =
+    combine(
+      validateAdditionalIncomeSubItem(additionalIncome.propertyIncomeDistributions),
+      validateAdditionalIncomeSubItem(additionalIncome.personalInsuranceBenefits),
+      validateAdditionalIncomeSubItem(additionalIncome.incomeFromUnauthorisedUnitTrust),
+      validateAdditionalIncomeSubItem(additionalIncome.profitsFromCertificateOfDeposit),
+      validateAdditionalIncomeSubItem(additionalIncome.nonCashBenefitsFromFormerEmployer),
+      validateAdditionalIncomeSubItem(additionalIncome.authorisedPaymentsFromOverseasPensionScheme),
+      validateAdditionalIncomeSubItem(additionalIncome.taxableAnnualPayments),
+      validateAdditionalIncomeSubItem(additionalIncome.miscellaneousIncome)
+    )
 
 }

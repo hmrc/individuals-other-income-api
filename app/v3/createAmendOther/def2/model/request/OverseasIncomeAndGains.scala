@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package v3.createAmendOther.def1.model.request
+package v3.createAmendOther.def2.model.request
 
-import api.models.domain.{Nino, TaxYear}
-import v3.createAmendOther.model.request.CreateAmendOtherRequestData
+import play.api.libs.json.{JsPath, Json, OWrites, Reads}
 
-case class Def1_CreateAmendOtherRequestData(nino: Nino, taxYear: TaxYear, body: Def1_CreateAmendOtherRequestBody) extends CreateAmendOtherRequestData
+case class OverseasIncomeAndGains(gainAmount: BigDecimal)
+
+object OverseasIncomeAndGains {
+  implicit val reads: Reads[OverseasIncomeAndGains] = Json.reads[OverseasIncomeAndGains]
+
+  implicit val writes: OWrites[OverseasIncomeAndGains] = (JsPath \ "gainAmount").write[BigDecimal].contramap(_.gainAmount)
+}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package v3.createAmendOther.def1
+package v3.createAmendOther.def2
 
 import api.config.MockAppConfig
 import api.models.domain.{Nino, TaxYear}
@@ -22,12 +22,12 @@ import api.models.errors.*
 import api.models.utils.JsonErrorValidators
 import api.utils.UnitSpec
 import play.api.libs.json.*
-import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.*
-import v3.createAmendOther.def1.model.request.{Def1_CreateAmendOtherRequestBody, Def1_CreateAmendOtherRequestData, PostCessationReceiptsItem}
+import v3.createAmendOther.def2.fixtures.Def2_CreateAmendOtherFixtures.*
+import v3.createAmendOther.def2.model.request.{Def2_CreateAmendOtherRequestBody, Def2_CreateAmendOtherRequestData, PostCessationReceiptsItem}
 
 import java.time.LocalDate
 
-class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
+class Def2_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino                      = "AA123456A"
@@ -38,8 +38,8 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
 
   private val validRequestBodyJson: JsValue = requestBodyWithPCRJson
 
-  def validator(nino: String, taxYear: String, body: JsValue): Def1_CreateAmendOtherValidator =
-    new Def1_CreateAmendOtherValidator(nino, taxYear, body)
+  def validator(nino: String, taxYear: String, body: JsValue): Def2_CreateAmendOtherValidator =
+    new Def2_CreateAmendOtherValidator(nino, taxYear, body)
 
   private def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
     validator(nino, taxYear, body).validateAndWrapResult()
@@ -57,10 +57,10 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
 
   "running a validation" should {
     "return no errors" when {
-      def requestWithTrailingSpaces: Def1_CreateAmendOtherRequestData = Def1_CreateAmendOtherRequestData(
+      def requestWithTrailingSpaces: Def2_CreateAmendOtherRequestData = Def2_CreateAmendOtherRequestData(
         parsedNino,
         parsedTaxYear,
-        Def1_CreateAmendOtherRequestBody(
+        Def2_CreateAmendOtherRequestBody(
           Some(
             Seq(PostCessationReceiptsItem(
               customerReference = Some("  String  "),
@@ -75,6 +75,7 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
           None,
           None,
           None,
+          None,
           None
         )
       )
@@ -85,7 +86,7 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
            |}""".stripMargin)
 
       "a valid request is supplied" in new SetupConfig {
-        validate(body = validRequestBodyJson) shouldBe Right(Def1_CreateAmendOtherRequestData(parsedNino, parsedTaxYear, requestBodyModel))
+        validate(body = validRequestBodyJson) shouldBe Right(Def2_CreateAmendOtherRequestData(parsedNino, parsedTaxYear, requestBodyModel))
       }
 
       "a valid request with trailing spaces is supplied" in new SetupConfig {
@@ -118,13 +119,12 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
           """
             |{
             |   "postCessationReceipts": [ ],
-            |   "businessReceipts": [ ],
             |   "allOtherIncomeReceivedWhilstAbroad": [ ]
             |}
           """.stripMargin
         )
         validate(body = emptyJson) shouldBe singleError(
-          RuleIncorrectOrEmptyBodyError.withPaths(List("/postCessationReceipts", "/businessReceipts", "/allOtherIncomeReceivedWhilstAbroad")))
+          RuleIncorrectOrEmptyBodyError.withPaths(List("/postCessationReceipts", "/allOtherIncomeReceivedWhilstAbroad")))
       }
 
       "the submitted request body is not in the correct format" in new SetupConfig {
@@ -151,9 +151,9 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
 
     "validating postCessationReceipts" should {
       def body(value: JsValue) = Json.parse(s"""
-          |{
-          |  "postCessationReceipts": [$value]
-          |}""".stripMargin)
+           |{
+           |  "postCessationReceipts": [$value]
+           |}""".stripMargin)
 
       def fromField(field: String)(value: JsNumber) = body(postCessationReceiptsItemJson.update(field, value))
 
@@ -207,33 +207,12 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
       }
     }
 
-    "validating businessReceipts" should {
-      def body(value: JsValue) = Json.parse(s"""
-                                               |{
-                                               |  "businessReceipts": [$value]
-                                               |}""".stripMargin)
-
-      def fromField(field: String)(value: JsNumber) = body(businessReceiptsJson.update(field, value))
-
-      expectValueFormatError(fromField("grossAmount"), "/businessReceipts/0/grossAmount")
-
-      "return TaxYearFormatError when an invalid tax year format is supplied" in new SetupConfig {
-        validate(body = body(businessReceiptsJson.update("taxYear", JsString("BAD_VALUE")))) shouldBe
-          singleError(TaxYearFormatError.withPath("/businessReceipts/0/taxYear"))
-      }
-
-      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new SetupConfig {
-        validate(body = body(businessReceiptsJson.update("taxYear", JsString("2020-22")))) shouldBe
-          singleError(RuleTaxYearRangeInvalidError.withPath("/businessReceipts/0/taxYear"))
-      }
-    }
-
     "validating allOtherIncomeReceivedWhilstAbroad" should {
 
       def body(value: JsValue) = Json.parse(s"""
-                                               |{
-                                               |  "allOtherIncomeReceivedWhilstAbroad": [$value]
-                                               |}""".stripMargin)
+           |{
+           |  "allOtherIncomeReceivedWhilstAbroad": [$value]
+           |}""".stripMargin)
 
       def fromField(field: String)(value: JsNumber) = body(allOtherIncomeReceivedWhilstAbroadJson.update(field, value))
 
@@ -302,6 +281,122 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
       expectValueFormatError(fromField("amount"), "/omittedForeignIncome/amount")
     }
 
+    "validating benefitFromPreOwnedAssets" should {
+      def body(value: JsValue) = Json.parse(s"""
+           |{
+           |  "benefitFromPreOwnedAssets": [
+           |    $value
+           |  ]
+           |}""".stripMargin)
+
+      def fromField(field: String)(value: JsNumber) = body(benefitFromPreOwnedAssetsJson.update(field, value))
+
+      expectValueFormatError(fromField("amountOfBenefit"), "/benefitFromPreOwnedAssets/0/amountOfBenefit")
+
+      "return TypeOfAssetError" when {
+        "an invalid type of asset is submitted" in new SetupConfig {
+          validate(body = body(benefitFromPreOwnedAssetsJson.update("typeOfAsset", JsString("/////")))) shouldBe
+            singleError(TypeOfAssetFormatError.withPath("/benefitFromPreOwnedAssets/0/typeOfAsset"))
+        }
+      }
+    }
+
+    "validating additionalIncome" should {
+      "return RuleIncorrectOrEmptyBodyError error" when {
+        "an empty JSON body is submitted" in new SetupConfig {
+          validate(body = Json.parse("""{"additionalIncome": {}}""")) shouldBe
+            singleError(RuleIncorrectOrEmptyBodyError.withPaths(Seq("/additionalIncome")))
+        }
+      }
+    }
+
+    "validating additionalIncome sub fields" should {
+
+      def expectSubFieldValueFormatError(field: String, basePath: String): Unit = s"return expected errors for $basePath" when {
+        def doTest(value: JsNumber): Unit = new SetupConfig {
+          val body: JsValue = Json.parse(s"""
+               |{
+               |  "additionalIncome": {
+               |    "$field": {
+               |      "amountBeforeTax": $value,
+               |      "allowableExpenses": $value,
+               |      "taxDeducted": $value,
+               |      "lossesBroughtForward": $value,
+               |      "carryForwardLosses": $value
+               |    }
+               |  }
+               |}""".stripMargin)
+
+          validate(body = body) shouldBe
+            Left(
+              ErrorWrapper(
+                correlationId,
+                ValueFormatError.withPaths(List(
+                  s"$basePath/allowableExpenses",
+                  s"$basePath/lossesBroughtForward",
+                  s"$basePath/carryForwardLosses",
+                  s"$basePath/amountBeforeTax",
+                  s"$basePath/taxDeducted"
+                )),
+                None
+              ))
+        }
+
+        "value is out of range" in doTest(JsNumber(99999999999.99 + 0.01))
+        "value is negative" in doTest(JsNumber(-0.01))
+      }
+
+      expectSubFieldValueFormatError("propertyIncomeDistributions", "/additionalIncome/propertyIncomeDistributions")
+      expectSubFieldValueFormatError("personalInsuranceBenefits", "/additionalIncome/personalInsuranceBenefits")
+      expectSubFieldValueFormatError("incomeFromUnauthorisedUnitTrust", "/additionalIncome/incomeFromUnauthorisedUnitTrust")
+      expectSubFieldValueFormatError("profitsFromCertificateOfDeposit", "/additionalIncome/profitsFromCertificateOfDeposit")
+      expectSubFieldValueFormatError("nonCashBenefitsFromFormerEmployer", "/additionalIncome/nonCashBenefitsFromFormerEmployer")
+      expectSubFieldValueFormatError("authorisedPaymentsFromOverseasPensionScheme", "/additionalIncome/authorisedPaymentsFromOverseasPensionScheme")
+      expectSubFieldValueFormatError("taxableAnnualPayments", "/additionalIncome/taxableAnnualPayments")
+      expectSubFieldValueFormatError("miscellaneousIncome", "/additionalIncome/miscellaneousIncome")
+
+      def expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError(field: String, basePath: String): Unit =
+        s"return RULE_TAX_DEDUCTED_EXCEEDS_AMOUNT_BEFORE_TAX for $basePath" when {
+          def doTest(amountBeforeTax: JsNumber, taxDeducted: JsNumber): Unit = new SetupConfig {
+            val body: JsValue = Json.parse(s"""
+               |{
+               |  "additionalIncome": {
+               |    "$field": {
+               |      "amountBeforeTax": $amountBeforeTax,
+               |      "taxDeducted": $taxDeducted
+               |    }
+               |  }
+               |}""".stripMargin)
+
+            validate(body = body) shouldBe
+              Left(
+                ErrorWrapper(
+                  correlationId,
+                  RuleTaxDeductedExceedsAmountBeforeTaxError.withPaths(
+                    List(
+                      s"$basePath/amountBeforeTax",
+                      s"$basePath/taxDeducted"
+                    )),
+                  None
+                ))
+          }
+          "taxDeducted is greater than amountBeforeTax" in doTest(JsNumber(100), JsNumber(200))
+        }
+
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError("propertyIncomeDistributions", "/additionalIncome/propertyIncomeDistributions")
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError("personalInsuranceBenefits", "/additionalIncome/personalInsuranceBenefits")
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError("incomeFromUnauthorisedUnitTrust", "/additionalIncome/incomeFromUnauthorisedUnitTrust")
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError("profitsFromCertificateOfDeposit", "/additionalIncome/profitsFromCertificateOfDeposit")
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError(
+        "nonCashBenefitsFromFormerEmployer",
+        "/additionalIncome/nonCashBenefitsFromFormerEmployer")
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError(
+        "authorisedPaymentsFromOverseasPensionScheme",
+        "/additionalIncome/authorisedPaymentsFromOverseasPensionScheme")
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError("taxableAnnualPayments", "/additionalIncome/taxableAnnualPayments")
+      expectSubFieldRuleTaxDeductedExceedsAmountBeforeTaxError("miscellaneousIncome", "/additionalIncome/miscellaneousIncome")
+    }
+
     "return multiple errors" when {
       "multiple fields fail validation" in new SetupConfig {
 
@@ -312,16 +407,6 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
             |      {
             |         "amount": 99999999999.99,
             |         "taxYearIncomeToBeTaxed": "XXXX"
-            |      }
-            |   ],
-            |   "businessReceipts": [
-            |      {
-            |         "grossAmount": 5000.99,
-            |         "taxYear": "XXXX"
-            |      },
-            |      {
-            |         "grossAmount": 6000.99,
-            |         "taxYear": "YYYY"
             |      }
             |   ],
             |   "allOtherIncomeReceivedWhilstAbroad": [
@@ -341,14 +426,12 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
               BadRequestError,
               Some(Seq(
                 CountryCodeFormatError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"),
-                TaxYearFormatError.withPaths(
-                  List(
-                    "/postCessationReceipts/0/taxYearIncomeToBeTaxed",
-                    "/businessReceipts/0/taxYear",
-                    "/businessReceipts/1/taxYear"
-                  ))
+                TaxYearFormatError.withPaths(List(
+                  "/postCessationReceipts/0/taxYearIncomeToBeTaxed"
+                ))
               ))
-            ))
+            )
+          )
       }
     }
   }

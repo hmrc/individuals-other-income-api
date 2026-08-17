@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package v3.createAmendOther.def1.model.request
+package v3.createAmendOther.def2.model.request.additionalIncome
 
-import api.models.domain.{Nino, TaxYear}
-import v3.createAmendOther.model.request.CreateAmendOtherRequestData
+import play.api.libs.json.{Json, OFormat}
 
-case class Def1_CreateAmendOtherRequestData(nino: Nino, taxYear: TaxYear, body: Def1_CreateAmendOtherRequestBody) extends CreateAmendOtherRequestData
+case class MiscellaneousIncome(amountBeforeTax: BigDecimal,
+                               allowableExpenses: Option[BigDecimal],
+                               taxDeducted: Option[BigDecimal],
+                               lossesBroughtForward: Option[BigDecimal],
+                               carryForwardLosses: Option[BigDecimal])
+    extends AdditionalIncomeSubItem
+
+object MiscellaneousIncome {
+  implicit val formats: OFormat[MiscellaneousIncome] = Json.format[MiscellaneousIncome]
+}

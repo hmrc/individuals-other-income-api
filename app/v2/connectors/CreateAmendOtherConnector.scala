@@ -16,8 +16,8 @@
 
 package v2.connectors
 
-import api.config.AppConfig
-import api.connectors.DownstreamUri.IfsUri
+import api.config.{AppConfig, ConfigFeatureSwitches}
+import api.connectors.DownstreamUri.{HipUri, IfsUri}
 import api.connectors.httpparsers.StandardDownstreamHttpParser.*
 import api.connectors.{BaseDownstreamConnector, DownstreamOutcome}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,7 +35,9 @@ class CreateAmendOtherConnector @Inject() (val http: HttpClientV2, val appConfig
 
     import request.*
 
-    val url = if (taxYear.useTaxYearSpecificApi) {
+    val url = if (ConfigFeatureSwitches().isEnabled("ifs_hip_migration_1915") && taxYear.year >= 2026) {
+      HipUri[Unit](s"itsa/income-tax/v1/${taxYear.asTysDownstream}/income/other/$nino")
+    } else if (taxYear.useTaxYearSpecificApi) {
       IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/$nino")
     } else {
       IfsUri[Unit](s"income-tax/income/other/$nino/${taxYear.asMtd}")

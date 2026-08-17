@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package v3.createAmendOther.def1.model.request
+package v3.createAmendOther.def2.model.request
 
 import play.api.libs.json.{Json, OFormat}
+import v3.createAmendOther.def2.model.request.additionalIncome.AdditionalIncome
 import v3.createAmendOther.model.request.CreateAmendOtherRequestBody
 
-case class Def1_CreateAmendOtherRequestBody(postCessationReceipts: Option[Seq[PostCessationReceiptsItem]],
-                                            businessReceipts: Option[Seq[BusinessReceiptsItem]],
+case class Def2_CreateAmendOtherRequestBody(postCessationReceipts: Option[Seq[PostCessationReceiptsItem]],
                                             allOtherIncomeReceivedWhilstAbroad: Option[Seq[AllOtherIncomeReceivedWhilstAbroadItem]],
                                             overseasIncomeAndGains: Option[OverseasIncomeAndGains],
                                             chargeableForeignBenefitsAndGifts: Option[ChargeableForeignBenefitsAndGifts],
-                                            omittedForeignIncome: Option[OmittedForeignIncome])
+                                            omittedForeignIncome: Option[OmittedForeignIncome],
+                                            benefitFromPreOwnedAssets: Option[Seq[BenefitFromPreOwnedAssets]],
+                                            additionalIncome: Option[AdditionalIncome])
     extends CreateAmendOtherRequestBody
 
-object Def1_CreateAmendOtherRequestBody {
+object Def2_CreateAmendOtherRequestBody {
 
-  implicit val format: OFormat[Def1_CreateAmendOtherRequestBody] = Json.format[Def1_CreateAmendOtherRequestBody]
+  implicit val format: OFormat[Def2_CreateAmendOtherRequestBody] = Json.format[Def2_CreateAmendOtherRequestBody]
 
 }

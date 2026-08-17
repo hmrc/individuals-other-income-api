@@ -14,9 +14,22 @@
  * limitations under the License.
  */
 
-package v3.createAmendOther.def1.model.request
+package v3.createAmendOther.def2.model.request
 
-import api.models.domain.{Nino, TaxYear}
-import v3.createAmendOther.model.request.CreateAmendOtherRequestData
+import api.utils.UnitSpec
+import play.api.libs.json.*
 
-case class Def1_CreateAmendOtherRequestData(nino: Nino, taxYear: TaxYear, body: Def1_CreateAmendOtherRequestBody) extends CreateAmendOtherRequestData
+class PostCessationReceiptsItemSpec extends UnitSpec {
+
+  "PostCessationReceiptsItem" should {
+    "error when JSON is invalid" in {
+      Json
+        .parse("""|{ 
+             |"amount": "notANumber", 
+             |"taxYearIncomeToBeTaxed" : "2014" 
+             |}""".stripMargin)
+        .validate[PostCessationReceiptsItem] shouldBe a[JsError]
+    }
+  }
+
+}
