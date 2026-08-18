@@ -16,7 +16,7 @@
 
 package v3.createAmendOther.def2.model.request
 
-import play.api.libs.json.{JsPath, Json, OFormat, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class BenefitFromPreOwnedAssets(typeOfAsset: String, amountOfBenefit: BigDecimal)
 

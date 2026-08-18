@@ -16,8 +16,7 @@
 
 package v3.createAmendOther.def1.model.request
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{JsPath, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class ChargeableForeignBenefitsAndGifts(transactionBenefit: Option[BigDecimal],
                                              protectedForeignIncomeSourceBenefit: Option[BigDecimal],
@@ -26,16 +25,6 @@ case class ChargeableForeignBenefitsAndGifts(transactionBenefit: Option[BigDecim
                                              onwardGiftReceivedAsASettler: Option[BigDecimal])
 
 object ChargeableForeignBenefitsAndGifts {
-  val empty: ChargeableForeignBenefitsAndGifts = ChargeableForeignBenefitsAndGifts(None, None, None, None, None)
 
-  implicit val reads: Reads[ChargeableForeignBenefitsAndGifts] = Json.reads[ChargeableForeignBenefitsAndGifts]
-
-  implicit val writes: OWrites[ChargeableForeignBenefitsAndGifts] = (
-    (JsPath \ "transactionBenefit").writeNullable[BigDecimal] and
-      (JsPath \ "protectedForeignIncomeSourceBenefit").writeNullable[BigDecimal] and
-      (JsPath \ "protectedForeignIncomeOnwardGift").writeNullable[BigDecimal] and
-      (JsPath \ "benefitReceivedAsASettler").writeNullable[BigDecimal] and
-      (JsPath \ "onwardGiftReceivedAsASettler").writeNullable[BigDecimal]
-  )(w => Tuple.fromProductTyped(w))
-
+  implicit val format: OFormat[ChargeableForeignBenefitsAndGifts] = Json.format[ChargeableForeignBenefitsAndGifts]
 }

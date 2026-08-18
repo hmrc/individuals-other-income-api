@@ -29,13 +29,11 @@ import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import play.api.test.Helpers.AUTHORIZATION
 import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
 
-class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonErrorValidators {
-
-  override def servicesConfig: Map[String, Any] = Map("feature-switch.ifs_hip_migration_1915.enabled" -> false) ++ super.servicesConfig
+class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonErrorValidators {
 
   "Calling the 'create and amend other income' endpoint" should {
     "return a 204 status code" when {
-      "any valid request is made" in new IfsTest {
+      "any valid request is made" in new Test {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -46,7 +44,7 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
         response.body shouldBe ""
       }
 
-      "any valid request is made without foreignTaxCreditRelief" in new IfsTest {
+      "any valid request is made without foreignTaxCreditRelief" in new Test {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -59,7 +57,7 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
     }
 
     "return a 400 with multiple errors" when {
-      "all field value validations fail on the request body" in new IfsTest {
+      "all field value validations fail on the request body" in new Test {
 
         val allInvalidValueRequestBodyJson: JsValue = Json.parse(
           """
@@ -150,7 +148,7 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
         response.json shouldBe Json.toJson(wrappedErrors)
       }
 
-      "complex error scenario" in new IfsTest {
+      "complex error scenario" in new Test {
 
         val createAmendErrorsRequest: JsValue = Json.parse(
           """
@@ -457,7 +455,7 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
                                 expectedStatus: Int,
                                 expectedBody: MtdError,
                                 scenario: Option[String]): Unit = {
-          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new IfsTest {
+          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new Test {
             override val nino: String       = requestNino
             override val mtdTaxYear: String = requestTaxYear
 
@@ -482,7 +480,7 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new IfsTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new Test {
 
             override def setupStubs(): Unit = {
               DownstreamStub.onError(DownstreamStub.PUT, downstreamUri, downstreamStatus, errorBody(downstreamCode))
@@ -511,7 +509,9 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
           (INTERNAL_SERVER_ERROR, "SERVER_ERROR", INTERNAL_SERVER_ERROR, InternalError),
           (UNPROCESSABLE_ENTITY, "UNALIGNED_CESSATION_TAX_YEAR", BAD_REQUEST, RuleUnalignedCessationTaxYearError),
           (UNPROCESSABLE_ENTITY, "OUTSIDE_AMENDMENT_WINDOW", BAD_REQUEST, RuleOutsideAmendmentWindowError),
-          (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError)
+          (UNPROCESSABLE_ENTITY, "TAX_YEAR_NOT_SUPPORTED", BAD_REQUEST, RuleTaxYearNotSupportedError),
+          (UNPROCESSABLE_ENTITY, "INVALID_TAX_DEDUCTED_AMOUNT", BAD_REQUEST, RuleTaxDeductedExceedsAmountBeforeTaxError),
+          (UNPROCESSABLE_ENTITY, "INCORRECT_BUSINESS_CEASED_DATE", BAD_REQUEST, RuleIncorrectBusinessCeasedDateError)
         )
 
         errors.foreach(serviceErrorTest.tupled)
@@ -524,8 +524,9 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
     val nino: String          = "AA123456A"
     val correlationId: String = "X-123"
 
-    def mtdTaxYear: String
-    def downstreamUri: String
+    def mtdTaxYear: String = "2026-27"
+
+    def downstreamUri: String = s"/itsa/income-tax/v1/26-27/income/other/$nino"
 
     def setupStubs(): Unit = {}
 
@@ -547,12 +548,6 @@ class CreateAmendOtherControllerIFSISpec extends IntegrationBaseSpec with JsonEr
     def requestBodyAlignedTaxYear: JsValue =
       requestBodyWithPCRJson.updateArrayField("postCessationReceipts", "taxYearIncomeToBeTaxed", JsString(mtdTaxYear))
 
-  }
-
-  private trait IfsTest extends Test {
-    def mtdTaxYear: String = "2025-26"
-
-    def downstreamUri: String = s"/income-tax/income/other/25-26/$nino"
   }
 
 }

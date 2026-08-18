@@ -101,7 +101,9 @@ class CreateAmendOtherServiceSpec extends ServiceSpec {
           ("SERVICE_UNAVAILABLE", InternalError),
           ("UNALIGNED_CESSATION_TAX_YEAR", RuleUnalignedCessationTaxYearError),
           ("OUTSIDE_AMENDMENT_WINDOW", RuleOutsideAmendmentWindowError),
-          ("TAX_YEAR_NOT_SUPPORTED", RuleTaxYearNotSupportedError)
+          ("TAX_YEAR_NOT_SUPPORTED", RuleTaxYearNotSupportedError),
+          ("INVALID_TAX_DEDUCTED_AMOUNT", RuleTaxDeductedExceedsAmountBeforeTaxError),
+          ("INCORRECT_BUSINESS_CEASED_DATE", RuleIncorrectBusinessCeasedDateError)
         )
 
         errors.foreach(args => serviceError.tupled(args))

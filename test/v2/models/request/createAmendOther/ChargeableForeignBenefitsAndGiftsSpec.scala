@@ -33,7 +33,7 @@ class ChargeableForeignBenefitsAndGiftsSpec extends UnitSpec {
       "produce an empty ChargeableForeignBenefitsAndGifts object" in {
         val emptyJson = JsObject.empty
 
-        emptyJson.as[ChargeableForeignBenefitsAndGifts] shouldBe ChargeableForeignBenefitsAndGifts.empty
+        emptyJson.as[ChargeableForeignBenefitsAndGifts] shouldBe ChargeableForeignBenefitsAndGifts(None, None, None, None, None)
       }
     }
 

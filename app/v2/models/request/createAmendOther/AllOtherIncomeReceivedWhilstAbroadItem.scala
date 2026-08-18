@@ -16,8 +16,7 @@
 
 package v2.models.request.createAmendOther
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{JsPath, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class AllOtherIncomeReceivedWhilstAbroadItem(countryCode: String,
                                                   amountBeforeTax: Option[BigDecimal],
@@ -29,17 +28,6 @@ case class AllOtherIncomeReceivedWhilstAbroadItem(countryCode: String,
                                                   broughtFwdResidentialFinancialCostAmount: Option[BigDecimal])
 
 object AllOtherIncomeReceivedWhilstAbroadItem {
-  implicit val reads: Reads[AllOtherIncomeReceivedWhilstAbroadItem] = Json.reads[AllOtherIncomeReceivedWhilstAbroadItem]
 
-  implicit val writes: OWrites[AllOtherIncomeReceivedWhilstAbroadItem] = (
-    (JsPath \ "countryCode").write[String] and
-      (JsPath \ "amountBeforeTax").writeNullable[BigDecimal] and
-      (JsPath \ "taxTakenOff").writeNullable[BigDecimal] and
-      (JsPath \ "specialWithholdingTax").writeNullable[BigDecimal] and
-      (JsPath \ "foreignTaxCreditRelief").writeNullable[Boolean] and
-      (JsPath \ "taxableAmount").write[BigDecimal] and
-      (JsPath \ "residentialFinancialCostAmount").writeNullable[BigDecimal] and
-      (JsPath \ "broughtFwdResidentialFinancialCostAmount").writeNullable[BigDecimal]
-  )(w => Tuple.fromProductTyped(w))
-
+  implicit val format: OFormat[AllOtherIncomeReceivedWhilstAbroadItem] = Json.format[AllOtherIncomeReceivedWhilstAbroadItem]
 }

@@ -16,17 +16,11 @@
 
 package v3.createAmendOther.def1.model.request
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{JsPath, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class BusinessReceiptsItem(grossAmount: BigDecimal, taxYear: String)
 
 object BusinessReceiptsItem {
-  implicit val reads: Reads[BusinessReceiptsItem] = Json.reads[BusinessReceiptsItem]
 
-  implicit val writes: OWrites[BusinessReceiptsItem] = (
-    (JsPath \ "grossAmount").write[BigDecimal] and
-      (JsPath \ "taxYear").write[String]
-  )(w => Tuple.fromProductTyped(w))
-
+  implicit val format: OFormat[BusinessReceiptsItem] = Json.format[BusinessReceiptsItem]
 }

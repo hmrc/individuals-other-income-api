@@ -16,7 +16,7 @@
 
 package v2.models.request.createAmendOther
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 
 case class PostCessationReceiptsItem(customerReference: Option[String],
                                      businessName: Option[String],
@@ -28,6 +28,6 @@ case class PostCessationReceiptsItem(customerReference: Option[String],
 
 object PostCessationReceiptsItem {
 
-  implicit val format: Format[PostCessationReceiptsItem] = Json.format[PostCessationReceiptsItem]
+  implicit val format: OFormat[PostCessationReceiptsItem] = Json.format[PostCessationReceiptsItem]
 
 }

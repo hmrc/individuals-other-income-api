@@ -16,12 +16,11 @@
 
 package v3.createAmendOther.def1.model.request
 
-import play.api.libs.json.{JsPath, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class OverseasIncomeAndGains(gainAmount: BigDecimal)
 
 object OverseasIncomeAndGains {
-  implicit val reads: Reads[OverseasIncomeAndGains] = Json.reads[OverseasIncomeAndGains]
 
-  implicit val writes: OWrites[OverseasIncomeAndGains] = (JsPath \ "gainAmount").write[BigDecimal].contramap(_.gainAmount)
+  implicit val format: OFormat[OverseasIncomeAndGains] = Json.format[OverseasIncomeAndGains]
 }

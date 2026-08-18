@@ -35,13 +35,15 @@ class CreateAmendOtherConnector @Inject() (val http: HttpClientV2, val appConfig
 
     import request.*
 
-    val url = if (ConfigFeatureSwitches().isEnabled("ifs_hip_migration_1915") && taxYear.year >= 2026) {
+    lazy val downstream1915Uri = if (ConfigFeatureSwitches().isEnabled("ifs_hip_migration_1915") && taxYear.year >= 2026) {
       HipUri[Unit](s"itsa/income-tax/v1/${taxYear.asTysDownstream}/income/other/$nino")
-    } else if (taxYear.useTaxYearSpecificApi) {
-      IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/$nino")
     } else {
-      IfsUri[Unit](s"income-tax/income/other/$nino/${taxYear.asMtd}")
+      IfsUri[Unit](s"income-tax/income/other/${taxYear.asTysDownstream}/$nino")
     }
+
+    lazy val downstream1620Uri = IfsUri[Unit](s"income-tax/income/other/$nino/${taxYear.asMtd}")
+
+    val url = if (taxYear.useTaxYearSpecificApi) downstream1915Uri else downstream1620Uri
 
     put(body, url)
   }

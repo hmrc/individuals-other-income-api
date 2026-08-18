@@ -33,7 +33,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
 
   "Calling the 'create and amend other income' endpoint" should {
     "return a 200 status code" when {
-      "any valid request is made" in new HipTest {
+      "any valid request is made" in new Test {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -44,7 +44,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
         response.body shouldBe ""
       }
 
-      "any valid request is made (TYS) without foreignTaxCreditRelief" in new HipTest {
+      "any valid request is made (TYS) without foreignTaxCreditRelief" in new Test {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -57,7 +57,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
     }
 
     "return a TaxYearFormatError" when {
-      "a request body having invalid tax year format is supplied" in new HipTest {
+      "a request body having invalid tax year format is supplied" in new Test {
 
         val invalidRequestBodyJson: JsValue = Json.parse(
           """
@@ -124,7 +124,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
     }
 
     "return a RuleTaxYearRangeInvalidError" when {
-      "a request body having invalid tax year range is supplied" in new HipTest {
+      "a request body having invalid tax year range is supplied" in new Test {
 
         val invalidRequestBodyJson: JsValue = Json.parse(
           """
@@ -192,7 +192,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
     }
 
     "return a 400 with multiple errors" when {
-      "all field value validations fail on the request body" in new HipTest {
+      "all field value validations fail on the request body" in new Test {
 
         val allInvalidValueRequestBodyJson: JsValue = Json.parse(
           """
@@ -297,7 +297,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
         response.json shouldBe Json.toJson(wrappedErrors)
       }
 
-      "complex error scenario" in new HipTest {
+      "complex error scenario" in new Test {
 
         val createAmendErrorsRequest: JsValue = Json.parse(
           """
@@ -665,7 +665,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
                                 expectedStatus: Int,
                                 expectedBody: MtdError,
                                 scenario: Option[String]): Unit = {
-          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new HipTest {
+          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new Test {
             override val nino: String       = requestNino
             override val mtdTaxYear: String = requestTaxYear
 
@@ -693,7 +693,7 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new HipTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new Test {
 
             override def setupStubs(): Unit = {
               DownstreamStub.onError(DownstreamStub.PUT, downstreamUri, downstreamStatus, errorBody(downstreamCode))
@@ -735,8 +735,9 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
     val nino: String          = "AA123456A"
     val correlationId: String = "X-123"
 
-    def mtdTaxYear: String
-    def downstreamUri: String
+    def mtdTaxYear: String = "2025-26"
+
+    def downstreamUri: String = s"/itsa/income-tax/v1/25-26/income/other/$nino"
 
     def setupStubs(): Unit = {}
 
@@ -758,12 +759,6 @@ class CreateAmendOtherControllerHipISpec extends IntegrationBaseSpec with JsonEr
     def requestBodyAlignedTaxYear: JsValue =
       requestBodyWithPCRJson.updateArrayField("postCessationReceipts", "taxYearIncomeToBeTaxed", JsString(mtdTaxYear))
 
-  }
-
-  private trait HipTest extends Test {
-    def mtdTaxYear: String = "2025-26"
-
-    def downstreamUri: String = s"/itsa/income-tax/v1/25-26/income/other/$nino"
   }
 
 }

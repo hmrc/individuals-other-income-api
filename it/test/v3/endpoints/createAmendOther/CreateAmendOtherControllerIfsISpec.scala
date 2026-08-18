@@ -29,11 +29,13 @@ import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import play.api.test.Helpers.AUTHORIZATION
 import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.{requestBodyJsonWithoutForeignTaxCreditRelief, requestBodyWithPCRJson}
 
-class CreateAmendOtherControllerHIPISpec extends IntegrationBaseSpec with JsonErrorValidators {
+class CreateAmendOtherControllerIfsISpec extends IntegrationBaseSpec with JsonErrorValidators {
+
+  override def servicesConfig: Map[String, Any] = Map("feature-switch.ifs_hip_migration_1915.enabled" -> false) ++ super.servicesConfig
 
   "Calling the 'create and amend other income' endpoint" should {
     "return a 204 status code" when {
-      "any valid request is made" in new HipTest {
+      "any valid request is made" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -44,7 +46,7 @@ class CreateAmendOtherControllerHIPISpec extends IntegrationBaseSpec with JsonEr
         response.body shouldBe ""
       }
 
-      "any valid request is made without foreignTaxCreditRelief" in new HipTest {
+      "any valid request is made without foreignTaxCreditRelief" in new IfsTest {
 
         override def setupStubs(): Unit = {
           DownstreamStub.onSuccess(DownstreamStub.PUT, downstreamUri, NO_CONTENT)
@@ -57,7 +59,7 @@ class CreateAmendOtherControllerHIPISpec extends IntegrationBaseSpec with JsonEr
     }
 
     "return a 400 with multiple errors" when {
-      "all field value validations fail on the request body" in new HipTest {
+      "all field value validations fail on the request body" in new IfsTest {
 
         val allInvalidValueRequestBodyJson: JsValue = Json.parse(
           """
@@ -148,7 +150,7 @@ class CreateAmendOtherControllerHIPISpec extends IntegrationBaseSpec with JsonEr
         response.json shouldBe Json.toJson(wrappedErrors)
       }
 
-      "complex error scenario" in new HipTest {
+      "complex error scenario" in new IfsTest {
 
         val createAmendErrorsRequest: JsValue = Json.parse(
           """
@@ -455,7 +457,7 @@ class CreateAmendOtherControllerHIPISpec extends IntegrationBaseSpec with JsonEr
                                 expectedStatus: Int,
                                 expectedBody: MtdError,
                                 scenario: Option[String]): Unit = {
-          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new HipTest {
+          s"validation fails with ${expectedBody.code} error ${scenario.getOrElse("")}" in new IfsTest {
             override val nino: String       = requestNino
             override val mtdTaxYear: String = requestTaxYear
 
@@ -480,7 +482,7 @@ class CreateAmendOtherControllerHIPISpec extends IntegrationBaseSpec with JsonEr
 
       "downstream service error" when {
         def serviceErrorTest(downstreamStatus: Int, downstreamCode: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
-          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new HipTest {
+          s"downstream returns an $downstreamCode error and status $downstreamStatus" in new IfsTest {
 
             override def setupStubs(): Unit = {
               DownstreamStub.onError(DownstreamStub.PUT, downstreamUri, downstreamStatus, errorBody(downstreamCode))
@@ -547,10 +549,10 @@ class CreateAmendOtherControllerHIPISpec extends IntegrationBaseSpec with JsonEr
 
   }
 
-  private trait HipTest extends Test {
-    def mtdTaxYear: String = "2026-27"
+  private trait IfsTest extends Test {
+    def mtdTaxYear: String = "2025-26"
 
-    def downstreamUri: String = s"/itsa/income-tax/v1/26-27/income/other/$nino"
+    def downstreamUri: String = s"/income-tax/income/other/25-26/$nino"
   }
 
 }
