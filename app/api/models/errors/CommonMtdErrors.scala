@@ -46,8 +46,6 @@ object ValueFormatError extends MtdError("FORMAT_VALUE", "The value must be betw
 
 }
 
-object TypeOfAssetFormatError extends MtdError("FORMAT_TYPE_OF_ASSET", "The provided type of asset is invalid", BAD_REQUEST)
-
 //Standard Errors
 object NotFoundError extends MtdError("MATCHING_RESOURCE_NOT_FOUND", "Matching resource not found", NOT_FOUND)
 

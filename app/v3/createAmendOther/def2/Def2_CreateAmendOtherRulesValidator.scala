@@ -188,7 +188,7 @@ object Def2_CreateAmendOtherRulesValidator extends RulesValidator[Def2_CreateAme
       ResolveStringPattern(
         value = benefitFromPreOwnedAssets.typeOfAsset,
         regexFormat = "^(?=.*\\S+)[0-9A-Za-zÀ-˿’\\\\\\- _&`():.'^]{1,100}$".r,
-        error = TypeOfAssetFormatError.withPath(s"/benefitFromPreOwnedAssets/$arrayIndex/typeOfAsset")
+        error = RuleIncorrectOrEmptyBodyError.withPath(s"/benefitFromPreOwnedAssets/$arrayIndex/typeOfAsset")
       ),
       resolveNonNegativeNumber(
         amount = benefitFromPreOwnedAssets.amountOfBenefit,

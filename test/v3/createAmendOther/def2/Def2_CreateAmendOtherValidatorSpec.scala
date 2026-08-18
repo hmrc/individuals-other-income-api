@@ -293,10 +293,10 @@ class Def2_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
 
       expectValueFormatError(fromField("amountOfBenefit"), "/benefitFromPreOwnedAssets/0/amountOfBenefit")
 
-      "return TypeOfAssetError" when {
+      "return RuleIncorrectOrEmptyBodyError" when {
         "an invalid type of asset is submitted" in new SetupConfig {
           validate(body = body(benefitFromPreOwnedAssetsJson.update("typeOfAsset", JsString("/////")))) shouldBe
-            singleError(TypeOfAssetFormatError.withPath("/benefitFromPreOwnedAssets/0/typeOfAsset"))
+            singleError(RuleIncorrectOrEmptyBodyError.withPath("/benefitFromPreOwnedAssets/0/typeOfAsset"))
         }
       }
     }
