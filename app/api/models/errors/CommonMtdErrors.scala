@@ -39,6 +39,8 @@ object BusinessDescriptionFormatError extends MtdError("FORMAT_BUSINESS_DESCRIPT
 
 object IncomeSourceFormatError extends MtdError("FORMAT_INCOME_SOURCE", "The provided income source is invalid", BAD_REQUEST)
 
+object TypeOfAssetFormatError extends MtdError("FORMAT_TYPE_OF_ASSET", "The provided type of asset is invalid", BAD_REQUEST)
+
 object ValueFormatError extends MtdError("FORMAT_VALUE", "The value must be between 0 and 99999999999.99", BAD_REQUEST) {
 
   def forPathAndRange(path: String, min: String, max: String): MtdError =
@@ -81,7 +83,9 @@ object UnsupportedVersionError extends MtdError("NOT_FOUND", "The requested reso
 
 // Common rule errors
 object RuleRequestCannotBeFulfilledError
-    extends MtdError("RULE_REQUEST_CANNOT_BE_FULFILLED", "Custom (will vary in production depending on the actual error)", UNPROCESSABLE_ENTITY)
+    extends MtdError("RULE_REQUEST_CANNOT_BE_FULFILLED", "Custom (will vary in production depending on the actual error)", UNPROCESSABLE_ENTITY) {
+  def forDateBusinessCeased: MtdError = copy(message = "Business ceased date must be before today")
+}
 
 object RuleTaxYearNotSupportedError
     extends MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "The tax year specified does not lie within the supported range", BAD_REQUEST)
@@ -109,10 +113,10 @@ object RuleCountryCodeError extends MtdError("RULE_COUNTRY_CODE", "The country c
 object RuleOutsideAmendmentWindowError extends MtdError("RULE_OUTSIDE_AMENDMENT_WINDOW", "You are outside the amendment window", BAD_REQUEST)
 
 object RuleTaxDeductedExceedsAmountBeforeTaxError
-    extends MtdError("RULE_TAX_DEDUCTED_EXCEEDS_AMOUNT_BEFORE_TAX", "The supplied taxDeducted exceeds amountBeforeTax.", BAD_REQUEST)
+    extends MtdError("RULE_TAX_DEDUCTED_EXCEEDS_AMOUNT_BEFORE_TAX", "taxDeducted must be less than or equal to amountBeforeTax", BAD_REQUEST)
 
 object RuleIncorrectBusinessCeasedDateError
-    extends MtdError("RULE_INCORRECT_BUSINESS_CEASED_DATE", "The supplied business ceased date is today or in the future.", BAD_REQUEST)
+    extends MtdError("RULE_INCORRECT_BUSINESS_CEASED_DATE", "Business ceased date must be before today", BAD_REQUEST)
 
 //Stub Errors
 object RuleIncorrectGovTestScenarioError

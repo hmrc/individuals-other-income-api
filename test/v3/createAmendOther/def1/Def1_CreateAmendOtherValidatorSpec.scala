@@ -16,7 +16,6 @@
 
 package v3.createAmendOther.def1
 
-import api.config.MockAppConfig
 import api.models.domain.{Nino, TaxYear}
 import api.models.errors.*
 import api.models.utils.JsonErrorValidators
@@ -25,9 +24,9 @@ import play.api.libs.json.*
 import v3.createAmendOther.def1.fixtures.Def1_CreateAmendOtherFixtures.*
 import v3.createAmendOther.def1.model.request.{Def1_CreateAmendOtherRequestBody, Def1_CreateAmendOtherRequestData, PostCessationReceiptsItem}
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneOffset}
 
-class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
+class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators {
 
   private implicit val correlationId: String = "correlationId"
   private val validNino                      = "AA123456A"
@@ -38,18 +37,14 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
 
   private val validRequestBodyJson: JsValue = requestBodyWithPCRJson
 
-  def validator(nino: String, taxYear: String, body: JsValue): Def1_CreateAmendOtherValidator =
-    new Def1_CreateAmendOtherValidator(nino, taxYear, body)
-
-  private def validate(nino: String = validNino, taxYear: String = validTaxYear, body: JsValue) =
-    validator(nino, taxYear, body).validateAndWrapResult()
+  private def validate(nino: String = validNino, body: JsValue) =
+    new Def1_CreateAmendOtherValidator(nino, validTaxYear, body).validateAndWrapResult()
 
   def singleError(error: MtdError): Left[ErrorWrapper, Nothing] = Left(ErrorWrapper(correlationId, error))
 
   private def expectValueFormatError(body: JsNumber => JsValue, expectedPath: String): Unit = s"for $expectedPath" when {
-    def doTest(value: JsNumber): Unit = new SetupConfig {
+    def doTest(value: JsNumber): Unit =
       validate(body = body(value)) shouldBe singleError(ValueFormatError.forPathAndRange(expectedPath, "0", "99999999999.99"))
-    }
 
     "value is out of range" in doTest(JsNumber(99999999999.99 + 0.01))
     "value is negative" in doTest(JsNumber(-0.01))
@@ -84,11 +79,11 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
            |  "postCessationReceipts": [$value]
            |}""".stripMargin)
 
-      "a valid request is supplied" in new SetupConfig {
+      "a valid request is supplied" in {
         validate(body = validRequestBodyJson) shouldBe Right(Def1_CreateAmendOtherRequestData(parsedNino, parsedTaxYear, requestBodyModel))
       }
 
-      "a valid request with trailing spaces is supplied" in new SetupConfig {
+      "a valid request with trailing spaces is supplied" in {
         validate(body = body(
           postCessationReceiptsItemJson
             .update("customerReference", JsString("  String  "))
@@ -99,21 +94,21 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
     }
 
     "return NinoFormatError error" when {
-      "an invalid nino is supplied" in new SetupConfig {
-        validate("A12344A", validTaxYear, validRequestBodyJson) shouldBe singleError(NinoFormatError)
+      "an invalid nino is supplied" in {
+        validate("A12344A", validRequestBodyJson) shouldBe singleError(NinoFormatError)
       }
     }
 
     "return RuleIncorrectOrEmptyBodyError error" when {
-      "an empty JSON body is submitted" in new SetupConfig {
+      "an empty JSON body is submitted" in {
         validate(body = JsObject.empty) shouldBe singleError(RuleIncorrectOrEmptyBodyError)
       }
 
-      "a non-empty JSON body is submitted without any expected fields" in new SetupConfig {
+      "a non-empty JSON body is submitted without any expected fields" in {
         validate(body = Json.parse("""{"field": "value"}""")) shouldBe singleError(RuleIncorrectOrEmptyBodyError)
       }
 
-      "a non-empty body with only empty arrays is submitted" in new SetupConfig {
+      "a non-empty body with only empty arrays is submitted" in {
         val emptyJson: JsValue = Json.parse(
           """
             |{
@@ -127,7 +122,7 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
           RuleIncorrectOrEmptyBodyError.withPaths(List("/postCessationReceipts", "/businessReceipts", "/allOtherIncomeReceivedWhilstAbroad")))
       }
 
-      "the submitted request body is not in the correct format" in new SetupConfig {
+      "the submitted request body is not in the correct format" in {
         val invalidRequestBodyJson: JsValue = Json.parse("""
             |{
             |   "overseasIncomeAndGains": {
@@ -138,7 +133,7 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
         validate(body = invalidRequestBodyJson) shouldBe singleError(RuleIncorrectOrEmptyBodyError.withPath("/overseasIncomeAndGains/gainAmount"))
       }
 
-      "the submitted request body has missing mandatory fields" in new SetupConfig {
+      "the submitted request body has missing mandatory fields" in {
         validate(body = Json.parse("""{ "allOtherIncomeReceivedWhilstAbroad": [{}] }""".stripMargin)) shouldBe
           singleError(
             RuleIncorrectOrEmptyBodyError.withPaths(
@@ -159,50 +154,52 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
 
       expectValueFormatError(fromField("amount"), "/postCessationReceipts/0/amount")
 
-      "return TaxYearFormatError when an invalid tax year format is supplied" in new SetupConfig {
+      "return TaxYearFormatError when an invalid tax year format is supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("taxYearIncomeToBeTaxed", JsString("BAD_VALUE")))) shouldBe
           singleError(TaxYearFormatError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed"))
       }
 
-      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new SetupConfig {
+      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("taxYearIncomeToBeTaxed", JsString("2020-22")))) shouldBe
           singleError(RuleTaxYearRangeInvalidError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed"))
       }
 
-      "return RuleUnalignedCessationTaxYearError when taxYearIncomeToBeTaxed is not equal to the request tax year supplied" in new SetupConfig {
+      "return RuleUnalignedCessationTaxYearError when taxYearIncomeToBeTaxed is not equal to the request tax year supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("taxYearIncomeToBeTaxed", JsString("2021-22")))) shouldBe
           singleError(RuleUnalignedCessationTaxYearError.withPath("/postCessationReceipts/0/taxYearIncomeToBeTaxed"))
       }
 
-      "return DateFormatError when an invalid date is supplied" in new SetupConfig {
+      "return DateFormatError when an invalid date is supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString("BAD_VALUE")))) shouldBe
           singleError(DateFormatError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
       }
 
-      "return CustomerReferenceFormatError when an invalid customer reference is supplied" in new SetupConfig {
+      "return CustomerReferenceFormatError when an invalid customer reference is supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("customerReference", JsString("x" * 99)))) shouldBe
           singleError(CustomerReferenceFormatError.withPath("/postCessationReceipts/0/customerReference"))
       }
 
-      "return BusinessNameFormatError when an invalid business name is supplied" in new SetupConfig {
+      "return BusinessNameFormatError when an invalid business name is supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("businessName", JsString("*" * 106)))) shouldBe
           singleError(BusinessNameFormatError.withPath("/postCessationReceipts/0/businessName"))
       }
 
-      "return BusinessDescriptionFormatError when an invalid business name is supplied" in new SetupConfig {
+      "return BusinessDescriptionFormatError when an invalid business name is supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("businessDescription", JsString("*" * 36)))) shouldBe
           singleError(BusinessDescriptionFormatError.withPath("/postCessationReceipts/0/businessDescription"))
       }
 
-      "return IncomeSourceFormatError when an invalid income source is supplied" in new SetupConfig {
+      "return IncomeSourceFormatError when an invalid income source is supplied" in {
         validate(body = body(postCessationReceiptsItemJson.update("incomeSource", JsString("*" * 106)))) shouldBe
           singleError(IncomeSourceFormatError.withPath("/postCessationReceipts/0/incomeSource"))
       }
 
-      "return RuleIncorrectBusinessCeasedDateError when dateBusinessCeased is equal to or after the current date" in new SetupConfig {
-        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(LocalDate.now.toString)))) shouldBe
+      "return RuleIncorrectBusinessCeasedDateError when dateBusinessCeased is equal to or after the current date" in {
+        val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
+
+        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(currentDate.toString)))) shouldBe
           singleError(RuleIncorrectBusinessCeasedDateError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
-        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(LocalDate.now.plusDays(1).toString)))) shouldBe
+        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(currentDate.plusDays(1).toString)))) shouldBe
           singleError(RuleIncorrectBusinessCeasedDateError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
       }
     }
@@ -217,12 +214,12 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
 
       expectValueFormatError(fromField("grossAmount"), "/businessReceipts/0/grossAmount")
 
-      "return TaxYearFormatError when an invalid tax year format is supplied" in new SetupConfig {
+      "return TaxYearFormatError when an invalid tax year format is supplied" in {
         validate(body = body(businessReceiptsJson.update("taxYear", JsString("BAD_VALUE")))) shouldBe
           singleError(TaxYearFormatError.withPath("/businessReceipts/0/taxYear"))
       }
 
-      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in new SetupConfig {
+      "return RuleTaxYearRangeInvalidError when an invalid tax year range is supplied" in {
         validate(body = body(businessReceiptsJson.update("taxYear", JsString("2020-22")))) shouldBe
           singleError(RuleTaxYearRangeInvalidError.withPath("/businessReceipts/0/taxYear"))
       }
@@ -247,14 +244,14 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
         "/allOtherIncomeReceivedWhilstAbroad/0/broughtFwdResidentialFinancialCostAmount")
 
       "return CountryCodeFormatError error" when {
-        "an incorrectly formatted country code is submitted" in new SetupConfig {
+        "an incorrectly formatted country code is submitted" in {
           validate(body = body(allOtherIncomeReceivedWhilstAbroadJson.update("countryCode", JsString("FRANCE")))) shouldBe
             singleError(CountryCodeFormatError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"))
         }
       }
 
       "return CountryCodeRuleError error" when {
-        "an invalid country code is submitted" in new SetupConfig {
+        "an invalid country code is submitted" in {
           validate(body = body(allOtherIncomeReceivedWhilstAbroadJson.update("countryCode", JsString("PUR")))) shouldBe
             singleError(RuleCountryCodeError.withPath("/allOtherIncomeReceivedWhilstAbroad/0/countryCode"))
         }
@@ -303,9 +300,9 @@ class Def1_CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidato
     }
 
     "return multiple errors" when {
-      "multiple fields fail validation" in new SetupConfig {
+      "multiple fields fail validation" in {
 
-        private val multipleErrorRequestBodyJson: JsValue = Json.parse(
+        val multipleErrorRequestBodyJson: JsValue = Json.parse(
           """
             |{
             |   "postCessationReceipts": [

@@ -24,7 +24,7 @@ import cats.data.Validated
 import cats.implicits.toFoldableOps
 import v3.createAmendOther.def1.model.request.*
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneOffset}
 
 object Def1_CreateAmendOtherRulesValidator extends RulesValidator[Def1_CreateAmendOtherRequestData] with ResolverSupport {
 
@@ -60,10 +60,6 @@ object Def1_CreateAmendOtherRulesValidator extends RulesValidator[Def1_CreateAme
 
   private def resolveNonNegativeNumber(amount: BigDecimal, path: String): Validated[Seq[MtdError], BigDecimal] =
     ResolveParsedNumber()(amount, path)
-
-  private def resolveDate(path: String) = {
-    ResolveIsoDate(DateFormatError.withPath(path)).resolver
-  }
 
   private def validateBusinessReceipts(businessReceipts: BusinessReceiptsItem, arrayIndex: Int) =
     combine(
@@ -117,11 +113,15 @@ object Def1_CreateAmendOtherRulesValidator extends RulesValidator[Def1_CreateAme
           Validated
             .cond(requestTaxYear == taxYearIncomeToBeTaxed, (), Seq(RuleUnalignedCessationTaxYearError.withPath(path("taxYearIncomeToBeTaxed"))))
         },
-      resolveDate(path("dateBusinessCeased"))
-        .resolveOptionally(postCessationReceiptsItem.dateBusinessCeased)
+      ResolveIsoDate(postCessationReceiptsItem.dateBusinessCeased, DateFormatError.withPath(path("dateBusinessCeased")))
         .andThen { maybeDate =>
-          maybeDate.fold(valid)(date =>
-            Validated.cond(date.isBefore(LocalDate.now), (), Seq(RuleIncorrectBusinessCeasedDateError.withPath(path("dateBusinessCeased")))))
+          maybeDate.fold(valid) { date =>
+            Validated.cond(
+              date.isBefore(LocalDate.now(ZoneOffset.UTC)),
+              (),
+              Seq(RuleIncorrectBusinessCeasedDateError.withPath(path("dateBusinessCeased")))
+            )
+          }
         }
     )
   }

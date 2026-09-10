@@ -98,6 +98,12 @@ components:
         code: FORMAT_START_DATE
         message: The provided start date is invalid
 
+    formatTypeOfAsset:
+      description: The format of the supplied type of asset field is not valid.
+      value:
+        code: FORMAT_TYPE_OF_ASSET
+        message: The provided type of asset is invalid
+
     ruleTaxYearNotEnded:
       description: The submission has been made before the tax year it relates to has ended.
       value:

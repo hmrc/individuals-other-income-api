@@ -25,7 +25,7 @@ import play.api.libs.json.*
 import v2.fixtures.other.CreateAmendOtherFixtures.*
 import v2.models.request.createAmendOther.{CreateAmendOtherRequest, CreateAmendOtherRequestBody, PostCessationReceiptsItem}
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneOffset}
 
 class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators with MockAppConfig {
 
@@ -222,10 +222,12 @@ class CreateAmendOtherValidatorSpec extends UnitSpec with JsonErrorValidators wi
           singleError(IncomeSourceFormatError.withPath("/postCessationReceipts/0/incomeSource"))
       }
       "return RuleRequestCannotBeFulfilledError when dateBusinessCeased is equal to or after the current date" in new SetupConfig {
-        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(LocalDate.now.toString)))) shouldBe
-          singleError(RuleRequestCannotBeFulfilledError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
-        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(LocalDate.now.plusDays(1).toString)))) shouldBe
-          singleError(RuleRequestCannotBeFulfilledError.withPath("/postCessationReceipts/0/dateBusinessCeased"))
+        val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
+
+        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(currentDate.toString)))) shouldBe
+          singleError(RuleRequestCannotBeFulfilledError.forDateBusinessCeased.withPath("/postCessationReceipts/0/dateBusinessCeased"))
+        validate(body = body(postCessationReceiptsItemJson.update("dateBusinessCeased", JsString(currentDate.plusDays(1).toString)))) shouldBe
+          singleError(RuleRequestCannotBeFulfilledError.forDateBusinessCeased.withPath("/postCessationReceipts/0/dateBusinessCeased"))
       }
     }
 
