@@ -80,7 +80,6 @@ class Def2_CreateAmendOtherRequestBodySpec extends UnitSpec {
         )
 
         val res = invalidJson.validate[Def2_CreateAmendOtherRequestBody]
-        println(res)
         res shouldBe a[JsError]
       }
     }

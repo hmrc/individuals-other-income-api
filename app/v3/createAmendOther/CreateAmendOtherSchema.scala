@@ -16,14 +16,11 @@
 
 package v3.createAmendOther
 
-import api.config.AppConfig
-import api.controllers.validators.resolvers.ResolveTaxYear
+import api.controllers.validators.resolvers.ResolveTaxYearMinimum
 import api.models.domain.TaxYear
-import api.models.errors.{MtdError, RuleTaxYearNotSupportedError}
+import api.models.errors.MtdError
 import cats.data.Validated
-import cats.data.Validated.{Invalid, Valid}
-
-import scala.math.Ordered.orderingToOrdered
+import cats.data.Validated.Valid
 
 sealed trait CreateAmendOtherSchema
 
@@ -33,14 +30,10 @@ object CreateAmendOtherSchema {
 
   case object Def2 extends CreateAmendOtherSchema
 
-  def schemaFor(taxYearString: String)(implicit appConfig: AppConfig): Validated[Seq[MtdError], CreateAmendOtherSchema] = {
-    ResolveTaxYear(taxYearString) andThen schemaFor
-  }
+  def schemaFor(taxYearString: String): Validated[Seq[MtdError], CreateAmendOtherSchema] =
+    ResolveTaxYearMinimum(TaxYear.fromMtd("2025-26"))(taxYearString) andThen schemaFor
 
-  def schemaFor(taxYear: TaxYear): Validated[Seq[MtdError], CreateAmendOtherSchema] = {
-    if (taxYear == TaxYear.ending(2026)) Valid(Def1)
-    else if (taxYear >= TaxYear.ending(2027)) Valid(Def2)
-    else Invalid(Seq(RuleTaxYearNotSupportedError))
-  }
+  def schemaFor(taxYear: TaxYear): Validated[Seq[MtdError], CreateAmendOtherSchema] =
+    if (taxYear == TaxYear.fromMtd("2025-26")) Valid(Def1) else Valid(Def2)
 
 }

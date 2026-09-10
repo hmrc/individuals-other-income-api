@@ -22,9 +22,4 @@ trait AdditionalIncomeSubItem {
   val taxDeducted: Option[BigDecimal]
   val lossesBroughtForward: Option[BigDecimal]
   val carryForwardLosses: Option[BigDecimal]
-
-  def getLowerCaseClassName: String = {
-    s"${this.getClass.getSimpleName.head.toLower}${this.getClass.getSimpleName.tail}"
-  }
-
 }

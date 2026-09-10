@@ -24,7 +24,7 @@ import cats.data.Validated
 import cats.implicits.toFoldableOps
 import v2.models.request.createAmendOther.*
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneOffset}
 
 object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherRequest] with ResolverSupport {
 
@@ -61,9 +61,8 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
   private def resolveNonNegativeNumber(amount: BigDecimal, path: String): Validated[Seq[MtdError], BigDecimal] =
     ResolveParsedNumber()(amount, path)
 
-  private def resolveDate(path: String, value: Option[String]) = {
+  private def resolveDate(path: String, value: Option[String]) =
     ResolveIsoDate.withMinMaxCheck(value, DateFormatError.withPath(path), RuleDateRangeInvalidError.withPath(path))
-  }
 
   private def validateBusinessReceipts(businessReceipts: BusinessReceiptsItem, arrayIndex: Int) =
     combine(
@@ -119,8 +118,13 @@ object CreateAmendOtherRulesValidator extends RulesValidator[CreateAmendOtherReq
         },
       resolveDate(path("dateBusinessCeased"), postCessationReceiptsItem.dateBusinessCeased)
         .andThen { maybeDate =>
-          maybeDate.fold(valid)(date =>
-            Validated.cond(date.isBefore(LocalDate.now), (), Seq(RuleRequestCannotBeFulfilledError.withPath(path("dateBusinessCeased")))))
+          maybeDate.fold(valid) { date =>
+            Validated.cond(
+              date.isBefore(LocalDate.now(ZoneOffset.UTC)),
+              (),
+              Seq(RuleRequestCannotBeFulfilledError.forDateBusinessCeased.withPath(path("dateBusinessCeased")))
+            )
+          }
         }
     )
   }

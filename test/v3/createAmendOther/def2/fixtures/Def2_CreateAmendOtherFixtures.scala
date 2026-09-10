@@ -19,7 +19,6 @@ package v3.createAmendOther.def2.fixtures
 import play.api.libs.json.{JsValue, Json}
 import v3.createAmendOther.def2.model.request.*
 import v3.createAmendOther.def2.model.request.additionalIncome.*
-import v3.createAmendOther.def2.model.request.{BenefitFromPreOwnedAssets, Def2_CreateAmendOtherRequestBody}
 
 object Def2_CreateAmendOtherFixtures {
 
@@ -30,21 +29,21 @@ object Def2_CreateAmendOtherFixtures {
     businessDescription = Some("Description"),
     incomeSource = Some("string"),
     amount = 99999999999.99,
-    taxYearIncomeToBeTaxed = "2025-26"
+    taxYearIncomeToBeTaxed = "2026-27"
   )
 
   val postCessationReceiptsItemJson: JsValue = Json.parse(
-    s"""
-       |{
-       | "customerReference": "String",
-       | "businessName": "Business Name",
-       | "dateBusinessCeased": "2023-05-30",
-       | "businessDescription": "Description",
-       | "incomeSource": "string",
-       | "amount": 99999999999.99,
-       | "taxYearIncomeToBeTaxed": "2025-26"
-       | }
-       |""".stripMargin
+    """
+      |{
+      |  "customerReference": "String",
+      |  "businessName": "Business Name",
+      |  "dateBusinessCeased": "2023-05-30",
+      |  "businessDescription": "Description",
+      |  "incomeSource": "string",
+      |  "amount": 99999999999.99,
+      |  "taxYearIncomeToBeTaxed": "2026-27"
+      |}
+    """.stripMargin
   )
 
   val allOtherIncomeReceivedWhilstAbroadModel: AllOtherIncomeReceivedWhilstAbroadItem = AllOtherIncomeReceivedWhilstAbroadItem(

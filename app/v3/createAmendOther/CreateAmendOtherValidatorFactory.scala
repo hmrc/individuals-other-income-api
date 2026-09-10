@@ -16,7 +16,6 @@
 
 package v3.createAmendOther
 
-import api.config.AppConfig
 import api.controllers.validators.Validator
 import cats.data.Validated.{Invalid, Valid}
 import play.api.libs.json.JsValue
@@ -25,10 +24,10 @@ import v3.createAmendOther.def1.Def1_CreateAmendOtherValidator
 import v3.createAmendOther.def2.Def2_CreateAmendOtherValidator
 import v3.createAmendOther.model.request.CreateAmendOtherRequestData
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Singleton
 
 @Singleton
-class CreateAmendOtherValidatorFactory @Inject() (implicit appConfig: AppConfig) {
+class CreateAmendOtherValidatorFactory {
 
   def validator(nino: String, taxYear: String, body: JsValue): Validator[CreateAmendOtherRequestData] =
     val schema = CreateAmendOtherSchema.schemaFor(taxYear)

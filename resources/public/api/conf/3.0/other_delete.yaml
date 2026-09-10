@@ -1,7 +1,8 @@
 summary: Delete Other Income
 description: |
   This endpoint enables you to delete details of other income:
-  business receipts, all other income received whilst abroad, overseas income and gains, chargeable foreign benefits and gifts and omitted foreign income.
+  post-cessation receipts, business receipts, all other income received whilst abroad, overseas income and gains,
+  chargeable foreign benefits and gifts, omitted foreign income, benefits from pre-owned assets and additional taxable income.
   A National Insurance number and tax year must be provided.
 
   ### Test data

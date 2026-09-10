@@ -1,7 +1,8 @@
 summary: Retrieve Other Income
 description: |
   This endpoint enables you to retrieve details of other income:
-  business receipts, all other income received whilst abroad, overseas income and gains, chargeable foreign benefits and gifts and omitted foreign income. 
+  post-cessation receipts, business receipts, all other income received whilst abroad, overseas income and gains,
+  chargeable foreign benefits and gifts, omitted foreign income, benefits from pre-owned assets and additional taxable income.
   A National Insurance number and tax year must be provided.
   
   ###  Test data
@@ -39,16 +40,13 @@ responses:
             - $ref: './schemas/other_retrieve/def2/other_retrieve_response.json'
             - $ref: './schemas/other_retrieve/def3/other_retrieve_response.json'
         examples:
-          Before TY 2023-24:
-            description: Full Other Income Amendment
+          Full Other Income Response for TY 2022-23 and before:
             value:
               $ref: './examples/otherIncome/other_retrieve/def1/retrieve_response.json'
-          TY 2023-24 to TY 2025-26:
-            description: Full Other Income Amendment
+          Full Other Income Response for TY 2023-24 to TY 2025-26:
             value:
               $ref: './examples/otherIncome/other_retrieve/def2/retrieve_response.json'
-          TY 2026-27 onwards:
-            description: Full Other Income Amendment
+          Full Other Income Response for TY 2026-27 onwards:
             value:
               $ref: './examples/otherIncome/other_retrieve/def3/retrieve_response.json'
 

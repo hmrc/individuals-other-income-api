@@ -33,22 +33,18 @@ class CreateAmendOtherService @Inject() (connector: CreateAmendOtherConnector) e
     connector.createAmend(request).map(_.leftMap(mapDownstreamErrors(downstreamErrorMap)))
   }
 
-  private val downstreamErrorMap: Map[String, MtdError] = {
-    val errors = Map(
-      "INVALID_TAXABLE_ENTITY_ID"      -> NinoFormatError,
-      "INVALID_TAX_YEAR"               -> TaxYearFormatError,
-      "INVALID_CORRELATION_ID"         -> InternalError,
-      "INVALID_PAYLOAD"                -> InternalError,
-      "SERVER_ERROR"                   -> InternalError,
-      "SERVICE_UNAVAILABLE"            -> InternalError,
-      "UNALIGNED_CESSATION_TAX_YEAR"   -> RuleUnalignedCessationTaxYearError,
-      "OUTSIDE_AMENDMENT_WINDOW"       -> RuleOutsideAmendmentWindowError,
-      "TAX_YEAR_NOT_SUPPORTED"         -> RuleTaxYearNotSupportedError,
-      "INVALID_TAX_DEDUCTED_AMOUNT"    -> RuleTaxDeductedExceedsAmountBeforeTaxError,
-      "INCORRECT_BUSINESS_CEASED_DATE" -> RuleIncorrectBusinessCeasedDateError
-    )
-
-    errors
-  }
+  private val downstreamErrorMap: Map[String, MtdError] = Map(
+    "INVALID_TAXABLE_ENTITY_ID"      -> NinoFormatError,
+    "INVALID_TAX_YEAR"               -> TaxYearFormatError,
+    "INVALID_CORRELATION_ID"         -> InternalError,
+    "INVALID_PAYLOAD"                -> InternalError,
+    "TAX_YEAR_NOT_SUPPORTED"         -> RuleTaxYearNotSupportedError,
+    "UNALIGNED_CESSATION_TAX_YEAR"   -> RuleUnalignedCessationTaxYearError,
+    "INVALID_TAX_DEDUCTED_AMOUNT"    -> RuleTaxDeductedExceedsAmountBeforeTaxError,
+    "INCORRECT_BUSINESS_CEASED_DATE" -> RuleIncorrectBusinessCeasedDateError,
+    "OUTSIDE_AMENDMENT_WINDOW"       -> RuleOutsideAmendmentWindowError,
+    "SERVER_ERROR"                   -> InternalError,
+    "SERVICE_UNAVAILABLE"            -> InternalError
+  )
 
 }
