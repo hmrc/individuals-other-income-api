@@ -29,8 +29,9 @@ class RetrieveOtherValidator(nino: String, taxYear: String)(appConfig: AppConfig
 
   private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
 
-  private lazy val resolveTaxYear = ResolveTaxYearMinMax(
-    (TaxYear.fromDownstreamInt(minimumTaxYear), TaxYear.fromMtd("2025-26")),
+  private lazy val resolveTaxYear = ResolveDetailedTaxYear(
+    TaxYear.fromDownstreamInt(minimumTaxYear),
+    Some(TaxYear.fromMtd("2025-26")),
     RuleTaxYearNotSupportedError,
     RuleTaxYearForVersionNotSupportedError)
 
