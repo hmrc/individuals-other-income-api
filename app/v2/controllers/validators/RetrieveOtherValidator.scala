@@ -30,10 +30,11 @@ class RetrieveOtherValidator(nino: String, taxYear: String)(appConfig: AppConfig
   private lazy val minimumTaxYear = appConfig.minimumPermittedTaxYear
 
   private lazy val resolveTaxYear = ResolveDetailedTaxYear(
-    TaxYear.fromDownstreamInt(minimumTaxYear),
-    Some(TaxYear.fromMtd("2025-26")),
-    RuleTaxYearNotSupportedError,
-    RuleTaxYearForVersionNotSupportedError)
+    minimumTaxYear = TaxYear.fromDownstreamInt(minimumTaxYear),
+    maximumTaxYear = Some(TaxYear.fromMtd("2025-26")),
+    minError = RuleTaxYearNotSupportedError,
+    maxError = RuleTaxYearForVersionNotSupportedError
+  )
 
   override def validate: Validated[Seq[MtdError], RetrieveOtherRequest] =
     (

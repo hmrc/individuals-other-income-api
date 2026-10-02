@@ -31,7 +31,7 @@ object CreateAmendOtherSchema {
   case object Def2 extends CreateAmendOtherSchema
 
   def schemaFor(taxYearString: String): Validated[Seq[MtdError], CreateAmendOtherSchema] =
-    ResolveDetailedTaxYear(TaxYear.fromMtd("2025-26")).apply(taxYearString) andThen schemaFor
+    ResolveDetailedTaxYear(minimumTaxYear = TaxYear.fromMtd("2025-26")).apply(taxYearString) andThen schemaFor
 
   def schemaFor(taxYear: TaxYear): Validated[Seq[MtdError], CreateAmendOtherSchema] =
     if (taxYear == TaxYear.fromMtd("2025-26")) Valid(Def1) else Valid(Def2)

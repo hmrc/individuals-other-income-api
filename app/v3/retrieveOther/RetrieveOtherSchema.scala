@@ -51,7 +51,7 @@ object RetrieveOtherSchema {
   }
 
   def schemaFor(taxYearString: String)(implicit appConfig: AppConfig): Validated[Seq[MtdError], RetrieveOtherSchema] =
-    ResolveDetailedTaxYear(TaxYear.ending(appConfig.minimumPermittedTaxYear)).apply(taxYearString) andThen schemaFor
+    ResolveDetailedTaxYear(minimumTaxYear = TaxYear.ending(appConfig.minimumPermittedTaxYear)).apply(taxYearString) andThen schemaFor
 
   def schemaFor(taxYear: TaxYear): Validated[Seq[MtdError], RetrieveOtherSchema] = {
     if (taxYear <= TaxYear.fromMtd("2022-23")) {

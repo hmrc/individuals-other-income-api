@@ -27,7 +27,7 @@ import v3.deleteOther.model.request.DeleteOtherRequestData
 
 class Def1_DeleteOtherValidator(nino: String, taxYear: String) extends Validator[DeleteOtherRequestData] {
 
-  private lazy val resolveTaxYear = ResolveDetailedTaxYear(TaxYear.ending(2026))
+  private lazy val resolveTaxYear = ResolveDetailedTaxYear(minimumTaxYear = TaxYear.ending(2026))
 
   override def validate: Validated[Seq[MtdError], DeleteOtherRequestData] =
     (
