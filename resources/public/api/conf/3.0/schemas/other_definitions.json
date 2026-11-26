@@ -8,9 +8,9 @@
     },
     "postCessationReceipts": {
       "type": "array",
+      "description": "Details of sum received related to the carrying on of the trade after a business ceases to carry on.",
       "items": {
         "type": "object",
-        "description": "Details of sum received related to the carrying on of the trade after a business ceases to carry on.",
         "properties": {
           "customerReference": {
             "type": "string",
@@ -64,9 +64,9 @@
     },
     "businessReceipts": {
       "type": "array",
+      "description": "Financial details about business receipts.",
       "items": {
         "type": "object",
-        "description": "Financial details about business receipts.",
         "properties": {
           "grossAmount": {
             "type": "number",
@@ -90,9 +90,9 @@
     },
     "allOtherIncomeReceivedWhilstAbroad": {
       "type": "array",
+      "description": "Financial details about all other income received whilst abroad income.",
       "items": {
         "type": "object",
-        "description": "Financial details about all other income received whilst abroad income.",
         "properties": {
           "countryCode": {
             "type": "string",
